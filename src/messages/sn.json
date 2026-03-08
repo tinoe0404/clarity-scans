@@ -1,0 +1,81 @@
+{
+    "app": {
+        "name": "ClarityScans",
+        "tagline": "Nzwisisai nezve CT Scan yenyu"
+    },
+    "nav": {
+        "back": "Dzokera",
+        "next": "Mberi",
+        "close": "Vhara"
+    },
+    "language": {
+        "choose": "Sarudzai mutauro",
+        "en": "English",
+        "sn": "ChiShona",
+        "nd": "isiNdebele"
+    },
+    "modules": {
+        "title": "Zvidzidzo",
+        "subtitle": "Ndapota onai mavhidhiyo aya",
+        "watched": "Yaonekwa",
+        "important": "Zvakakosha",
+        "watchNow": "Ona Ikozvino"
+    },
+    "video": {
+        "markWatched": "Maka seyaonekwa",
+        "nextModule": "Chidzidzo Chinotevera",
+        "placeholder": "Vhidhiyo inoonekwa pano...",
+        "keyPoints": "Pfungwa Dzikuru"
+    },
+    "breathhold": {
+        "title": "Kudzidzira Kufema",
+        "subtitle": "Ngatidzidzirei kubata mweya",
+        "inhale": "Tora Mweya",
+        "hold": "Bata Mweya",
+        "exhale": "Buritsa Mweya",
+        "complete": "Zvapera",
+        "practise": "Dzidzira zvekare",
+        "tryAgain": "Edza Zvakare",
+        "repOf": "Kudzokorora {current} pa {total}"
+    },
+    "visual": {
+        "title": "Chiratidzo",
+        "subtitle": "Zviratidzo zvemaoko",
+        "showRadiographer": "Kuratidza kuna Chiremba",
+        "signals": {
+            "ok": "Ndiri Nane",
+            "stop": "Mira",
+            "unwell": "Ndiri Kurwara",
+            "understand": "Ndinonzwisisa",
+            "confused": "Ndavhiringidzika",
+            "anxious": "Ndiri Kutya"
+        }
+    },
+    "feedback": {
+        "title": "Mhinduro",
+        "anxietyBefore": "Kutya Kusati kwaitwa?",
+        "anxietyAfter": "Kutya Kwapera?",
+        "understood": "Manzwisisa here?",
+        "helpful": "Zvakubatsirai here?",
+        "yes": "Hongu",
+        "no": "Kwete",
+        "submit": "Tumira",
+        "thankyou": "Maita Basa",
+        "thankyouSub": "Mhinduro yenyu yatambirwa"
+    },
+    "errors": {
+        "notFound": "Haina Kuwanikwa",
+        "serverError": "Kukanganisa kweSava",
+        "noVideo": "Hakuna Vhidhiyo",
+        "offline": "Hamuna Indaneti"
+    },
+    "admin": {
+        "login": "Pinda",
+        "dashboard": "Dhibhodhi",
+        "videos": "Mavhidhiyo",
+        "analytics": "Ongororo",
+        "notes": "Zvinyorwa",
+        "upload": "Isa",
+        "logout": "Buda"
+    }
+}

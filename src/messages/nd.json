@@ -1,0 +1,81 @@
+{
+    "app": {
+        "name": "ClarityScans",
+        "tagline": "Zwisisa nge CT Scan yakho"
+    },
+    "nav": {
+        "back": "Emuva",
+        "next": "Phambili",
+        "close": "Vala"
+    },
+    "language": {
+        "choose": "Khetha ulimi lwakho",
+        "en": "English",
+        "sn": "ChiShona",
+        "nd": "isiNdebele"
+    },
+    "modules": {
+        "title": "Izifundo",
+        "subtitle": "Sicela ubukele lamavidiyo",
+        "watched": "Kubukwe",
+        "important": "Kuqakathekile",
+        "watchNow": "Bukela Khathesi"
+    },
+    "video": {
+        "markWatched": "Tshwaya njengokubukwayo",
+        "nextModule": "Isifundo Esilandelayo",
+        "placeholder": "Ividiyo iyavela lapha...",
+        "keyPoints": "Amaphuzu Aqakathekileyo"
+    },
+    "breathhold": {
+        "title": "Ukuzehlwayela Ukuphefumula",
+        "subtitle": "Ake sizame ukubamba umoya",
+        "inhale": "Thatha Umoya",
+        "hold": "Bamba Umoya",
+        "exhale": "Khipha Umoya",
+        "complete": "Qedile",
+        "practise": "Zama futhi",
+        "tryAgain": "Zama Njalo",
+        "repOf": "Ukuphinda {current} ku {total}"
+    },
+    "visual": {
+        "title": "Ukutshengisa",
+        "subtitle": "Izimpawu zezandla",
+        "showRadiographer": "Tshengisa uDokotela",
+        "signals": {
+            "ok": "NgiRight",
+            "stop": "Ema",
+            "unwell": "Angizwa Kuhle",
+            "understand": "Ngiyezwisisa",
+            "confused": "Ngiyaxakeka",
+            "anxious": "Ngiyesaba"
+        }
+    },
+    "feedback": {
+        "title": "Impendulo",
+        "anxietyBefore": "Ukwesaba phambilini?",
+        "anxietyAfter": "Ukwesaba sekudlulile?",
+        "understood": "Uzwisisile?",
+        "helpful": "Kukusizile yini?",
+        "yes": "Yebo",
+        "no": "Hatshi",
+        "submit": "Thumela",
+        "thankyou": "Siyabonga",
+        "thankyouSub": "Impendulo yakho yamukelwe"
+    },
+    "errors": {
+        "notFound": "Kakutholakali",
+        "serverError": "Iphutha leServer",
+        "noVideo": "Ayikho Ividiyo",
+        "offline": "Awulayo I-inthanethi"
+    },
+    "admin": {
+        "login": "Ngena",
+        "dashboard": "Ideshibhodi",
+        "videos": "Amavidiyo",
+        "analytics": "Amanani",
+        "notes": "Amanothi",
+        "upload": "Faka",
+        "logout": "Phuma"
+    }
+}

@@ -1,0 +1,81 @@
+{
+    "app": {
+        "name": "ClarityScans",
+        "tagline": "Understand your CT Scan procedure"
+    },
+    "nav": {
+        "back": "Back",
+        "next": "Next",
+        "close": "Close"
+    },
+    "language": {
+        "choose": "Choose your language",
+        "en": "English",
+        "sn": "ChiShona",
+        "nd": "isiNdebele"
+    },
+    "modules": {
+        "title": "Information Modules",
+        "subtitle": "Please watch these videos",
+        "watched": "Watched",
+        "important": "Important",
+        "watchNow": "Watch Now"
+    },
+    "video": {
+        "markWatched": "Mark as Watched",
+        "nextModule": "Next Module",
+        "placeholder": "Video player...",
+        "keyPoints": "Key Points"
+    },
+    "breathhold": {
+        "title": "Breath Hold Practice",
+        "subtitle": "Let's practice holding your breath",
+        "inhale": "Breathe In",
+        "hold": "Hold",
+        "exhale": "Breathe Out",
+        "complete": "Complete",
+        "practise": "Practice again",
+        "tryAgain": "Try Again",
+        "repOf": "Rep {current} of {total}"
+    },
+    "visual": {
+        "title": "Visual Guide",
+        "subtitle": "Hand signals we use",
+        "showRadiographer": "Show to Radiographer",
+        "signals": {
+            "ok": "OK",
+            "stop": "Stop",
+            "unwell": "Unwell",
+            "understand": "Understand",
+            "confused": "Confused",
+            "anxious": "Anxious"
+        }
+    },
+    "feedback": {
+        "title": "Feedback",
+        "anxietyBefore": "Anxiety Before?",
+        "anxietyAfter": "Anxiety After?",
+        "understood": "Understood the procedure?",
+        "helpful": "Was app helpful?",
+        "yes": "Yes",
+        "no": "No",
+        "submit": "Submit",
+        "thankyou": "Thank You",
+        "thankyouSub": "Your feedback is received"
+    },
+    "errors": {
+        "notFound": "Not Found",
+        "serverError": "Server Error",
+        "noVideo": "No Video",
+        "offline": "Offline"
+    },
+    "admin": {
+        "login": "Login",
+        "dashboard": "Dashboard",
+        "videos": "Videos",
+        "analytics": "Analytics",
+        "notes": "Notes",
+        "upload": "Upload",
+        "logout": "Logout"
+    }
+}
