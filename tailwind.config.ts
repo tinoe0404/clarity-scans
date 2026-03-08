@@ -1,7 +1,14 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: ["./src/**/*.{ts,tsx}"],
+  safelist: [
+    {
+      pattern:
+        /^(bg|text|border|ring)-(brand|medical|surface)-(base|card|elevated|border|green|red|amber|50|100|200|300|400|500|600|700|800|900)/,
+    },
+  ],
   theme: {
     extend: {
       colors: {
