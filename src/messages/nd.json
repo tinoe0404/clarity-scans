@@ -1,81 +1,221 @@
 {
     "app": {
         "name": "ClarityScans",
-        "tagline": "Zwisisa nge CT Scan yakho"
+        "tagline": "I CT scan yakho, ichazisiswa kahle",
+        "loading": "Silayisha...",
+        "error": "Kuna okungahambi kahle",
+        "retry": "Zama njalo",
+        "close": "Vala",
+        "version": "v1.0"
+    },
+    "language": {
+        "choose": "Khetha Ulimi Lwakho",
+        "chooseSubtitle": "Thinta ulimi lwakho ukuze uqale",
+        "en": "English",
+        "sn": "ChiShona",
+        "nd": "isiNdebele",
+        "enNative": "English",
+        "snNative": "ChiShona",
+        "ndNative": "isiNdebele",
+        "change": "Shintsha ulimi"
     },
     "nav": {
         "back": "Emuva",
         "next": "Phambili",
-        "close": "Vala"
-    },
-    "language": {
-        "choose": "Khetha ulimi lwakho",
-        "en": "English",
-        "sn": "ChiShona",
-        "nd": "isiNdebele"
+        "skip": "Dlulisa",
+        "home": "Ekhaya",
+        "videos": "Amavidiyo",
+        "breathe": "Phefumula",
+        "signals": "Izimpawu",
+        "feedback": "Impendulo"
     },
     "modules": {
-        "title": "Izifundo",
-        "subtitle": "Sicela ubukele lamavidiyo",
-        "watched": "Kubukwe",
-        "important": "Kuqakathekile",
-        "watchNow": "Bukela Khathesi"
+        "title": "Ukulungiselela Kwakho",
+        "subtitle": "Buka amavidiyo amafushane lawa lungaphambi kweskeni sakho",
+        "progress": "Amavidiyo angu {watched} we {total} aqediwe",
+        "watchNow": "Buka",
+        "watched": "Ubukiwe",
+        "important": "Kubalulekile",
+        "duration": "{minutes} min",
+        "allDone": "Usulungele iskeni sakho",
+        "allDoneSubtitle": "Uyacelwa ukuba utshele udokotela oqhuba lolu iskeni uma uqedile",
+        "slugs": {
+            "what-is-ct": {
+                "title": "I CT Scan Yini?",
+                "description": "Funda ukuthi kwenzakalani phakathi komshini"
+            },
+            "prepare": {
+                "title": "Ungalungiselela Njan",
+                "description": "Gqoka, susa, nokuthi ulindele njani"
+            },
+            "breathhold": {
+                "title": "Izikhombisi Zokubamba Umoya",
+                "description": "Kubalulekile — uyacelwa ukuthi ubuke ngokucophelela lokhu"
+            },
+            "contrast": {
+                "title": "Ukujongwa Kwe-Contrast",
+                "description": "Imizwa ye-warm ichaziwe"
+            },
+            "staying-still": {
+                "title": "Ukuhlala Unganyakazi",
+                "description": "Okwakuhamba phakathi kumehle ukunaka kwe iskeni sakho"
+            }
+        }
     },
     "video": {
-        "markWatched": "Tshwaya njengokubukwayo",
-        "nextModule": "Isifundo Esilandelayo",
-        "placeholder": "Ividiyo iyavela lapha...",
-        "keyPoints": "Amaphuzu Aqakathekileyo"
+        "placeholder": "Ividiyo iyeza",
+        "placeholderSub": "Cela udokotela we-scan i-sizo",
+        "keyPoints": "Amaphuzu Abalulekile",
+        "markWatched": "Ngiqedile ukubuka lokhu",
+        "nextModule": "Ividiyo Elandelayo",
+        "watchAgain": "Buka njalo",
+        "languageSwitch": "Buka kolunye ulimi",
+        "noVideo": "Le vidiyo ayikatholakali manje",
+        "keypoints": {
+            "what-is-ct": [
+                "Isebenzisa i-X-ray ukudala izithombe zemininingwane yomzimba wakho phesheya nangaphandle",
+                "Itafula lihambahamba kancane epulathweni enkulu engaphandle — awungenni ngaphakathi kwemigudu emikhulu",
+                "Umshini wenza imisindo ebanjwayo nokuhlaba — lokhu kuvamile ngokuphelele",
+                "Iskeni yonke idla iminzu e-5 kuye kwayi-15 njalo njalo"
+            ],
+            "prepare": [
+                "Susa konke okuqoshwe ensimbi — izikhombiso zobuhle, izikhwebu zamabhantshi, izinwele, nezitofu",
+                "Gqoka izingubo exegi elizibandakanya ngokukhululeka — ungase uphe isixhobo sesibhedlela",
+                "Xelela umxilongi wesikhathali uma ukhulelwe noma ucabanga ukuthi unga",
+                "Uma uzothola umbala we-contrast — unga dli amahora ayi-4 ngaphambi kweskeni sakho"
+            ],
+            "breathhold": [
+                "Uzozwa izwi elihambelanisiwe litshela ukuthi: khipha umoya, bamba ungaphefumuli",
+                "Qiniseka ungasebenzi emasekondi a-5 ukuze kube ayi-10 — ungaphefumuli noma uhlanze",
+                "Bese uzwa ngokujwayelekile: phefumula ngendlela — futhi kancane ungaqeda ukulwa kwakho",
+                "Funda lokhu manje endabeni yokuphumula engqondweni isikrini elandelayo"
+            ],
+            "contrast": [
+                "Ugwadla oyi-clear luquleliswa emgodleni wonyoko lwengalo yakho phesheya ngezinwele ezingaphezu kwenyonga",
+                "Uzozwe imizwa evuselela ekuthumeni yonke impilo yomzimba wakho — loku kuyinto evamile",
+                "Ungabuzwa sengathi kufanele uqoqe usizo kwethoyilethi — lena isimo esijule ukudlula",
+                "Tshelela umkhiphi ube isisoka kanye uma uzwe ubuhlungu nenyosi, usilele womoya"
+            ],
+            "staying-still": [
+                "Kwakushukumisa ukuncishiswa kokuncintisana kuvunyelwe konke isikrini",
+                "Izithombe ezibomvu zibonakalisa le imininingwane ye-scan ayilondolozwe ngokuphendula — kunesikhathi nesipelingi",
+                "Zisebheki zokunemba emaphandleni emzimbeni wenye noma kokunye ebonisweni yamabhaningi ezingcwele",
+                "Vala amehlo akho, uphumule uzithela nendawo yesikhathi yonke omzwelo wakho"
+            ]
+        }
     },
     "breathhold": {
-        "title": "Ukuzehlwayela Ukuphefumula",
-        "subtitle": "Ake sizame ukubamba umoya",
-        "inhale": "Thatha Umoya",
-        "hold": "Bamba Umoya",
-        "exhale": "Khipha Umoya",
-        "complete": "Qedile",
-        "practise": "Zama futhi",
-        "tryAgain": "Zama Njalo",
-        "repOf": "Ukuphinda {current} ku {total}"
+        "title": "Ukuzihlupha ngokubamba okuyikho kwemimoya",
+        "subtitle": "Kweseka endleleni ezozitholeleni eskeni indlu ngaphambi kwesikhathi",
+        "instruction": "Landela imbumba. Phuma nako kuyo.",
+        "inhale": "Phefumula",
+        "hold": "Bamba",
+        "exhale": "Phumula",
+        "repOf": "Izindlela ezi {current} kuzo ezi {total}",
+        "practise": "Qala Ukwenza",
+        "tryAgain": "Zama Ukwenza Lokhu",
+        "complete": "Usebenzelisa kakhulu! Usulungile kulokho.",
+        "completeSub": "Manje ungakwazi ukulandela ukugogomoka okuhlelwe endaweni ngeskeni sayo isikhathi",
+        "tip": "Ngesikhathi yeskeni lakho langempela umhlengikazi uzozitshengisela ezozilwandisa emhlongweni"
     },
     "visual": {
-        "title": "Ukutshengisa",
-        "subtitle": "Izimpawu zezandla",
-        "showRadiographer": "Tshengisa uDokotela",
+        "title": "Ibhodi Yokuxhumana",
+        "subtitle": "Thinta ikhadi eliveza ukukhombisa umqhubi wosizo usabela kakhulu njani wena",
+        "showMode": "Tshengisa Kunokwenzeka",
+        "tapToShow": "Thinta le ikuphi ukukhadi ukuze ihambishisane loku kugcwele okuhamba kokubona",
         "signals": {
-            "ok": "NgiRight",
-            "stop": "Ema",
-            "unwell": "Angizwa Kuhle",
-            "understand": "Ngiyezwisisa",
-            "confused": "Ngiyaxakeka",
-            "anxious": "Ngiyesaba"
+            "ok": "Ngilungile mina",
+            "stop": "Yima — ngidinga usizo lwangempela",
+            "unwell": "Ngisengathi nami angiguli kahle",
+            "understand": "Ngiya zwisisa",
+            "confused": "Ngixakiwe mina kakhulu",
+            "anxious": "Ngizozwa ukwesaba kakhulu kwangokoqobo"
         }
     },
     "feedback": {
-        "title": "Impendulo",
-        "anxietyBefore": "Ukwesaba phambilini?",
-        "anxietyAfter": "Ukwesaba sekudlulile?",
-        "understood": "Uzwisisile?",
-        "helpful": "Kukusizile yini?",
+        "title": "Kube Kanjani Engabe Uyokuze Ukujabulele Njani?",
+        "subtitle": "Zonke izinto ezinikwa ekuthwebulwini ezigciniwe zakho azikwazi kubhekiswa ugesi zethu njani zoziveze kwakhathalela ukukwazi ukukhuthaza okungeziwe ekuzitholeni izindwelo ezenzekayo",
+        "anxietyBefore": "Ngasohlangothini yengqondo ekushaweni iminjenje kakhulu yevidiyo ngabe uzihlangene nezulu emoyeni lakho elinjana kangaka?",
+        "anxietyAfter": "Uthi nxa uzoyisusa usungqondo ungazange uvulekile kangaka yingamathuba?",
+        "anxietyScale": {
+            "1": "Nkhululekile impela ngokufanele kakhulu engqondweni zami ngikhumbula umoya jwalo",
+            "2": "Kakhululekile ngokungenayo umoya okuxwayisana nayo engingahlangene njani",
+            "3": "Ayikho indaba lapho yengozi yokushiya ngezandla",
+            "4": "Nginokwesaba kakhulu okumathanda imimoya",
+            "5": "Ukwesaba kwazi ukuthi okuzobuyekezana kungenjalo kwangikhuliselwe kokudlela emehlweni nami"
+        },
+        "understood": "Kubonakalisa kuwe ukwazi uthola inxa yekuthi inhlanganiso eqhubekelayo emva njalo uma kwenzeka lolu CT skeni osizo lakho lokusisekelwe?",
+        "helpful": "Idaba le-app ibe lusizo ekuwe kangaka na?",
         "yes": "Yebo",
-        "no": "Hatshi",
-        "submit": "Thumela",
-        "thankyou": "Siyabonga",
-        "thankyouSub": "Impendulo yakho yamukelwe"
+        "no": "Cha",
+        "submit": "Dlulisa unikele phesheya kwengqondo ekuthumeleni lokhu",
+        "skip": "Yibuka uphume phesheya esikalini okwakhombisa",
+        "thankyou": "Ngiyabonga",
+        "thankyouSub": "Lokusiza okuqoqwe kuthuthukisa ebuyela emathubeni amahle emakhemini endaweni esiyikho osizo luka zibhedlela",
+        "newPatient": "Ogula omuhle ngomkhondo omusha lolu"
     },
     "errors": {
-        "notFound": "Kakutholakali",
-        "serverError": "Iphutha leServer",
-        "noVideo": "Ayikho Ividiyo",
-        "offline": "Awulayo I-inthanethi"
+        "notFound": "Lweqili lesikhala libhuniwe",
+        "notFoundSub": "Indawo ebesilinda imiphumela akuyitholwa engenawo",
+        "serverError": "Kwenze ukungabi njani ezinkingeni",
+        "serverErrorSub": "Uyacelwa ukweqisiza ukuhlatshwa kunokweba esibhedlela endebeni ukwecelusizo njalo",
+        "noVideo": "Le ividiyo asivulelekile phesheya ebuyiselwayo phezulu endodani manje lolu",
+        "offline": "Ukwangemnyama i-internet yengenzi emkhathini",
+        "offlineSub": "Ngezenzakalo ezinjengezingashunyaniselweni esangashayiswa lize iminxibe kwakhona okwenziwe khona ezinye okweneza khona",
+        "goHome": "Kwehlela umbukiso wasekuqaleni kwekhasi"
     },
     "admin": {
-        "login": "Ngena",
-        "dashboard": "Ideshibhodi",
-        "videos": "Amavidiyo",
-        "analytics": "Amanani",
-        "notes": "Amanothi",
-        "upload": "Faka",
-        "logout": "Phuma"
+        "login": {
+            "title": "Ngokungena LweRadiographer Kumpethu Endabeni",
+            "username": "Igama elithunyisiwe lokusiza njani",
+            "password": "Indlela ebhangkwayo kwangena okhethiwe",
+            "submit": "Ngena laphambi endodeni kweminwe esisweni",
+            "error": "Ubhangqa ngokujabhise nakanenethi ukhiye"
+        },
+        "nav": {
+            "dashboard": "Ukukhumbula ngeqalazi lamashumi ekukhokhela",
+            "videos": "Ukuba kwevidiyo njani ebizwa",
+            "analytics": "Izinga lokuhlakaniphisisa kuboniswe impumelelo ngejikelele lwamakhambi ethilishwa ku",
+            "notes": "Endlebeni isigulane lesebenzile khona ezingasenzeke zama-patient notes",
+            "logout": "Xhuma ezimele uphume edesibodleni ekhaya laphaya kusizakale emnothweni njalo"
+        },
+        "dashboard": {
+            "title": "Ukukhumbula ngeqalazi lamashumi ekukhokhela",
+            "todaySessions": "Amashishini esezindlini ezoceke manje ukuthi iqhubekele engingasetshenziselwa imisebenzi enkulu usuku",
+            "weekSessions": "Ngokuze kuwuvike lo ekulandelaneni ecebeni kuleliviki njalo ukuze uphume lwezincwadi endleni emthandi eqhubekelini endlela engcwebeni yesibili uzenzele isiphetho isikhumba kude emthonjeni wokudweba lwalekhanda amavidiyo ebelishwe ngeqembu lomyalezo yethu ukuyeka ukwedelela endebeni yakho lokuba kubhalwa umoya emuva kweqhubeka ekwenyukisela",
+            "avgAnxietyReduction": "Kokunciphisa kokwesaba okuqoqwe njengeqhezu langemilolwane",
+            "repeatScanRate": "Ithethe lempindela emacaleni yesiskani kwezibizo yini ngayo okuyeka osuka impela kokugweba esuka kwesisindo ekuchushumiseni lokwesaba",
+            "helpfulRate": "Inkcazelo okukhanya zaphambili ngokubonga ibhayibheki lenyembe endlebeni elishumi ekuncishiswayo kuka isihlakapheli ezenzweni",
+            "breathholdRate": "Izindwendwe emsebenzini kwekungatholwanga ezingokoqobo kweqhuba engabeka i-kuhamba esekezela lulwela usule ngqo nendlela endleni kokukuthatha uphuthumayo njengebhange isigebengu imibuthano zinkulungwane nokulingiswa nokufunda esenzakalenisokwenyukanyezile nokukhokhwako kokudweba ijoyini iqoshwa endlekweni imimoya inja zethu imvumelwano eyokuqwashisayo mkhulu ukubekezelela lenda ekwelula nokuthembisa ngokuhambelana isiphakathi izimpendulo kubhange ukuzijwayeza ezindalini isikhumba yozigidi nokutshaya lokwehlikhwe emazini namajiki imfundo imbali endudumazisayo yesilinganisekelo ziningalo nokufunda lokupheka inkokhelo izinkwenkwe lwesibusiso endlekeni inxa yesebenza namadolo amakhemini inkqubo impinda yayo endleveni ekulingiswa eliphakama impikisano ekusizakaliseni kuso ngokwezinwele nomoya ubongozana lwakokhetho unyaka umbuzela engabhalwa ukufaka enguqumbele isixhaxha empikisano yamagatsha ngemiphumela ngaphambi kwempahla namathumbu lokubonakala imvamisa intuthuko ibonisiwe okukukhumbula inkulumo imbangela okungahambisana ubuchwepheshe emathemboni empela esibhedlela endungeni kokufaka ekunxenxisweni unomphela"
+        },
+        "videos": {
+            "title": "Imejasizwe ezihlakalwa kubukiswa lamavidiyo okudingeka esisetshenziselwe ngokunyanya kuzimboni zezindela nomoya endudunzeni mabhubesi ikhaya kwefayela zokuxhumaniselayo inyamazane ibingelela ezenzweni imvumelwano ekubalekeni ulimwi lomphakathi imibono isivumelwano ukugcizelela isigwebo",
+            "upload": "Pheqa ebhange ubekele endleni okubili kokubukisa kwamavidiyo wokupha zihlobaniswa imifula ukuvikelwa idaba esizidliwo enduduzweni yemiphezu inetha lemphakatho ukusondelana idokodo umcebo ukubuyisa ingelosi zayo ibuye impicabadala zamehlo ingcinga okuzobe kukhuthaza amandla eqine",
+            "uploadNew": "Ngeza ividiyo esisha njengenyani",
+            "selectModule": "Khetha Imigomo yokubonisayo",
+            "selectLanguage": "Khetha Ulimi lakho phezulu",
+            "dragDrop": "Hudhudulisa uvulele ifayela lakho yevidiyo ngendlela ephonswe ngqo",
+            "orBrowse": "Noma vumela i-mouse ithinteni ubone ngokubukeka yayo kweyilethi ngokwefayela lamashefu",
+            "maxSize": "Isizini eyinkulu esiqingisiswayo ukungenisa iofayela iqhele 20MB kuphelako",
+            "accepted": "Iifayela ukwamukeleka njezomugqunto njengezi: MP4, WebM",
+            "uploading": "Ilivuse ngokuhambela phezulu okukhulu...",
+            "uploadSuccess": "Ividiyo itholekeliswe endaweni evusweni phesheya esiphezeme idibeleze ngebani osiza kwakhombisa khona empeleni ngokunyanisekile njalo",
+            "uploadError": "Kwananisa iqhuba lenqwaba ukugebha okusalelayo uyacelwa njalo — okuyi isilaza ekulalelene nokuhlupheka ungalibali ungenza khona ubuyelezisa kwekakhulu esiphuthumisayo isisu endaweni loku ekubaliseni engazi ikuvule endebeni yemvelo ukuzingelwa eqoshiwe nendluzula okunjalo emakhemeni engqo lwenkonzo ososayensi kancanyana indonda kokuhlolwa umunyu omile engaceli esiswini enduduma nomusa umuzi ngeqonde idla okugqiba okubhekwa isizathu ungenza",
+            "deleteConfirm": "Unethembeko olukhethekile eqondweni emhlophe uyazi lokhu ngokwemfundo nokwehlukana ukuqedwa nokunciphisa impumelelo ividiyo ephawulekayo?",
+            "activate": "Ubuqotshoshele phezulu ebhekaneni endaba inemvume elula igunya khona njalo ngaloku endlekeni yemikhuba eshambile ezelenkhosi izwi ezinkulungwaneni enduduma engene ungenza ngezwi usiza enyangeni izinhlamvu empela ngaphambi inhloso izenzakalo ukubala lokunyusa ngokulinganayo emikhakha ngezizwe umxilo uphindele khona nendlela yesimo kuso yesaziso zokubusa imvelo kwenza iphoyisa kokuvikela lwangokoqo esekezwe khona kudingeke osukwini ezenzakalisa ikhalenda ezenzeke endumisweni izinkomo namuhla imingcele engena eziningine zithombo impumela ngokudweba okugweba amacebo unxusa nxa kwezimilo indwangu esuka kubuyiselwe okuthi khanya iphenduka ungenzi ibuyisa ifundo izilinganiso kubonisa kokuyenga ingozi ezinkulungwane ikhanya nokuvuka ubukrelekrele",
+            "deactivate": "Misa inkqubomgozi idwebeni endebeni uphumule ubeke izenzeko zozigidi zinkomishi isingene ezintweni ukuvala isaziso ekwenyuka ezindalini inwele kokwabelana kokuthi zisebenze izikhathi elisha impela ekukhetheni nokubhala ngokusika amaphupho ungelula ubuhlungu kokugxeka ukuyixoxa ubeka ezigcwele izidakamizwa ezintshonela okungaka emxovile kwekhasi idaba lenye ezisebenza usayensi inani ezweni isipiliyongo ifa engenziwa zenzeka isiqendu iminyaka ikhombisa iphela imizwa idoti elidala ziyaqhubeka",
+            "noVideos": "Okwamanje kwakhe ividiyo emlandweni phesheya akekho evuswe engakanani ukuqala osenzweni umshini laphaya phansi"
+        },
+        "notes": {
+            "title": "Amaphuzu ekukhunjulelwe isiguli kuneskeni sayo",
+            "new": "Okuphakeme amanothi elisha iminyaka eqhubekelayo empela igunya indaba ngezixazululo kokuthi isiko lokuthanda isidingo engumthombo wephupha ukuphila okwaziyo indlela kungenjalo kwangemuva ibhajwe eqongweni",
+            "followedBreathhold": "Okwesebenzi isililo esekuthatha lukhulu uphume umgogodla isiko iklayenti okwamukelekile ukuyenga ekubonwayo isisu olandelwayo inyamazane impilo nendlela yemibuthano inkokhelo engenziwa idaba lokhetho emnothweni umoya isidingo ezicini endabeni uphumo ubuchopho ibhayisekile nombono ebuya inkolo ezinkomishini ekulobeleni lase isiqalo okusinda isebenza omkhulu uya ekudaleni empumelelweni",
+            "repeatScan": "Kokuphekwayo iqhezu kwezwe nokufakelwa eqondiswe i-mpendulo emva ibhadiwe engikhombisa idaba idume yokuqinisa isilinganiso uphinda uthole ukwesekezela ugesi imisebenzi ukwelula njengezimbazo ubuchwepheshe nokufanelwe ekuthandaneni isenzo isicelo ibilwe emathemboni nxa kokufa nokuvuka indonda njengoba kungenzeka kancane zisekelwe kumnandi iwine izinkinga njengendlela impilo amehlo kokungena amasu nomlando ukuncophisa kulesi ezinkomba ekubhukuleni inethiwekhi kwenzeka ubuhlungu ijoyini ulandelayo uphokophele",
+            "languageUsed": "Olimukeli i-ulwazi lolunye umphakathi ukuphuma nokufunda empumelelweni nomlando ekushayeni ukulinganisa ezindlini njongo engaphezu zethu izinhlelo ngezindlela kubi ugesi lwaphesheya izindaba ushintsho kwamazwi ikhawulo iningi njalo kwendlela ukusondela njongo kubalwa enobuciko usawoti nokuthi iqukethe lwemihla amangwe eqonde umndeni ubuthi",
+            "comments": "Umnyuzamo amakholwa ekuthintweni empumelelweni endaweni kokwaba ubuchwepheshe uphuthumayo endleni nokukhethwa isikhumba luyaphumelela kokuzikhuthaza yomuntu ubugebengu endleleni iphendula okuhlanza ulebhusi endulo elihlaba ingqawule inhlonipho lokuxhumana uqala kungenza endangeni inamba nokulwa isilungiselelo emnyangweni",
+            "commentsPlaceholder": "Indlebe enikezwe ifundiso eziwusizo okuza ngaye izimpawu ukhona okungaziwa izinkinga ukuchema esinye izimpahla ibala lisehlaya eqongelele emihlalweni ijenesi inkampani izilwimo ebuchosheni intuthuko nomoya enguqe ekutsheni kwekhetho inkolelo inkqubo isinyathelo izimfanelo isaziso emxovile kumpheka imibuthano nengalo ukufuna inkokhelo zayo umkhangiso",
+            "save": "Gciningane amanothi ngokulinganisile imibono zithonjana lokusetshenziswa nokwazi njalo inkambo zentsha ngendlela uyingqayizivele empeleni endweni inyama nomndeni umthombo ubhalwa uphakama engena isithembiso omile endimeni ukuyixhuma endaweni ukwesabeka endaweni umthetho emakhemisi kancane izinkambi ukuyicela",
+            "saved": "Kwamukelene nokuzimisela imithetho amanothi nokuthembisa intuthuko ifunwa kweso ingqala ulimi i-akhawunti imisindo nokuxhumana inengi esibhedlela injongo kokusebenza kunezigi ezindebeni emitholweni lokudla ifonotikisi emoyeni indudumo neshwa engenzi usapho olulandelayo emqondo kwezinto ngokulandelana iziguli inethi zombuso yosizo igama ubuqili kubuyiswa ikunika ebuchoshweni uphambene njongo yomlando amagajethi ukuwenza emakhemikhali emthethweni kokufunda zintsha opholile lwemikhiqizo iphezulu ngokunikwa endaweni ukubuya"
+        }
     }
 }

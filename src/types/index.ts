@@ -55,3 +55,46 @@ export interface RadioNoteRecord {
 export type ApiSuccess<T> = { success: true; data: T };
 export type ApiError = { success: false; error: string; code?: string };
 export type ApiResponse<T> = ApiSuccess<T> | ApiError;
+
+// Blob Storage Upload Types
+export interface UploadVideoParams {
+  file: Buffer | ReadableStream;
+  locale: Locale;
+  slug: VideoSlug;
+  contentType: "video/mp4" | "video/webm";
+}
+
+export interface UploadVideoResult {
+  url: string;
+  pathname: string;
+  size: number;
+  uploadedAt: Date;
+}
+
+export interface UploadThumbnailParams {
+  file: Buffer;
+  slug: VideoSlug;
+  contentType: "image/jpeg" | "image/png" | "image/webp";
+}
+
+export interface UploadThumbnailResult {
+  url: string;
+  pathname: string;
+  size: number;
+}
+
+export interface BlobListResult {
+  url: string;
+  pathname: string;
+  size: number;
+  uploadedAt: Date;
+}
+
+export interface StorageStats {
+  totalBytes: number;
+  totalMB: number;
+  videoCount: number;
+  thumbnailCount: number;
+  percentUsed: number;
+  freetierLimitGB: number;
+}
