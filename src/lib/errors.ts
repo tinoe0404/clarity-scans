@@ -27,11 +27,11 @@ export class DatabaseError extends Error {
 }
 
 export class AuthError extends Error {
-  code: "UNAUTHORIZED" | "FORBIDDEN" | "INVALID_CREDENTIALS";
+  code: "UNAUTHORIZED" | "FORBIDDEN" | "INVALID_CREDENTIALS" | "SESSION_EXPIRED";
 
   constructor(
     message: string,
-    code: "UNAUTHORIZED" | "FORBIDDEN" | "INVALID_CREDENTIALS" = "UNAUTHORIZED"
+    code: "UNAUTHORIZED" | "FORBIDDEN" | "INVALID_CREDENTIALS" | "SESSION_EXPIRED" = "UNAUTHORIZED"
   ) {
     super(message);
     this.name = "AuthError";
@@ -80,4 +80,21 @@ export function handleApiError(error: unknown): { message: string; statusCode: n
   }
 
   return { message: "An unexpected error occurred.", statusCode: 500 };
+}
+
+/**
+ * Maps NextAuth error codes to human-readable messages
+ */
+export function getAuthErrorMessage(error: string): string {
+  switch (error) {
+    case "CredentialsSignin":
+      return "Invalid username or password";
+    case "SessionRequired":
+      return "Please sign in to access this page";
+    case "SESSION_EXPIRED":
+      return "Your session has expired. Please sign in again.";
+    case "Default":
+    default:
+      return "An authentication error occurred";
+  }
 }
