@@ -38,7 +38,7 @@ export default function LoginForm() {
         router.push(callbackUrl as import("next").Route);
         router.refresh();
       }
-    } catch (err) {
+    } catch (_err) {
       setError(t("error"));
     } finally {
       setIsLoading(false);

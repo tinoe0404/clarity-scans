@@ -28,11 +28,11 @@ export default function ScreenTransition({
   }, []);
 
   if (!mounted) {
-    return <div className={cn("opacity-0", className)}>{children}</div>;
+    return <div className={cn("flex flex-1 flex-col opacity-0", className)}>{children}</div>;
   }
 
   if (prefersReducedMotion) {
-    return <div className={cn("opacity-100", className)}>{children}</div>;
+    return <div className={cn("flex flex-1 flex-col opacity-100", className)}>{children}</div>;
   }
 
   const animations = {
@@ -41,5 +41,7 @@ export default function ScreenTransition({
     slideLeft: "animate-fadeIn", // We don't have slideLeft in config, fallback to fadeIn
   };
 
-  return <div className={cn(animations[variant], className)}>{children}</div>;
+  return (
+    <div className={cn(animations[variant], "flex flex-1 flex-col", className)}>{children}</div>
+  );
 }
