@@ -59,6 +59,57 @@ export async function upsertVideo(data: UpsertVideoInput): Promise<VideoRecord> 
   return result;
 }
 
+export async function getVideoById(id: string): Promise<VideoRecord | null> {
+  const sql = `SELECT * FROM videos WHERE id = $1 LIMIT 1`;
+  return dbOne<VideoRecord>(sql, [id]);
+}
+
+export async function updateVideoMetadata(
+  id: string,
+  data: Partial<UpsertVideoInput>
+): Promise<VideoRecord | null> {
+  // Construct dynamic SQL natively bridging partial parameters cleanly avoiding wiping blob arrays
+  const updates: string[] = [];
+  const values: any[] = [];
+  let paramIndex = 1;
+
+  if (data.title !== undefined) {
+    updates.push(`title = $${paramIndex++}`);
+    values.push(data.title);
+  }
+  if (data.description !== undefined) {
+    updates.push(`description = $${paramIndex++}`);
+    values.push(data.description);
+  }
+  if (data.durationSeconds !== undefined) {
+    updates.push(`duration_seconds = $${paramIndex++}`);
+    values.push(data.durationSeconds);
+  }
+  if (data.isActive !== undefined) {
+    updates.push(`is_active = $${paramIndex++}`);
+    values.push(data.isActive);
+  }
+  if (data.thumbnailUrl !== undefined) {
+    updates.push(`thumbnail_url = $${paramIndex++}`);
+    values.push(data.thumbnailUrl);
+  }
+
+  // Fallback safely if empty
+  if (updates.length === 0) return getVideoById(id);
+
+  updates.push(`updated_at = now()`);
+  values.push(id);
+
+  const sql = `
+    UPDATE videos 
+    SET ${updates.join(', ')} 
+    WHERE id = $${paramIndex}
+    RETURNING *;
+  `;
+  
+  return dbOne<VideoRecord>(sql, values);
+}
+
 export async function updateVideoActiveStatus(id: string, isActive: boolean): Promise<void> {
   const sql = `UPDATE videos SET is_active = $1 WHERE id = $2`;
   await db.query(sql, [isActive, id]);

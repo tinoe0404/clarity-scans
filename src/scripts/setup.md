@@ -10,6 +10,7 @@ Ensure you have the following environment variables in your `.env.local` file:
 - `NEXTAUTH_URL`: Your application's base URL.
 - `ADMIN_USERNAME`: The username for dashboard access.
 - `ADMIN_PASSWORD_HASH`: The bcrypt hash of your admin password.
+- `REVALIDATION_SECRET`: Webhook token protecting cache purges.
 
 ## 2. Generate NEXTAUTH_SECRET
 
@@ -42,7 +43,20 @@ npx tsx src/lib/hashPassword.ts yourpasswordhere
    ADMIN_PASSWORD_HASH=$2b$12$...your_hash_here...
    ```
 
-## 4. Testing Locally
+## 4. Generate REVALIDATION_SECRET
+
+The Admin dashboard uses this secret to bust Next.js caches when videos are uploaded.
+
+```bash
+openssl rand -base64 32
+```
+
+Add the output to your `.env.local`:
+```text
+REVALIDATION_SECRET=your_second_generated_secret_here
+```
+
+## 5. Testing Locally
 
 1. Start the development server:
    ```bash
