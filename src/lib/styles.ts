@@ -77,7 +77,7 @@ export function inputStyles(state: "default" | "error" | "disabled" = "default")
 }
 
 export function screenContainerStyles(): string {
-  return "min-h-screen flex flex-col p-6 pb-12 w-full pt- безопасной-зоны";
+  return "min-h-screen flex flex-col p-6 pb-12 w-full pt-6";
 }
 
 export function headerStyles(): string {

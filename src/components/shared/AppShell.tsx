@@ -1,11 +1,13 @@
 import { cn } from "@/lib/utils";
+import type { Locale } from "@/types";
 
 interface AppShellProps {
   children: React.ReactNode;
+  locale: Locale;
   className?: string;
 }
 
-export default function AppShell({ children, className }: AppShellProps) {
+export default function AppShell({ children, locale: _locale, className }: AppShellProps) {
   return (
     <div
       className={cn(

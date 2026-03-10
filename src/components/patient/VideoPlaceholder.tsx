@@ -22,7 +22,7 @@ export default function VideoPlaceholder({
       <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-surface-elevated">
         {children}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="flex h-[72px] w-[72px] animate-pulse items-center justify-center rounded-full bg-black/40 shadow-glow-sm backdrop-blur-sm">
+          <div className="flex h-[72px] w-[72px] animate-pulse-glow items-center justify-center rounded-full bg-black/40 shadow-glow-sm backdrop-blur-sm">
             <span className="ml-1 text-3xl">▶</span>
           </div>
         </div>

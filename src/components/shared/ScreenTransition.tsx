@@ -6,12 +6,14 @@ import { cn } from "@/lib/utils";
 interface ScreenTransitionProps {
   children: ReactNode;
   variant?: "fade" | "slideUp" | "slideLeft";
+  transitionKey?: string;
   className?: string;
 }
 
 export default function ScreenTransition({
   children,
   variant = "fade",
+  transitionKey,
   className,
 }: ScreenTransitionProps) {
   const [mounted, setMounted] = useState(false);
@@ -26,6 +28,14 @@ export default function ScreenTransition({
     mediaQuery.addEventListener("change", listener);
     return () => mediaQuery.removeEventListener("change", listener);
   }, []);
+
+  // Re-trigger animation when transitionKey changes
+  useEffect(() => {
+    if (transitionKey === undefined) return;
+    setMounted(false);
+    const frame = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frame);
+  }, [transitionKey]);
 
   if (!mounted) {
     return <div className={cn("flex flex-1 flex-col opacity-0", className)}>{children}</div>;
