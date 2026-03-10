@@ -9,16 +9,18 @@ import BrandHeader from "./BrandHeader";
 import LanguageButton from "./LanguageButton";
 import { clearPatientSession, setSessionId } from "@/lib/session";
 import { useHoldToNavigate } from "@/hooks/useHoldToNavigate";
+import { cn } from "@/lib/utils";
 
 interface LanguagePickerScreenProps {
   suggestedLocale: Locale | null;
 }
 
-const LANGUAGES: Array<{ locale: Locale; nativeName: string; englishName: string; flag: string }> = [
-  { locale: "en", nativeName: "English", englishName: "English", flag: "🇬🇧" },
-  { locale: "sn", nativeName: "ChiShona", englishName: "Shona", flag: "🇿🇼" },
-  { locale: "nd", nativeName: "isiNdebele", englishName: "Ndebele", flag: "🇿🇼" },
-];
+const LANGUAGES: Array<{ locale: Locale; nativeName: string; englishName: string; flag: string }> =
+  [
+    { locale: "en", nativeName: "English", englishName: "English", flag: "🇬🇧" },
+    { locale: "sn", nativeName: "ChiShona", englishName: "Shona", flag: "🇿🇼" },
+    { locale: "nd", nativeName: "isiNdebele", englishName: "Ndebele", flag: "🇿🇼" },
+  ];
 
 export default function LanguagePickerScreen({ suggestedLocale }: LanguagePickerScreenProps) {
   const router = useRouter();
@@ -33,7 +35,7 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
 
   const handleLanguageSelect = async (locale: Locale) => {
     if (selectedLocale) return; // Prevent double-taps
-    
+
     setSelectedLocale(locale);
 
     try {
@@ -50,7 +52,11 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
       const sessionRes = await fetch("/api/sessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ language: locale, deviceType: typeof window !== 'undefined' && window.innerWidth >= 768 ? 'tablet' : 'phone' }),
+        body: JSON.stringify({
+          language: locale,
+          deviceType:
+            typeof window !== "undefined" && window.innerWidth >= 768 ? "tablet" : "phone",
+        }),
       }).catch(() => null);
 
       let sessionId = crypto.randomUUID(); // Fallback
@@ -67,13 +73,13 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
       // 4. Analytics
       try {
         track("language_selected", { locale });
-      } catch (e) {
+      } catch (_e) {
         // Must never block execution
       }
 
       // 5. Navigate to patient education module index
       router.push(`/${locale}/modules`);
-    } catch (error) {
+    } catch (_error) {
       // Recover navigation state on extreme block
       setSelectedLocale(null);
     }
@@ -81,7 +87,7 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
 
   return (
     <AppShell locale={suggestedLocale || "en"} className="justify-between px-6 pb-8">
-      <div className="flex-1 flex flex-col justify-center">
+      <div className="flex flex-1 flex-col justify-center">
         <BrandHeader />
 
         <div className="mt-8 space-y-3">
@@ -103,13 +109,15 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
         </div>
       </div>
 
-      <div className="mt-12 flex flex-col items-center justify-end animate-fadeIn space-y-4" style={{ animationDelay: "1500ms" }}>
-        
+      <div
+        className="mt-12 flex animate-fadeIn flex-col items-center justify-end space-y-4"
+        style={{ animationDelay: "1500ms" }}
+      >
         {/* Discreet Radiographer Admin Block */}
         <div className="relative flex items-center justify-center">
           <button
             {...holdHandlers}
-            className="group relative flex items-center gap-2 p-4 outline-none select-none touch-none"
+            className="group relative flex touch-none select-none items-center gap-2 p-4 outline-none"
             aria-label="Staff access area"
           >
             <span className="font-mono text-[11px] font-medium text-slate-700 transition-colors group-hover:text-slate-500 group-active:text-slate-500">
@@ -117,24 +125,24 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
             </span>
 
             {/* Circular progress overlay representing the 3-second hold */}
-            <div 
+            <div
               className={cn(
                 "absolute inset-0 flex items-center justify-center rounded-xl bg-white/5 opacity-0 transition-opacity duration-300",
                 isHolding && "opacity-100"
               )}
             >
-              <div 
-                className="absolute left-0 h-1 bg-brand-500/50 rounded-full bottom-0 transition-all duration-75"
+              <div
+                className="absolute bottom-0 left-0 h-1 rounded-full bg-brand-500/50 transition-all duration-75"
                 style={{ width: `${progress}%` }}
               />
             </div>
           </button>
-          
+
           {/* Tooltip hint on immediate press */}
           {isHolding && progress < 100 && (
-             <span className="absolute -top-8 px-3 py-1.5 rounded-lg bg-surface-elevated border border-surface-border text-[10px] text-white shadow-xl whitespace-nowrap animate-slideUp pointer-events-none">
-               Hold to access staff area
-             </span>
+            <span className="pointer-events-none absolute -top-8 animate-slideUp whitespace-nowrap rounded-lg border border-surface-border bg-surface-elevated px-3 py-1.5 text-[10px] text-white shadow-xl">
+              Hold to access staff area
+            </span>
           )}
         </div>
 

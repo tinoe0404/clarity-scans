@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { notFound } from "next/navigation";
 import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
 import { validateLocale } from "@/lib/i18n";
@@ -9,15 +10,9 @@ import VideoPlayerScreen from "@/components/patient/VideoPlayerScreen";
 
 // 1. Fully static path generation enabling maximum offline delivery potential
 export function generateStaticParams() {
-  const slugs: VideoSlug[] = [
-    "what-is-ct",
-    "prepare",
-    "breathhold",
-    "contrast",
-    "staying-still"
-  ];
+  const slugs: VideoSlug[] = ["what-is-ct", "prepare", "breathhold", "contrast", "staying-still"];
   const params: { locale: string; slug: string }[] = [];
-  
+
   for (const locale of LOCALES) {
     for (const slug of slugs) {
       params.push({ locale, slug });
@@ -27,11 +22,7 @@ export function generateStaticParams() {
 }
 
 // 2. Localized SEO & Shell mapping
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: { locale: string; slug: string } 
-}) {
+export async function generateMetadata({ params }: { params: { locale: string; slug: string } }) {
   const locale = validateLocale(params.locale);
   if (!locale) return {};
 
@@ -76,13 +67,13 @@ export default async function WatchPage({ params }: WatchPageProps) {
   try {
     videoRecord = await getVideoBySlug(slugTarget, locale);
   } catch (error) {
-    // If Postgres is down entirely, log it silently. 
+    // If Postgres is down entirely, log it silently.
     // The Patient Client relies exclusively on the static `registryEntry` and translations to maintain offline PWA illusions.
     console.error("Database connection fault hitting /watch:", error);
   }
 
   return (
-    <VideoPlayerScreen 
+    <VideoPlayerScreen
       locale={locale}
       slug={slugTarget}
       videoRecord={videoRecord}

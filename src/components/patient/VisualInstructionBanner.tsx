@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { Info, X } from "lucide-react";
-import type { Locale } from "@/types";
 import { useTranslations } from "next-intl";
 
 interface VisualInstructionBannerProps {
-  locale: Locale;
+  // Locale passed down but not currently needed directly by banner natively
 }
 
-export default function VisualInstructionBanner({ locale }: VisualInstructionBannerProps) {
+export default function VisualInstructionBanner({}: VisualInstructionBannerProps) {
   const t = useTranslations("visual");
   const [isVisible, setIsVisible] = useState(false);
 
@@ -27,24 +26,20 @@ export default function VisualInstructionBanner({ locale }: VisualInstructionBan
   if (!isVisible) return null;
 
   return (
-    <div className="bg-brand-500/5 border border-brand-500/15 rounded-xl px-4 py-3 mx-6 mb-4 relative animate-fadeIn flex gap-3">
-      <div className="shrink-0 mt-0.5">
+    <div className="relative mx-6 mb-4 flex animate-fadeIn gap-3 rounded-xl border border-brand-500/15 bg-brand-500/5 px-4 py-3">
+      <div className="mt-0.5 shrink-0">
         <Info className="h-5 w-5 text-brand-400" />
       </div>
-      
+
       <div className="flex-1 pr-6">
-        <p className="text-sm font-medium text-slate-300 mb-0.5 leading-snug">
-          {t("subtitle")}
-        </p>
-        <p className="text-xs text-slate-500 leading-snug">
-          {t("tapToShow")}
-        </p>
+        <p className="mb-0.5 text-sm font-medium leading-snug text-slate-300">{t("subtitle")}</p>
+        <p className="text-xs leading-snug text-slate-500">{t("tapToShow")}</p>
       </div>
-      
-      <button 
+
+      <button
         onClick={handleDismiss}
         aria-label="Dismiss message"
-        className="absolute top-2 right-2 p-2 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-white/10 transition-colors"
+        className="absolute right-2 top-2 rounded-lg p-2 text-slate-500 transition-colors hover:bg-white/10 hover:text-slate-300"
       >
         <X className="h-4 w-4" />
       </button>

@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Locale } from "@/types";
 import { useTranslations } from "next-intl";
 import { track } from "@vercel/analytics";
@@ -32,19 +33,25 @@ export default function BreathHoldScreen({ locale }: BreathHoldScreenProps) {
   const [completedAt, setCompletedAt] = useState<Date | null>(null);
 
   // 1. Audio Mapping
-  const { isAvailable, isEnabled, setEnabled, speak, cancel: cancelSpeech } = useSpeechSynthesis(locale);
+  const {
+    isAvailable,
+    isEnabled,
+    setEnabled,
+    speak,
+    cancel: cancelSpeech,
+  } = useSpeechSynthesis(locale);
 
   // 2. FSM Logic Mapping
   const trainer = useBreathHoldTrainer({
     onComplete: () => {
       const now = new Date();
       setCompletedAt(now);
-      
+
       // Clinical Requirements
       addWatchedModule("breathhold");
       sessionStorage.setItem("cs_breathhold_completed_at", now.toISOString());
       track("breathhold_completed", { locale, reps: BREATH_HOLD_REPS });
-      
+
       const sid = getSessionId();
       if (sid) {
         fetch(`/api/sessions/${sid}`, {
@@ -57,7 +64,7 @@ export default function BreathHoldScreen({ locale }: BreathHoldScreenProps) {
     onPhaseChange: (phase, _countdown) => {
       // Audio commands routing based on Locale mappings actively
       if (!isEnabled) return;
-      
+
       switch (phase) {
         case "inhale":
           speak((t as any).raw("breathhold.inhale"));
@@ -72,21 +79,21 @@ export default function BreathHoldScreen({ locale }: BreathHoldScreenProps) {
           speak((t as any).raw("breathhold.complete"));
           break;
       }
-    }
+    },
   });
 
   // 3. Keyboard Bindings A11y
   useKeyboardShortcuts(
     {
-      "Space": () => {
+      Space: () => {
         if (trainer.state === "intro") trainer.start();
       },
-      "Escape": () => {
+      Escape: () => {
         if (trainer.state === "running" || trainer.state === "resting") {
           trainer.cancel();
           cancelSpeech();
         }
-      }
+      },
     },
     true
   );
@@ -94,24 +101,31 @@ export default function BreathHoldScreen({ locale }: BreathHoldScreenProps) {
   // Deriving the visual mapping contexts
   let currentPhaseLabel = "";
   if (trainer.state === "running" || trainer.state === "resting") {
-     switch(trainer.breathPhase) {
-        case "inhale": currentPhaseLabel = t("breathhold.inhale"); break;
-        case "hold": currentPhaseLabel = t("breathhold.hold"); break;
-        case "exhale": currentPhaseLabel = t("breathhold.exhale"); break;
-        case "rest": currentPhaseLabel = t("breathhold.rest"); break;
-     }
+    switch (trainer.breathPhase) {
+      case "inhale":
+        currentPhaseLabel = t("breathhold.inhale");
+        break;
+      case "hold":
+        currentPhaseLabel = t("breathhold.hold");
+        break;
+      case "exhale":
+        currentPhaseLabel = t("breathhold.exhale");
+        break;
+      case "rest":
+        currentPhaseLabel = t("breathhold.rest");
+        break;
+    }
   }
 
   return (
-    <AppShell locale={locale} className="flex flex-col h-screen overflow-hidden bg-surface-base">
-      
-      <PatientHeader 
-        locale={locale} 
-        title={t("nav.home")} 
+    <AppShell locale={locale} className="flex h-screen flex-col overflow-hidden bg-surface-base">
+      <PatientHeader
+        locale={locale}
+        title={t("nav.home")}
         showBack={true}
         backHref={`/${locale}/modules`}
         rightAction={
-          <AudioToggle 
+          <AudioToggle
             isAvailable={isAvailable}
             isEnabled={isEnabled}
             onToggle={() => setEnabled(!isEnabled)}
@@ -122,8 +136,7 @@ export default function BreathHoldScreen({ locale }: BreathHoldScreenProps) {
       <TabNavigation locale={locale} activeTab="breathhold" />
 
       {/* Primary Orchestration Bounds strictly constraining jumping */}
-      <div className="flex-1 overflow-y-auto px-4 w-full h-full min-h-[360px] custom-scrollbar flex flex-col pt-4 pb-24">
-        
+      <div className="custom-scrollbar flex h-full min-h-[360px] w-full flex-1 flex-col overflow-y-auto px-4 pb-24 pt-4">
         {trainer.state === "intro" && (
           <BreathHoldIntroCard
             locale={locale}
@@ -133,66 +146,67 @@ export default function BreathHoldScreen({ locale }: BreathHoldScreenProps) {
         )}
 
         {(trainer.state === "running" || trainer.state === "resting") && (
-          <div className="flex flex-col items-center justify-center flex-1 py-8 w-full max-w-md mx-auto">
-            
+          <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center py-8">
             <BreathCircle
               phase={trainer.breathPhase}
               countdown={trainer.countdown}
               label={currentPhaseLabel}
             />
-            
-            <div className="mt-8 mb-4">
+
+            <div className="mb-4 mt-8">
               <ProgressDots
                 total={BREATH_HOLD_REPS}
                 current={trainer.currentRep}
                 completed={trainer.currentRep} // The FSM handles the exact index mappings automatically
               />
             </div>
-            
-            <PhaseInstructionText 
-              phase={trainer.breathPhase} 
-              locale={locale} 
-            />
+
+            <PhaseInstructionText phase={trainer.breathPhase} />
+
 
             {trainer.state === "running" && (
               <button
-                 onClick={() => {
-                   trainer.cancel();
-                   cancelSpeech();
-                 }}
-                 className={cn(buttonStyles("ghost", "sm"), "mt-8 text-slate-400 border border-white/10 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20")}
+                onClick={() => {
+                  trainer.cancel();
+                  cancelSpeech();
+                }}
+                className={cn(
+                  buttonStyles("ghost", "sm"),
+                  "mt-8 border border-white/10 text-slate-400 hover:border-red-500/20 hover:bg-red-500/10 hover:text-red-400"
+                )}
               >
-                 Stop practice (Esc)
+                Stop practice (Esc)
               </button>
             )}
           </div>
         )}
 
         {trainer.state === "cancelled" && (
-          <div className="flex flex-col items-center justify-center flex-1 w-full max-w-md mx-auto py-8">
-             <div className="bg-surface-elevated/50 border border-white/10 p-6 rounded-3xl text-center w-full mb-8">
-               <span className="text-4xl mb-4 block" aria-hidden="true">⏸️</span>
-               <h3 className="text-xl font-bold text-white mb-2">Practice stopped</h3>
-               <p className="text-slate-400">You can start again whenever you're ready.</p>
-             </div>
-             
-             <button
-               onClick={trainer.start}
-               className={cn(buttonStyles("primary", "lg"), "w-full mx-2")}
-             >
-               Start Again (Space)
-             </button>
+          <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center py-8">
+            <div className="mb-8 w-full rounded-3xl border border-white/10 bg-surface-elevated/50 p-6 text-center">
+              <span className="mb-4 block text-4xl" aria-hidden="true">
+                ⏸️
+              </span>
+              <h3 className="mb-2 text-xl font-bold text-white">Practice stopped</h3>
+              <p className="text-slate-400">You can start again whenever you&apos;re ready.</p>
+            </div>
+
+            <button
+              onClick={trainer.start}
+              className={cn(buttonStyles("primary", "lg"), "mx-2 w-full")}
+            >
+              Start Again (Space)
+            </button>
           </div>
         )}
 
         {trainer.state === "complete" && completedAt && (
-          <BreathHoldCompletionCard 
-            locale={locale} 
-            completedAt={completedAt} 
+          <BreathHoldCompletionCard
+            locale={locale}
+            completedAt={completedAt}
             onTryAgain={trainer.reset}
           />
         )}
-
       </div>
     </AppShell>
   );

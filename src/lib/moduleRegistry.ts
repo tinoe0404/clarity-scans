@@ -82,9 +82,7 @@ export function mergeModuleData(
 ): MergedModule[] {
   return registry.map((reg) => {
     // 1. Find matching video for this exact slug + locale in DB records
-    const matchedVideo = dbVideos.find(
-      (v) => v.slug === reg.slug && v.language === locale
-    );
+    const matchedVideo = dbVideos.find((v) => v.slug === reg.slug && v.language === locale);
 
     // 2. Determine visibility/existence
     // Video exists AND is marked active via radiographer admin portal
@@ -92,29 +90,26 @@ export function mergeModuleData(
 
     // 3. Fallbacks
     // If we have a video, take its explicit duration, else take the placeholder average.
-    const durationSeconds =
-      matchedVideo?.duration_seconds ?? reg.defaultDurationSeconds;
+    const durationSeconds = matchedVideo?.duration_seconds ?? reg.defaultDurationSeconds;
 
-    return {
+    const base = {
       slug: reg.slug,
       icon: reg.icon,
       accentColor: reg.accentColor,
       isImportant: reg.isImportant,
       sortOrder: reg.sortOrder,
-
-      // Text content isn't necessarily placed here if the translations hook handles it exclusively,
-      // but in case db overwrote title/description (future proofing), we pass them:
-      title: matchedVideo?.title ? matchedVideo.title : undefined,
-      description: matchedVideo?.description ? matchedVideo.description : undefined,
-
       durationSeconds,
       hasVideo,
       blobUrl: hasVideo ? matchedVideo.blob_url : null,
       thumbnailUrl: hasVideo ? matchedVideo.thumbnail_url : null,
-
-      // Client manages these, statically assume false at init map
       isWatched: false,
     };
+
+    const result: MergedModule = { ...base };
+    if (matchedVideo?.title) result.title = matchedVideo.title;
+    if (matchedVideo?.description) result.description = matchedVideo.description;
+
+    return result;
   });
 }
 
@@ -122,9 +117,9 @@ export function mergeModuleData(
  * pure fn: scans sequence map marking the immediate next un-completed target.
  */
 export function getNextUnwatchedSlug(watchedModules: VideoSlug[]): VideoSlug | null {
-  for (const module of MODULE_REGISTRY) {
-    if (!watchedModules.includes(module.slug)) {
-      return module.slug;
+  for (const mod of MODULE_REGISTRY) {
+    if (!watchedModules.includes(mod.slug)) {
+      return mod.slug;
     }
   }
   return null; // All done

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import { Play, Pause, Volume2, VolumeX, Maximize } from "lucide-react";
 import { Spinner } from "@/components/ui/Spinner";
@@ -28,7 +29,7 @@ export default function VideoPlayer({
   const [currentTime, setCurrentTime] = useState(0);
   const [showControls, setShowControls] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  
+
   // Buffering States
   const [isWaiting, setIsWaiting] = useState(false);
 
@@ -41,7 +42,7 @@ export default function VideoPlayer({
       clearTimeout(hideControlsTimeoutRef.current);
     }
     setShowControls(true);
-    
+
     // Only auto-hide if actually playing and not in fullscreen natively demanding access
     if (isPlaying && !isFullscreen) {
       hideControlsTimeoutRef.current = setTimeout(() => {
@@ -62,7 +63,7 @@ export default function VideoPlayer({
   const togglePlay = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (!videoRef.current) return;
-    
+
     if (videoRef.current.paused) {
       videoRef.current.play().catch((err) => {
         console.error("Autoplay/Play prevented", err);
@@ -143,13 +144,21 @@ export default function VideoPlayer({
   const handleError = () => {
     const error = videoRef.current?.error;
     let msg = "Video could not be played — please ask the radiographer";
-    
+
     if (error) {
       switch (error.code) {
-        case 1: msg = "Playback aborted"; break;
-        case 2: msg = "Poor connection — check your Wi-Fi and try again"; break; // MEDIA_ERR_NETWORK
-        case 3: msg = "This video format is not supported on your device"; break; // MEDIA_ERR_DECODE
-        case 4: msg = "Video not found — please ask the radiographer"; break; // MEDIA_ERR_SRC_NOT_FOUND
+        case 1:
+          msg = "Playback aborted";
+          break;
+        case 2:
+          msg = "Poor connection — check your Wi-Fi and try again";
+          break; // MEDIA_ERR_NETWORK
+        case 3:
+          msg = "This video format is not supported on your device";
+          break; // MEDIA_ERR_DECODE
+        case 4:
+          msg = "Video not found — please ask the radiographer";
+          break; // MEDIA_ERR_SRC_NOT_FOUND
       }
     }
     onError(msg);
@@ -167,10 +176,10 @@ export default function VideoPlayer({
   const seekFillPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className={cn(
-        "relative w-full aspect-video bg-black overflow-hidden group select-none",
+        "group relative aspect-video w-full select-none overflow-hidden bg-black",
         isFullscreen && "h-screen"
       )}
       onClick={resetHideTimer}
@@ -182,7 +191,7 @@ export default function VideoPlayer({
         poster={thumbnailUrl || undefined}
         playsInline
         preload="metadata"
-        className="w-full h-full object-cover"
+        className="h-full w-full object-cover"
         onClick={togglePlay}
         onLoadedMetadata={() => {
           setDuration(videoRef.current?.duration || 0);
@@ -216,40 +225,48 @@ export default function VideoPlayer({
 
       {/* Buffering Spinner Overlay */}
       {isWaiting && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/20" role="status" aria-label="Video loading">
+        <div
+          className="absolute inset-0 z-20 flex items-center justify-center bg-black/20"
+          role="status"
+          aria-label="Video loading"
+        >
           <Spinner size="lg" className="text-white" />
         </div>
       )}
 
       {/* Custom Controls UI Layer */}
-      <div 
+      <div
         className={cn(
           "absolute inset-0 z-30 flex flex-col justify-between p-4 transition-opacity duration-300",
-          !showControls ? "opacity-0 pointer-events-none" : "opacity-100 bg-gradient-to-t from-black/80 via-transparent to-black/30"
+          !showControls
+            ? "pointer-events-none opacity-0"
+            : "bg-gradient-to-t from-black/80 via-transparent to-black/30 opacity-100"
         )}
       >
         {/* Top Space Reservation */}
-        <div className="flex-shrink-0 min-h-6" />
+        <div className="min-h-6 flex-shrink-0" />
 
         {/* Center Big Play/Pause */}
-        <div className="flex-1 flex items-center justify-center -mt-6">
+        <div className="-mt-6 flex flex-1 items-center justify-center">
           <button
             onClick={togglePlay}
             aria-label={isPlaying ? "Pause video" : "Play video"}
             className="flex h-20 w-20 items-center justify-center rounded-full bg-black/40 backdrop-blur-md transition-transform hover:scale-105 active:scale-95"
           >
             {isPlaying ? (
-              <Pause className="h-10 w-10 text-white fill-white" />
+              <Pause className="h-10 w-10 fill-white text-white" />
             ) : (
-              <Play className="h-10 w-10 text-white fill-white ml-2" />
+              <Play className="ml-2 h-10 w-10 fill-white text-white" />
             )}
           </button>
         </div>
 
         {/* Bottom Bar: Timeline & Controls */}
-        <div className="flex-shrink-0 flex items-center gap-4 w-full" onClick={(e) => e.stopPropagation()}>
-          
-          <span className="text-white/80 font-mono text-xs w-10 text-right shrink-0">
+        <div
+          className="flex w-full flex-shrink-0 items-center gap-4"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span className="w-10 shrink-0 text-right font-mono text-xs text-white/80">
             {formatTime(currentTime)}
           </span>
 
@@ -264,32 +281,31 @@ export default function VideoPlayer({
             aria-valuenow={currentTime}
             aria-valuemin={0}
             aria-valuemax={duration}
-            className="flex-1 h-3 cursor-pointer appearance-none rounded-full bg-white/20"
+            className="h-3 flex-1 cursor-pointer appearance-none rounded-full bg-white/20"
             style={{
               background: `linear-gradient(to right, ${accentColor} ${seekFillPercentage}%, rgba(255,255,255,0.2) ${seekFillPercentage}%)`,
             }}
           />
 
-          <span className="text-white/60 font-mono text-xs w-10 shrink-0">
+          <span className="w-10 shrink-0 font-mono text-xs text-white/60">
             {formatTime(duration)}
           </span>
 
           <button
             onClick={toggleMute}
             aria-label={isMuted ? "Unmute video" : "Mute video"}
-            className="p-2 -mr-2 text-white/80 hover:text-white transition-colors"
+            className="-mr-2 p-2 text-white/80 transition-colors hover:text-white"
           >
             {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
           </button>
-          
+
           <button
             onClick={toggleFullscreen}
             aria-label="Fullscreen"
-            className="p-2 -mr-2 text-white/80 hover:text-white transition-colors"
+            className="-mr-2 p-2 text-white/80 transition-colors hover:text-white"
           >
             <Maximize className="h-5 w-5" />
           </button>
-
         </div>
       </div>
     </div>

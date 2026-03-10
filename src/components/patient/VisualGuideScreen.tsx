@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -21,7 +22,7 @@ interface VisualGuideScreenProps {
 
 export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
   const t = useTranslations();
-  
+
   const [activeSignal, setActiveSignal] = useState<SignalSlug | null>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [recentlyUsed, setRecentlyUsed] = useState<SignalSlug[]>([]);
@@ -30,13 +31,13 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
   // 1. Hardware API
   const { request: requestWakeLock, release: releaseWakeLock } = useWakeLock();
 
-  // 2. Keyboard Navigation Arrays tracking Ref targets cleanly enabling Arrow flows 
+  // 2. Keyboard Navigation Arrays tracking Ref targets cleanly enabling Arrow flows
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     requestWakeLock();
     track("visual_guide_viewed", { locale });
-    
+
     // Load session array
     try {
       const stored = sessionStorage.getItem("cs_recent_signals");
@@ -50,25 +51,28 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
     };
   }, [locale, requestWakeLock, releaseWakeLock]);
 
-  const handleSignalSelect = useCallback((slug: SignalSlug) => {
-    setActiveSignal(slug);
-    setIsFullScreen(true);
-    setFullscreenStartTime(Date.now());
-    
-    try {
-      track("signal_used", { locale, signal: slug });
-      track("signal_fullscreen", { locale, signal: slug });
+  const handleSignalSelect = useCallback(
+    (slug: SignalSlug) => {
+      setActiveSignal(slug);
+      setIsFullScreen(true);
+      setFullscreenStartTime(Date.now());
 
-      setRecentlyUsed(prev => {
-        // Prepend, dedupe, clamp to 3 items matching UI width max safely
-        const updated = [slug, ...prev.filter(s => s !== slug)].slice(0, 3);
-        sessionStorage.setItem("cs_recent_signals", JSON.stringify(updated));
-        return updated;
-      });
-    } catch (err) {
-      console.warn("Analytics/Session Error:", err);
-    }
-  }, [locale]);
+      try {
+        track("signal_used", { locale, signal: slug });
+        track("signal_fullscreen", { locale, signal: slug });
+
+        setRecentlyUsed((prev) => {
+          // Prepend, dedupe, clamp to 3 items matching UI width max safely
+          const updated = [slug, ...prev.filter((s) => s !== slug)].slice(0, 3);
+          sessionStorage.setItem("cs_recent_signals", JSON.stringify(updated));
+          return updated;
+        });
+      } catch (err) {
+        console.warn("Analytics/Session Error:", err);
+      }
+    },
+    [locale]
+  );
 
   const handleCloseOverlay = useCallback(() => {
     if (activeSignal && fullscreenStartTime) {
@@ -80,28 +84,28 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
 
     setIsFullScreen(false);
     setFullscreenStartTime(null);
-    
+
     // Return explicit physical focus targeting exactly restoring A11y
     if (activeSignal) {
-      const index = SIGNAL_REGISTRY.findIndex(s => s.slug === activeSignal);
+      const index = SIGNAL_REGISTRY.findIndex((s) => s.slug === activeSignal);
       if (index >= 0 && cardRefs.current[index]) {
-         // Tiny delay mapping matching CSS animation decay bounds guaranteeing Ref restoration
-         setTimeout(() => {
-           cardRefs.current[index]?.focus();
-         }, 50);
+        // Tiny delay mapping matching CSS animation decay bounds guaranteeing Ref restoration
+        setTimeout(() => {
+          cardRefs.current[index]?.focus();
+        }, 50);
       }
     }
   }, [activeSignal, fullscreenStartTime, locale]);
 
   // Handle explicit 2-Column grid Arrow navigational arrays Native to physical specs natively
   const handleGridKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    const currentIndex = cardRefs.current.findIndex(el => el === document.activeElement);
+    const currentIndex = cardRefs.current.findIndex((el) => el === document.activeElement);
     if (currentIndex === -1) return;
 
     let nextIndex = currentIndex;
     const total = SIGNAL_REGISTRY.length;
 
-    switch(e.key) {
+    switch (e.key) {
       case "ArrowRight":
         nextIndex = (currentIndex + 1) % total;
         break;
@@ -128,11 +132,10 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
   const activeSignalData = activeSignal ? getSignalBySlug(activeSignal) : null;
 
   return (
-    <AppShell locale={locale} className="flex flex-col h-screen overflow-hidden bg-surface-base">
-      
-      <PatientHeader 
-        locale={locale} 
-        title={(t as any).raw("visual.title")} 
+    <AppShell locale={locale} className="flex h-screen flex-col overflow-hidden bg-surface-base">
+      <PatientHeader
+        locale={locale}
+        title={(t as any).raw("visual.title")}
         subtitle={(t as any).raw("visual.subtitle")}
         showBack={true}
         backHref={`/${locale}/modules`}
@@ -141,11 +144,10 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
 
       <TabNavigation locale={locale} activeTab="visual" />
 
-      <div className="flex-1 overflow-y-auto w-full custom-scrollbar flex flex-col pt-4">
-        
+      <div className="custom-scrollbar flex w-full flex-1 flex-col overflow-y-auto pt-4">
         <VisualInstructionBanner locale={locale} />
-        
-        <div 
+
+        <div
           className="grid grid-cols-2 gap-3 px-6 pb-4"
           role="group"
           aria-label={(t as any).raw("visual.title")}
@@ -154,8 +156,10 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
           {SIGNAL_REGISTRY.map((signal, index) => (
             <div
               key={signal.slug}
-              ref={el => { cardRefs.current[index] = el; }}
-              style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}
+              ref={(el) => {
+                cardRefs.current[index] = el;
+              }}
+              style={{ animationDelay: `${index * 100}ms`, animationFillMode: "both" }}
               className="animate-fadeIn"
             >
               <VisualSignalCard
@@ -171,12 +175,12 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
         </div>
 
         {recentlyUsed.length > 0 && (
-          <div className="px-6 pb-4 border-t border-white/5 pt-6 mt-2 mb-2">
-            <p className="font-mono text-[11px] font-medium text-slate-500 uppercase tracking-widest mb-3">
+          <div className="mb-2 mt-2 border-t border-white/5 px-6 pb-4 pt-6">
+            <p className="mb-3 font-mono text-[11px] font-medium uppercase tracking-widest text-slate-500">
               Recently Used
             </p>
-            <div className="flex gap-3 overflow-x-auto pb-4 custom-scrollbar -mx-6 px-6 relative items-center">
-              {recentlyUsed.map(slug => {
+            <div className="custom-scrollbar relative -mx-6 flex items-center gap-3 overflow-x-auto px-6 pb-4">
+              {recentlyUsed.map((slug) => {
                 const signal = getSignalBySlug(slug);
                 if (!signal) return null;
                 return (
@@ -192,10 +196,9 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
           </div>
         )}
 
-        <div className="px-6 border-t border-white/5 pt-8 mb-6 mt-auto">
-           <PrintCTACard locale={locale} />
+        <div className="mb-6 mt-auto border-t border-white/5 px-6 pt-8">
+          <PrintCTACard locale={locale} />
         </div>
-
       </div>
 
       {isFullScreen && activeSignalData && (
@@ -205,7 +208,6 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
           onClose={handleCloseOverlay}
         />
       )}
-
     </AppShell>
   );
 }

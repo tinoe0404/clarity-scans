@@ -1,14 +1,12 @@
-import type { Locale } from "@/types";
 import type { BreathPhase } from "@/hooks/useBreathHoldTrainer";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 interface PhaseInstructionTextProps {
   phase: BreathPhase;
-  locale: Locale;
 }
 
-export default function PhaseInstructionText({ phase, locale }: PhaseInstructionTextProps) {
+export default function PhaseInstructionText({ phase }: PhaseInstructionTextProps) {
   const t = useTranslations("breathhold");
 
   let text = "";
@@ -40,16 +38,18 @@ export default function PhaseInstructionText({ phase, locale }: PhaseInstruction
   }
 
   return (
-    <div 
-      className="h-12 mt-6 flex items-center justify-center w-full" 
-      aria-live="assertive" 
+    <div
+      className="mt-6 flex h-12 w-full items-center justify-center"
+      aria-live="assertive"
       aria-atomic="true"
     >
-      <span className={cn(
-        "text-3xl text-center transition-opacity duration-300",
-        styling,
-        text === "" ? "opacity-0" : "opacity-100"
-      )}>
+      <span
+        className={cn(
+          "text-center text-3xl transition-opacity duration-300",
+          styling,
+          text === "" ? "opacity-0" : "opacity-100"
+        )}
+      >
         {text}
       </span>
     </div>

@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { notFound } from "next/navigation";
 import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
 import { validateLocale } from "@/lib/i18n";
-import type { Locale } from "@/types";
 import { LOCALES } from "@/types";
 import BreathHoldScreen from "@/components/patient/BreathHoldScreen";
 
@@ -11,11 +11,7 @@ export function generateStaticParams() {
 }
 
 // 2. Localized SEO & Shell boundaries
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: { locale: string } 
-}) {
+export async function generateMetadata({ params }: { params: { locale: string } }) {
   const locale = validateLocale(params.locale);
   if (!locale) return {};
 
@@ -38,7 +34,7 @@ export default async function BreathHoldPage({ params }: BreathHoldPageProps) {
   // Explicit Next-Intl context mapping
   unstable_setRequestLocale(locale);
 
-  // Directly yield to client engine matching Phase 11 layout spec 
+  // Directly yield to client engine matching Phase 11 layout spec
   // bypassing any DB requests maximizing offline speed natively
   return <BreathHoldScreen locale={locale} />;
 }

@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 import { track } from "@vercel/analytics";
 import { useTranslations } from "next-intl";
@@ -22,25 +24,22 @@ import { buttonStyles } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
 import { ChevronLeft } from "lucide-react";
-import { Spinner } from "@/components/ui/Spinner";
+import Spinner from "@/components/ui/Spinner";
 
 // Lazy Evaluation preventing hydration mismatch on heavily interactive Engine.
 // Preloader maps Phase 10 spec demands perfectly maintaining aesthetic.
-const DynamicVideoPlayer = dynamic(
-  () => import("./VideoPlayer"),
-  { 
-    ssr: false, 
-    loading: () => (
-      <VideoPlaceholder 
-        slug={"what-is-ct" as VideoSlug} // Dummy cast, overridden by styles
-        locale="en" 
-        icon="" 
-        accentColor="#000000" 
-        isReady={true} 
-      /> // Scenario 2 triggers Spinner implicitly on missing children!
-    ) 
-  }
-);
+const DynamicVideoPlayer = dynamic(() => import("./VideoPlayer"), {
+  ssr: false,
+  loading: () => (
+    <VideoPlaceholder
+      slug={"what-is-ct" as VideoSlug} // Dummy cast, overridden by styles
+      locale="en"
+      icon=""
+      accentColor="#000000"
+      isReady={true}
+    /> // Scenario 2 triggers Spinner implicitly on missing children!
+  ),
+});
 
 interface VideoPlayerScreenProps {
   locale: Locale;
@@ -60,12 +59,12 @@ export default function VideoPlayerScreen({
   const toast = useToast();
 
   const [sessionId, setSessionId] = useState<string | null>(null);
-  
+
   // State
   const [isWatched, setIsWatched] = useState(false);
   const [isMarkingWatched, setIsMarkingWatched] = useState(false);
   const [showCompletionPrompt, setShowCompletionPrompt] = useState(false);
-  
+
   const [activeLocale, setActiveLocale] = useState<Locale>(locale);
   const [alternateVideoUrl, setAlternateVideoUrl] = useState<string | null>(null);
   const [isFetchingAlternate, setIsFetchingAlternate] = useState(false);
@@ -114,9 +113,9 @@ export default function VideoPlayerScreen({
 
   const handleMarkWatched = async () => {
     if (isWatched || isMarkingWatched || !sessionId) return;
-    
+
     setIsMarkingWatched(true);
-    
+
     // 1. Immediate sync into Storage (Source of Truth)
     addWatchedModule(slug);
     setIsWatched(true);
@@ -171,11 +170,10 @@ export default function VideoPlayerScreen({
   const keyPoints = getKeys();
 
   return (
-    <AppShell locale={locale} className="flex flex-col h-screen overflow-hidden bg-surface-base">
-      
+    <AppShell locale={locale} className="flex h-screen flex-col overflow-hidden bg-surface-base">
       {/* Upper Media Block */}
-      <div className="shrink-0 relative z-20">
-        <div className="absolute top-4 left-4 z-40">
+      <div className="relative z-20 shrink-0">
+        <div className="absolute left-4 top-4 z-40">
           <button
             onClick={handleBack}
             aria-label={t("nav.back")}
@@ -185,33 +183,33 @@ export default function VideoPlayerScreen({
           </button>
         </div>
 
-        <div className="relative w-full aspect-video bg-black">
-           {isReady ? (
-             <>
-                <DynamicVideoPlayer
-                  blobUrl={activeBlobUrl!}
-                  thumbnailUrl={videoRecord?.thumbnail_url || null}
-                  accentColor={registryEntry.accentColor}
-                  onVideoEnd={() => setShowCompletionPrompt(true)}
-                  onError={(err) => toast.showToast(err, "error")}
-                />
-                
-                <VideoCompletionOverlay
-                  isVisible={showCompletionPrompt}
-                  onMarkWatched={handleMarkWatched}
-                  onReplay={handleReplay}
-                  moduleTitle={title}
-                />
-             </>
-           ) : (
-             <VideoPlaceholder
-                slug={slug}
-                locale={locale}
+        <div className="relative aspect-video w-full bg-black">
+          {isReady ? (
+            <>
+              <DynamicVideoPlayer
+                blobUrl={activeBlobUrl as string}
+                thumbnailUrl={videoRecord?.thumbnail_url || null}
                 accentColor={registryEntry.accentColor}
-                icon={registryEntry.icon}
-                isReady={false}
-             />
-           )}
+                onVideoEnd={() => setShowCompletionPrompt(true)}
+                onError={(err) => toast.showToast(err, "error")}
+              />
+
+              <VideoCompletionOverlay
+                isVisible={showCompletionPrompt}
+                onMarkWatched={handleMarkWatched}
+                onReplay={handleReplay}
+                moduleTitle={title}
+              />
+            </>
+          ) : (
+            <VideoPlaceholder
+              slug={slug}
+              locale={locale}
+              accentColor={registryEntry.accentColor}
+              icon={registryEntry.icon}
+              isReady={false}
+            />
+          )}
         </div>
 
         <VideoLanguageSwitcher
@@ -223,60 +221,55 @@ export default function VideoPlayerScreen({
       </div>
 
       {/* Middle Scrollable Layout Block */}
-      <div className="flex-1 overflow-y-auto w-full pb-24 relative custom-scrollbar">
+      <div className="custom-scrollbar relative w-full flex-1 overflow-y-auto pb-24">
         {registryEntry.isImportant && (
-          <div className="bg-amber-500/10 border-l-4 border-amber-500 px-4 py-3 sticky top-0 z-10 break-words shadow-sm">
-            <p className="text-amber-500 text-sm font-medium">⚠️ Watch carefully — this is the most important step</p>
+          <div className="sticky top-0 z-10 break-words border-l-4 border-amber-500 bg-amber-500/10 px-4 py-3 shadow-sm">
+            <p className="text-sm font-medium text-amber-500">
+              ⚠️ Watch carefully — this is the most important step
+            </p>
           </div>
         )}
 
         {/* Fallback Header Injection for un-synced DB records pushing immediate offline context */}
         {!isReady && (
-          <div className="mx-6 mt-6 px-4 py-4 rounded-xl border border-brand-500/20 bg-brand-500/5 text-sm text-brand-300">
+          <div className="mx-6 mt-6 rounded-xl border border-brand-500/20 bg-brand-500/5 px-4 py-4 text-sm text-brand-300">
             Read these key points while the video is being prepared
           </div>
         )}
 
-        <div className="px-6 pt-6 pb-2">
-           <h1 className="font-display text-2xl font-bold text-white mb-2 leading-tight">
-             {title}
-           </h1>
-           <p className="text-slate-400 text-sm leading-relaxed mb-4">
-             {description}
-           </p>
+        <div className="px-6 pb-2 pt-6">
+          <h1 className="mb-2 font-display text-2xl font-bold leading-tight text-white">{title}</h1>
+          <p className="mb-4 text-sm leading-relaxed text-slate-400">{description}</p>
 
-           <KeyPointCard points={keyPoints} accentColor={registryEntry.accentColor} />
+          <KeyPointCard points={keyPoints} accentColor={registryEntry.accentColor} />
         </div>
 
-        {slug === "breathhold" && (
-          <BreathTrainerCTA locale={locale} />
-        )}
+        {slug === "breathhold" && <BreathTrainerCTA locale={locale} />}
       </div>
 
       {/* Static Binding Footer Container */}
-      <div className="shrink-0 absolute bottom-0 left-0 right-0 z-30 bg-surface-card border-t border-white/[0.06] px-6 py-4 pb-8 shadow-[0_-8px_16px_rgba(0,0,0,0.5)]">
-        
+      <div className="absolute bottom-0 left-0 right-0 z-30 shrink-0 border-t border-white/[0.06] bg-surface-card px-6 py-4 pb-8 shadow-[0_-8px_16px_rgba(0,0,0,0.5)]">
         {isWatched ? (
           <div className="flex flex-col gap-3">
-             <div className="flex items-center justify-center gap-2 text-medical-green font-medium mb-1">
-               <span className="text-lg">✅</span> {t("video.markWatched").replace('Mark', '')}
-             </div>
-             
-             {nextSlugTarget ? (
-               <Link
-                 href={`/${locale}/watch/${nextSlugTarget}` as Route}
-                 className={cn(buttonStyles("primary", "lg"), "w-full")}
-               >
-                 {t("video.nextModule")} →
-               </Link>
-             ) : (
-               <button
-                 onClick={() => router.push(`/${locale}/modules`)}
-                 className={cn(buttonStyles("secondary", "lg"), "w-full")}
-               >
-                 {t("nav.back")} to Modules
-               </button>
-             )}
+            <div className="mb-1 flex items-center justify-center gap-2 font-medium text-medical-green">
+              <span className="text-lg">✅</span> {t("video.markWatched").replace("Mark", "")}
+            </div>
+
+            {nextSlugTarget ? (
+              <Link
+                href={`/${locale}/watch/${nextSlugTarget}` as Route}
+                className={cn(buttonStyles("primary", "lg"), "w-full")}
+              >
+                {t("video.nextModule")} →
+              </Link>
+            ) : (
+              <button
+                onClick={() => router.push(`/${locale}/modules`)}
+                className={cn(buttonStyles("secondary", "lg"), "w-full")}
+              >
+                {t("nav.back")} to Modules
+              </button>
+            )}
           </div>
         ) : (
           <div className="flex flex-col gap-3">
@@ -284,27 +277,29 @@ export default function VideoPlayerScreen({
               disabled={isMarkingWatched}
               onClick={handleMarkWatched}
               className={cn(
-                buttonStyles("primary", "lg"), 
-                "w-full transition-all group flex items-center justify-center gap-2",
+                buttonStyles("primary", "lg"),
+                "group flex w-full items-center justify-center gap-2 transition-all",
                 isMarkingWatched && "opacity-80"
               )}
               style={{ backgroundColor: registryEntry.accentColor }}
             >
-              {isMarkingWatched ? <Spinner size="sm" className="text-white" /> : t("video.markWatched")}
+              {isMarkingWatched ? (
+                <Spinner size="sm" className="text-white" />
+              ) : (
+                t("video.markWatched")
+              )}
             </button>
 
             <button
-               disabled={isMarkingWatched}
-               onClick={() => router.push(`/${locale}/modules`)}
-               className={cn(buttonStyles("ghost", "md"), "w-full text-slate-400 hover:text-white")}
+              disabled={isMarkingWatched}
+              onClick={() => router.push(`/${locale}/modules`)}
+              className={cn(buttonStyles("ghost", "md"), "w-full text-slate-400 hover:text-white")}
             >
-               {t("nav.back")} to Modules
+              {t("nav.back")} to Modules
             </button>
           </div>
         )}
-
       </div>
-
     </AppShell>
   );
 }

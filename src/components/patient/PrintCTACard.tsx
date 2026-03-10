@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { Maximize, Smartphone } from "lucide-react";
-import type { Locale } from "@/types";
+
 import { buttonStyles } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
 interface PrintCTACardProps {
-  locale: Locale;
+  // Locale explicit props excluded
 }
 
-export default function PrintCTACard({ locale }: PrintCTACardProps) {
+export default function PrintCTACard({}: PrintCTACardProps) {
   const [isMobile, setIsMobile] = useState(true); // Default safe assumption SSR
 
   useEffect(() => {
@@ -25,35 +25,37 @@ export default function PrintCTACard({ locale }: PrintCTACardProps) {
   };
 
   return (
-    <div className="bg-white/[0.02] border border-white/[0.04] rounded-2xl p-4 mx-6 mb-8 text-center animate-fadeIn" style={{ animationDelay: '400ms', animationFillMode: 'both' }}>
-      
-      <div className="flex justify-center mb-3">
-         <div className="h-10 w-10 rounded-full bg-brand-500/10 flex items-center justify-center">
-            {isMobile ? 
-               <Smartphone className="h-5 w-5 text-brand-400" /> : 
-               <Maximize className="h-5 w-5 text-brand-400" />
-            }
-         </div>
+    <div
+      className="mx-6 mb-8 animate-fadeIn rounded-2xl border border-white/[0.04] bg-white/[0.02] p-4 text-center"
+      style={{ animationDelay: "400ms", animationFillMode: "both" }}
+    >
+      <div className="mb-3 flex justify-center">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-500/10">
+          {isMobile ? (
+            <Smartphone className="h-5 w-5 text-brand-400" />
+          ) : (
+            <Maximize className="h-5 w-5 text-brand-400" />
+          )}
+        </div>
       </div>
 
-      <h3 className="font-bold text-white mb-1">Take this with you into the scan room</h3>
-      <p className="text-xs text-slate-400 mb-4 px-2">
+      <h3 className="mb-1 font-bold text-white">Take this with you into the scan room</h3>
+      <p className="mb-4 px-2 text-xs text-slate-400">
         Screenshot this screen or ask the radiographer to print a copy
       </p>
 
       {isMobile ? (
-        <div className="bg-white/[0.04] rounded-lg py-2.5 px-4 inline-flex border border-white/[0.08]">
+        <div className="inline-flex rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 py-2.5">
           <span className="text-xs font-medium text-slate-300">📱 Take a screenshot</span>
         </div>
       ) : (
-        <button 
+        <button
           onClick={handlePrint}
           className={cn(buttonStyles("secondary", "md"), "w-full max-w-[200px]")}
         >
           Screenshot guide
         </button>
       )}
-
     </div>
   );
 }

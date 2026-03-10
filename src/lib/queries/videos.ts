@@ -31,6 +31,11 @@ export async function getAllVideos(): Promise<VideoRecord[]> {
   return db.query<VideoRecord>(sql);
 }
 
+export async function updateVideoThumbnail(slug: VideoSlug, thumbnailUrl: string): Promise<void> {
+  const sql = `UPDATE videos SET thumbnail_url = $1, updated_at = now() WHERE slug = $2`;
+  await db.query(sql, [thumbnailUrl, slug]);
+}
+
 export async function upsertVideo(data: UpsertVideoInput): Promise<VideoRecord> {
   const sql = `
     INSERT INTO videos (slug, language, title, description, blob_url, thumbnail_url, duration_seconds, is_active)
@@ -70,7 +75,7 @@ export async function updateVideoMetadata(
 ): Promise<VideoRecord | null> {
   // Construct dynamic SQL natively bridging partial parameters cleanly avoiding wiping blob arrays
   const updates: string[] = [];
-  const values: any[] = [];
+  const values: unknown[] = [];
   let paramIndex = 1;
 
   if (data.title !== undefined) {
@@ -102,11 +107,11 @@ export async function updateVideoMetadata(
 
   const sql = `
     UPDATE videos 
-    SET ${updates.join(', ')} 
+    SET ${updates.join(", ")} 
     WHERE id = $${paramIndex}
     RETURNING *;
   `;
-  
+
   return dbOne<VideoRecord>(sql, values);
 }
 

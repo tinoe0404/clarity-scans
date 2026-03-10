@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { notFound } from "next/navigation";
 import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
 import { validateLocale } from "@/lib/i18n";
-import type { Locale } from "@/types";
 import { LOCALES } from "@/types";
 import FeedbackScreen from "@/components/patient/FeedbackScreen";
 
@@ -11,11 +11,7 @@ export function generateStaticParams() {
 }
 
 // 2. Localized SEO & Shell boundaries
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: { locale: string } 
-}) {
+export async function generateMetadata({ params }: { params: { locale: string } }) {
   const locale = validateLocale(params.locale);
   if (!locale) return {};
 

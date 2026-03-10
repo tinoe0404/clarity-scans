@@ -1,46 +1,37 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getAdminSession } from "@/lib/auth";
-import { getSessionById } from "@/lib/queries/sessions";
-import { createFeedback, getFeedbackBySessionId, getAllFeedback } from "@/lib/queries/feedback";
-import { createFeedbackSchema } from "@/lib/validations";
+import { createNote, getAllNotes } from "@/lib/queries/radiographerNotes";
+import { createNoteSchema } from "@/lib/validations";
 import { handleApiError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
+import { revalidatePath } from "next/cache";
 
-// --- PUBLIC ROUTE: SUBMIT FEEDBACK ---
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
 
+  const session = await getAdminSession();
+  if (!session) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
-    const validation = createFeedbackSchema.safeParse(body);
+    const validation = createNoteSchema.safeParse(body);
 
     if (!validation.success) {
       return NextResponse.json({ success: false, error: "Validation failed" }, { status: 400 });
     }
 
-    const { sessionId } = validation.data;
+    // Force inject the authenticated user exactly ensuring Admin footprints properly log natively
+    const payload = { ...validation.data, radiographerId: session.user?.name || "admin" };
 
-    const session = await getSessionById(sessionId);
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: "Session does not exist" },
-        { status: 400 }
-      );
-    }
+    const note = await createNote(payload);
 
-    // Duplicate submission guard natively checking Neon
-    const existingFeedback = await getFeedbackBySessionId(sessionId);
-    if (existingFeedback) {
-      return NextResponse.json(
-        { success: false, error: "Feedback already submitted for this session" },
-        { status: 409 }
-      );
-    }
+    // Flush Admin Session Summary routes since Repeat Scans mutate the dashboard natively
+    revalidatePath("/api/sessions/summary");
+    revalidatePath("/api/admin/analytics");
 
-    const feedback = await createFeedback(validation.data);
-
-    // Only return ID explicitly masking all underlying metrics back from the active client naturally
-    return NextResponse.json({ success: true, id: feedback.id }, { status: 201 });
+    return NextResponse.json({ success: true, data: note }, { status: 201 });
   } catch (error) {
     const apiErr = handleApiError(error);
     return NextResponse.json(
@@ -48,7 +39,7 @@ export async function POST(request: NextRequest) {
       { status: apiErr.statusCode }
     );
   } finally {
-    logger.info("Submitted Feedback", {
+    logger.info("Admin Created Clinical Note", {
       method: "POST",
       path: request.nextUrl.pathname,
       durationMs: Date.now() - startTime,
@@ -56,7 +47,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// --- ADMIN ROUTE: LIST / CSV EXPORT ---
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
 
@@ -74,30 +64,28 @@ export async function GET(request: NextRequest) {
     const page = parseInt(pageRaw, 10);
     const pageSize = parseInt(pageSizeRaw, 10);
 
-    const { rows, total } = await getAllFeedback(page, pageSize);
+    const { rows, total } = await getAllNotes(page, pageSize);
 
     if (format === "csv") {
-      // 1. Array of keys extracting the strict list EXCLUDING `session_id` natively
+      // Clean CSV Array stripping Session IDs out permanently natively
       const headers = [
         "id",
-        "understood_procedure",
-        "anxiety_before",
-        "anxiety_after",
-        "app_helpful",
+        "followed_breathhold",
+        "repeat_scan_required",
+        "language_used",
         "comments",
-        "submitted_by",
+        "radiographer_id",
         "created_at",
       ];
 
       const csvRows = rows.map((row) => {
         return [
           row.id,
-          row.understood_procedure,
-          row.anxiety_before,
-          row.anxiety_after,
-          row.app_helpful,
-          `"${(row.comments || "").replace(/"/g, '""')}"`, // safe quotes escaping natively
-          row.submitted_by,
+          row.followed_breathhold,
+          row.repeat_scan_required,
+          row.language_used,
+          `"${(row.comments || "").replace(/"/g, '""')}"`,
+          row.radiographer_id || "unknown",
           new Date(row.created_at).toISOString(),
         ].join(",");
       });
@@ -108,12 +96,11 @@ export async function GET(request: NextRequest) {
         status: 200,
         headers: {
           "Content-Type": "text/csv; charset=utf-8",
-          "Content-Disposition": `attachment; filename="feedback-${new Date().toISOString().split("T")[0]}.csv"`,
+          "Content-Disposition": `attachment; filename="notes-${new Date().toISOString().split("T")[0]}.csv"`,
         },
       });
     }
 
-    // Default JSON responses
     return NextResponse.json(
       {
         success: true,
@@ -134,7 +121,7 @@ export async function GET(request: NextRequest) {
       { status: apiErr.statusCode }
     );
   } finally {
-    logger.info("Admin GET Feedback List", {
+    logger.info("Admin GET Notes List", {
       method: "GET",
       path: request.nextUrl.pathname,
       durationMs: Date.now() - startTime,

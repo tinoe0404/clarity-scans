@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { notFound } from "next/navigation";
 import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
 import { validateLocale } from "@/lib/i18n";
-import type { Locale } from "@/types";
 import { LOCALES } from "@/types";
 import VisualGuideScreen from "@/components/patient/VisualGuideScreen";
 
@@ -11,11 +11,7 @@ export function generateStaticParams() {
 }
 
 // Localized SEO shell boundaries
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: { locale: string } 
-}) {
+export async function generateMetadata({ params }: { params: { locale: string } }) {
   const locale = validateLocale(params.locale);
   if (!locale) return {};
 
@@ -38,6 +34,6 @@ export default async function VisualGuidePage({ params }: VisualGuidePageProps) 
   // Next-Intl Context Hook
   unstable_setRequestLocale(locale);
 
-  // Directly yield into the interactive client layout entirely skipping DB queries 
+  // Directly yield into the interactive client layout entirely skipping DB queries
   return <VisualGuideScreen locale={locale} />;
 }

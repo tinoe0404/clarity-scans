@@ -1,50 +1,81 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
-import { updateSessionModules } from "@/lib/queries/sessions";
-import type { VideoSlug } from "@/lib/moduleRegistry";
+import {
+  updateSessionModules,
+  getSessionById,
+  touchSession,
+  updateSessionDeviceType,
+} from "@/lib/queries/sessions";
+import { handleApiError } from "@/lib/errors";
+import { logger } from "@/lib/logger";
 
-// Module explicit boundary tuple
+// Module explicit boundary tuple mapping exactly against Registry boundaries natively
 const moduleUpdateSchema = z.object({
-  completedModules: z.array(z.string().min(1)).max(10), // Bounds preventing infinite array DOS attacks inherently
+  completedModules: z
+    .array(z.enum(["what-is-ct", "prepare", "breathhold", "contrast", "staying-still"]))
+    .max(5),
+  deviceType: z.enum(["tablet", "phone", "unknown"]).optional(),
 });
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+  const startTime = Date.now();
+  const sessionId = params.id;
+
   try {
-    const sessionId = params.id;
-    
-    // UUID basic format evaluation
-    const uuidSchema = z.string().uuid();
-    const idValidation = uuidSchema.safeParse(sessionId);
+    // 1. Strict UUID injection protection
+    const idValidation = z.string().uuid().safeParse(sessionId);
     if (!idValidation.success) {
-      return NextResponse.json({ error: "Invalid session format" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Invalid session UUID format" },
+        { status: 400 }
+      );
     }
 
     const body = await request.json();
     const validation = moduleUpdateSchema.safeParse(body);
-    
+
     if (!validation.success) {
-      return NextResponse.json({ error: "Invalid payload format" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Invalid payload format" },
+        { status: 400 }
+      );
     }
 
-    // Explicit Type coercing guaranteeing strict registry tuple limits natively 
-    const modulesToUpdate = validation.data.completedModules as VideoSlug[];
-    
-    const result = await updateSessionModules(sessionId, modulesToUpdate);
-    
-    if (!result) {
-       return NextResponse.json({ error: "Session not found" }, { status: 404 });
+    // 2. Existence check ensuring we don't blind-update ghost arrays natively
+    const existingSession = await getSessionById(sessionId);
+    if (!existingSession) {
+      return NextResponse.json(
+        { success: false, error: "Session not found", resource: "Session" },
+        { status: 404 }
+      );
     }
+
+    // 3. Database operations mapped into precise dual-write locks seamlessly
+    const updates: Promise<void>[] = [];
+
+    if (validation.data.completedModules) {
+      updates.push(updateSessionModules(sessionId, validation.data.completedModules));
+      updates.push(touchSession(sessionId)); // Always touch alongside completions natively
+    }
+
+    if (validation.data.deviceType && validation.data.deviceType !== existingSession.device_type) {
+      updates.push(updateSessionDeviceType(sessionId, validation.data.deviceType));
+    }
+
+    await Promise.all(updates);
 
     return NextResponse.json({ success: true }, { status: 200 });
-    
   } catch (error) {
-    console.error("Sessions PATCH Error:", error);
+    const apiErr = handleApiError(error);
     return NextResponse.json(
-      { error: "Failed to update session modules" },
-      { status: 500 }
+      { success: false, error: apiErr.message },
+      { status: apiErr.statusCode }
     );
+  } finally {
+    logger.info("PATCH Session Synced", {
+      method: "PATCH",
+      path: request.nextUrl.pathname,
+      durationMs: Date.now() - startTime,
+    });
   }
 }
