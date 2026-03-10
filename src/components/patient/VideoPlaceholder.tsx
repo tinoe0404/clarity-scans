@@ -1,3 +1,4 @@
+import React from "react";
 import type { VideoSlug, Locale } from "@/types";
 
 interface VideoPlaceholderProps {
@@ -17,31 +18,46 @@ export default function VideoPlaceholder({
   isReady,
   children,
 }: VideoPlaceholderProps) {
-  if (isReady) {
+  // Scenario 1: Video engine loaded and playing/ready
+  if (isReady && children) {
     return (
-      <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-surface-elevated">
+      <div className="relative aspect-video w-full overflow-hidden bg-black">
         {children}
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="flex h-[72px] w-[72px] animate-pulse-glow items-center justify-center rounded-full bg-black/40 shadow-glow-sm backdrop-blur-sm">
-            <span className="ml-1 text-3xl">▶</span>
-          </div>
+      </div>
+    );
+  }
+
+  // Scenario 2: Video exists in DB but player component is still hydrating/buffering
+  if (isReady && !children) {
+    return (
+      <div
+        className="relative flex aspect-video w-full flex-col items-center justify-center gap-3 overflow-hidden bg-surface-elevated"
+        style={{
+          background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}08)`,
+        }}
+      >
+        <div className="flex flex-col items-center justify-center animate-pulse">
+           {/* Temporary inline spinner to avoid circular imports occasionally seen */}
+           <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
         </div>
       </div>
     );
   }
 
+  // Scenario 3: Video does not exist at all (isReady === false)
   return (
     <div
-      className="relative flex aspect-video w-full flex-col items-center justify-center gap-3 overflow-hidden rounded-2xl"
+      className="relative flex aspect-video w-full flex-col items-center justify-center gap-3 overflow-hidden bg-surface-elevated"
       style={{
         background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}08)`,
       }}
     >
-      <span className="text-6xl" aria-hidden="true">
+      <div className="absolute inset-0 ring-1 ring-inset ring-brand-500/20 animate-pulse-glow" />
+      <span className="text-6xl mb-2" aria-hidden="true">
         {icon}
       </span>
-      <p className="font-display text-sm font-medium text-slate-400">Video coming soon</p>
-      <p className="text-xs text-slate-600">Ask the radiographer for assistance</p>
+      <p className="font-display text-base font-medium text-white">Video coming soon</p>
+      <p className="text-sm text-slate-400">Ask the radiographer for assistance</p>
     </div>
   );
 }

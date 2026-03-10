@@ -1,7 +1,7 @@
 import React from "react";
 import type { Locale, VideoSlug } from "@/types";
 import { cn } from "@/lib/utils";
-import { Spinner } from "@/components/ui/Spinner";
+import Spinner from "@/components/ui/Spinner";
 import { useTranslations } from "next-intl";
 
 interface VideoLanguageSwitcherProps {

@@ -1,10 +1,92 @@
-interface PageProps {
+import { notFound } from "next/navigation";
+import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
+import { validateLocale } from "@/lib/i18n";
+import { getVideoBySlug } from "@/lib/queries/videos";
+import { getModuleBySlug } from "@/lib/moduleRegistry";
+import type { VideoSlug, VideoRecord } from "@/types";
+import { LOCALES } from "@/types";
+import VideoPlayerScreen from "@/components/patient/VideoPlayerScreen";
+
+// 1. Fully static path generation enabling maximum offline delivery potential
+export function generateStaticParams() {
+  const slugs: VideoSlug[] = [
+    "what-is-ct",
+    "prepare",
+    "breathhold",
+    "contrast",
+    "staying-still"
+  ];
+  const params: { locale: string; slug: string }[] = [];
+  
+  for (const locale of LOCALES) {
+    for (const slug of slugs) {
+      params.push({ locale, slug });
+    }
+  }
+  return params;
+}
+
+// 2. Localized SEO & Shell mapping
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: { locale: string; slug: string } 
+}) {
+  const locale = validateLocale(params.locale);
+  if (!locale) return {};
+
+  const moduleDef = getModuleBySlug(params.slug as VideoSlug);
+  if (!moduleDef) return {};
+
+  const t = await getTranslations({ locale });
+  // Try retrieving explicit title from localized tree
+  let titleStr = "ClarityScans";
+  try {
+    titleStr = (t as any).raw(`modules.slugs.${params.slug}.title`);
+  } catch {
+    // Fallback if translations lag behind slug additions natively
+  }
+
+  return {
+    title: `${titleStr} — ClarityScans`,
+    description: "Patient education module",
+  };
+}
+
+interface WatchPageProps {
   params: { locale: string; slug: string };
 }
-export default function WatchPage({ params }: PageProps) {
+
+// 3. Primary Server Execution Block
+export default async function WatchPage({ params }: WatchPageProps) {
+  // Validate locale boundary
+  const locale = validateLocale(params.locale);
+  if (!locale) notFound();
+
+  // Next-Intl propagation requirement
+  unstable_setRequestLocale(locale);
+
+  // Validate slug exists in static registry mapping
+  const slugTarget = params.slug as VideoSlug;
+  const registryEntry = getModuleBySlug(slugTarget);
+  if (!registryEntry) notFound();
+
+  // Attempt retrieving live VideoRecord overriding text bounds gracefully
+  let videoRecord: VideoRecord | null = null;
+  try {
+    videoRecord = await getVideoBySlug(slugTarget, locale);
+  } catch (error) {
+    // If Postgres is down entirely, log it silently. 
+    // The Patient Client relies exclusively on the static `registryEntry` and translations to maintain offline PWA illusions.
+    console.error("Database connection fault hitting /watch:", error);
+  }
+
   return (
-    <h1>
-      Video Player ({params.locale}, {params.slug}) — Phase 10
-    </h1>
+    <VideoPlayerScreen 
+      locale={locale}
+      slug={slugTarget}
+      videoRecord={videoRecord}
+      registryEntry={registryEntry}
+    />
   );
 }
