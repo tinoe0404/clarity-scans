@@ -24,6 +24,7 @@ export default function ModuleCard({
   duration,
   isImportant = false,
   isWatched = false,
+  isNextUp = false,
   href,
   accentColor = "#0ea5e9",
 }: ModuleCardProps) {
@@ -31,7 +32,7 @@ export default function ModuleCard({
     <Link
       href={href as Route}
       className={cn(
-        "flex items-center gap-4 rounded-2xl border p-4 transition-all duration-200",
+        "relative flex items-center gap-4 rounded-2xl border p-4 transition-all duration-200 overflow-hidden",
         "border-surface-border bg-surface-card",
         "hover:border-brand-500/25 hover:bg-white/[0.06]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50",
@@ -40,6 +41,14 @@ export default function ModuleCard({
       role="article"
       aria-label={`${title} — ${duration}`}
     >
+      {/* Next Up Indicator (Pulsing Dot) */}
+      {isNextUp && (
+        <div 
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-12 bg-brand-400 rounded-r-md animate-pulse-glow" 
+          aria-hidden="true"
+        />
+      )}
+
       {/* Icon block — dynamic accent color via inline style (exception: dynamic tinting) */}
       <div
         className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-xl"

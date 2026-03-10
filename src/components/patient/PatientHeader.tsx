@@ -60,8 +60,9 @@ export default function PatientHeader({
         {(title || subtitle) && (
           <div className="min-w-0 flex-1">
             {title && (
-              <h1 className="truncate font-display text-xl font-bold leading-tight text-white">
+              <h1 className="flex items-center gap-2 truncate font-display text-xl font-bold leading-tight text-white">
                 {title}
+                {isAllDone && <span className="text-xl animate-pulse">✅</span>}
               </h1>
             )}
             {subtitle && <p className="mt-1 text-sm text-slate-400">{subtitle}</p>}
@@ -76,7 +77,10 @@ export default function PatientHeader({
           </p>
           <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-400 transition-all duration-500 ease-out"
+              className={cn(
+                "h-full rounded-full transition-all duration-500 ease-out",
+                isAllDone ? "bg-medical-green" : "bg-gradient-to-r from-brand-500 to-brand-400"
+              )}
               style={{ width: `${progressPercent}%` }}
               role="progressbar"
               aria-valuenow={progressPercent}
