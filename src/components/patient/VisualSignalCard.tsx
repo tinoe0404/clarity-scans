@@ -1,14 +1,15 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { cn } from "@/lib/utils";
-import { X } from "lucide-react";
+import { Clock } from "lucide-react";
 
 interface VisualSignalCardProps {
   emoji: string;
   label: string;
   color: string;
-  isFullScreen?: boolean;
+  isRecentlyUsed?: boolean;
+  tabIndex?: number;
   onClick: () => void;
 }
 
@@ -16,11 +17,13 @@ export default function VisualSignalCard({
   emoji,
   label,
   color,
-  isFullScreen = false,
+  isRecentlyUsed = false,
+  tabIndex = 0,
   onClick,
 }: VisualSignalCardProps) {
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
+      // The parent grid should handle Arrow navigation, but local activation ensures A11y
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         onClick();
@@ -29,59 +32,35 @@ export default function VisualSignalCard({
     [onClick]
   );
 
-  // Lock body scroll when full screen
-  useEffect(() => {
-    if (isFullScreen) {
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = "";
-      };
-    }
-  }, [isFullScreen]);
-
-  if (isFullScreen) {
-    return (
-      <div
-        className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 transition-all duration-300"
-        style={{ backgroundColor: `${color}15` }}
-        role="dialog"
-        aria-modal="true"
-        aria-label={label}
-      >
-        <button
-          onClick={onClick}
-          className="absolute right-6 top-6 rounded-full bg-white/10 p-3 text-white transition-colors hover:bg-white/20"
-          aria-label="Close"
-        >
-          <X className="h-6 w-6" />
-        </button>
-        <span className="text-[120px] leading-none" aria-hidden="true">
-          {emoji}
-        </span>
-        <span className="font-display text-[32px] font-bold" style={{ color }}>
-          {label}
-        </span>
-      </div>
-    );
-  }
-
   return (
     <div
       role="button"
-      tabIndex={0}
+      tabIndex={tabIndex}
       onClick={onClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        "flex cursor-pointer items-center gap-4 rounded-2xl border p-4 transition-all duration-300",
-        "bg-white/[0.03] hover:bg-white/[0.06]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+        "flex cursor-pointer items-center min-h-[120px] gap-4 rounded-3xl border-2 p-5 transition-all duration-300 relative overflow-hidden",
+        "bg-white/[0.03] hover:bg-white/[0.06] hover:-translate-y-1 hover:shadow-glow",
+        "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/50"
       )}
       style={{ borderColor: `${color}40` }}
+      aria-label={label}
     >
-      <span className="shrink-0 text-[40px] leading-none" aria-hidden="true">
+      <div 
+        className="absolute inset-0 opacity-10 pointer-events-none transition-opacity duration-300 group-hover:opacity-20"
+        style={{ backgroundImage: `linear-gradient(to bottom right, ${color}, transparent)` }}
+      />
+      
+      {isRecentlyUsed && (
+        <div className="absolute top-2 right-2 flex items-center justify-center p-1.5 rounded-full bg-surface-base/80 border border-white/10 shadow-sm" aria-label="Recently used">
+           <Clock className="w-3.5 h-3.5 text-slate-400" />
+        </div>
+      )}
+
+      <span className="shrink-0 text-[48px] leading-none drop-shadow-md" aria-hidden="true">
         {emoji}
       </span>
-      <span className="font-display text-base font-semibold" style={{ color }}>
+      <span className="font-display text-xl font-bold leading-tight" style={{ color }}>
         {label}
       </span>
     </div>

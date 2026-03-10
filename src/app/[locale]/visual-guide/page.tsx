@@ -1,6 +1,43 @@
-interface PageProps {
+import { notFound } from "next/navigation";
+import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
+import { validateLocale } from "@/lib/i18n";
+import type { Locale } from "@/types";
+import { LOCALES } from "@/types";
+import VisualGuideScreen from "@/components/patient/VisualGuideScreen";
+
+// Static Path Build Generators ensuring Native Offline PWA functionality
+export function generateStaticParams() {
+  return LOCALES.map((locale) => ({ locale }));
+}
+
+// Localized SEO shell boundaries
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: { locale: string } 
+}) {
+  const locale = validateLocale(params.locale);
+  if (!locale) return {};
+
+  const t = await getTranslations({ locale });
+  return {
+    title: `${(t as any).raw("visual.title")} — ClarityScans`,
+    description: "Visual communication board for CT scan patients in scanner rooms.",
+  };
+}
+
+interface VisualGuidePageProps {
   params: { locale: string };
 }
-export default function VisualGuidePage({ params }: PageProps) {
-  return <h1>Visual Guide ({params.locale}) — Phase 12</h1>;
+
+// Primary Server Engine
+export default async function VisualGuidePage({ params }: VisualGuidePageProps) {
+  const locale = validateLocale(params.locale);
+  if (!locale) notFound();
+
+  // Next-Intl Context Hook
+  unstable_setRequestLocale(locale);
+
+  // Directly yield into the interactive client layout entirely skipping DB queries 
+  return <VisualGuideScreen locale={locale} />;
 }
