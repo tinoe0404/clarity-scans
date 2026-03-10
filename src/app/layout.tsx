@@ -20,12 +20,17 @@ export const metadata: Metadata = {
   title: "ClarityScans",
   description: "Understand your CT Scan",
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  userScalable: false,
   themeColor: "#0a0f1e",
 };
 
