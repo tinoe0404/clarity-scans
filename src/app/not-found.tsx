@@ -4,7 +4,7 @@ import { buttonStyles, cardStyles, screenContainerStyles } from "@/lib/styles";
 
 export default function NotFoundPage() {
   return (
-    <main className={screenContainerStyles()}>
+    <main id="main-content" tabIndex={-1} className={screenContainerStyles() + " outline-none"}>
       <div className="flex h-full min-h-[60vh] flex-1 flex-col items-center justify-center text-center">
         <div className={cardStyles("default") + " mx-auto w-full max-w-sm space-y-6 p-8"}>
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-surface-border bg-surface-elevated">

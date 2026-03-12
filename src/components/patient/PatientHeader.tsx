@@ -17,6 +17,7 @@ interface PatientHeaderProps {
   showProgress?: boolean;
   watchedCount?: number;
   totalCount?: number;
+  isAllDone?: boolean;
 }
 
 export default function PatientHeader({
@@ -29,6 +30,7 @@ export default function PatientHeader({
   showProgress = false,
   watchedCount = 0,
   totalCount = 0,
+  isAllDone = false,
 }: PatientHeaderProps) {
   const progressPercent = totalCount > 0 ? Math.round((watchedCount / totalCount) * 100) : 0;
 
@@ -78,14 +80,15 @@ export default function PatientHeader({
           <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
             <div
               className={cn(
-                "h-full rounded-full transition-all duration-500 ease-out",
+                "h-full rounded-full transition-all duration-500 ease-out motion-reduce:transition-none",
                 isAllDone ? "bg-medical-green" : "bg-gradient-to-r from-brand-500 to-brand-400"
               )}
               style={{ width: `${progressPercent}%` }}
               role="progressbar"
-              aria-valuenow={progressPercent}
+              aria-valuenow={watchedCount}
               aria-valuemin={0}
-              aria-valuemax={100}
+              aria-valuemax={totalCount}
+              aria-valuetext={`${watchedCount} of ${totalCount} modules complete`}
             />
           </div>
         </div>

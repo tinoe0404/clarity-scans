@@ -27,6 +27,13 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
   return (
     <div className="flex min-h-screen bg-surface-base text-white">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-1/2 focus:-translate-x-1/2 focus:z-50 focus:rounded-full focus:bg-brand-500 focus:px-6 focus:py-3 focus:text-white focus:font-bold focus:shadow-xl focus:outline-none focus:ring-4 focus:ring-brand-400 focus:ring-offset-2 focus:ring-offset-surface-base"
+      >
+        Skip to main content
+      </a>
+      
       {/* Desktop Sidebar */}
       <aside className="fixed z-20 hidden h-full w-64 flex-col border-r border-surface-border bg-surface-card md:flex">
         <div className="p-8">
@@ -50,7 +57,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                     : "text-gray-400 hover:bg-surface-elevated hover:text-white"
                 )}
               >
-                <item.icon className="h-5 w-5" />
+                <item.icon className="h-5 w-5" aria-hidden="true" />
                 {item.label}
               </Link>
             );
@@ -62,14 +69,14 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             onClick={() => signOut({ callbackUrl: "/admin/login" })}
             className="duration-fast flex w-full items-center gap-3 rounded-xl px-4 py-3 font-medium text-gray-400 transition-all hover:bg-medical-red/5 hover:text-medical-red"
           >
-            <LogOut className="h-5 w-5" />
+            <LogOut className="h-5 w-5" aria-hidden="true" />
             {t("logout")}
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 pb-24 md:ml-64 md:pb-0">
+      <main id="main-content" tabIndex={-1} className="flex-1 pb-24 md:ml-64 md:pb-0 outline-none">
         <div className="animate-in fade-in duration-normal mx-auto max-w-7xl p-6 md:p-10">
           {children}
         </div>

@@ -52,6 +52,6 @@ export default function ScreenTransition({
   };
 
   return (
-    <div className={cn(animations[variant], "flex flex-1 flex-col", className)}>{children}</div>
+    <div className={cn(animations[variant], "flex flex-1 flex-col motion-reduce:animate-none motion-reduce:transition-none", className)}>{children}</div>
   );
 }

@@ -12,6 +12,7 @@ interface ModuleCardProps {
   duration: string;
   isImportant?: boolean;
   isWatched?: boolean;
+  isNextUp?: boolean;
   href: string;
   accentColor?: string;
 }

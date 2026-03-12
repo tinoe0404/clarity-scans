@@ -16,6 +16,7 @@ import AllDoneCard from "./AllDoneCard";
 
 import { getWatchedModules, getSessionId } from "@/lib/session";
 import { useSessionSync } from "@/hooks/useSessionSync";
+import { useFocusManagement } from "@/hooks/useFocusManagement";
 import {
   MODULE_REGISTRY,
   mergeModuleData,
@@ -33,6 +34,8 @@ export default function ModulesScreen({ locale, dbVideos }: ModulesScreenProps) 
   const t = useTranslations("modules");
   
   const scrollRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLDivElement>(null);
+  const { moveFocusTo } = useFocusManagement();
 
   const [watchedModules, setWatchedModules] = useState<VideoSlug[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -54,6 +57,8 @@ export default function ModulesScreen({ locale, dbVideos }: ModulesScreenProps) 
     const stored = getWatchedModules();
     setWatchedModules(stored);
     setIsLoaded(true);
+
+    moveFocusTo(headingRef);
 
     try {
       track("modules_screen_viewed", { locale, sessionId: currentSession });
@@ -96,7 +101,7 @@ export default function ModulesScreen({ locale, dbVideos }: ModulesScreenProps) 
   return (
     <AppShell locale={locale} className="flex flex-col h-screen overflow-hidden">
       {/* Fixed Upper Header Zone */}
-      <div className="shrink-0 flex flex-col z-20 shadow-sm relative w-full">
+      <div className="shrink-0 flex flex-col z-20 shadow-sm relative w-full" ref={headingRef}>
         <PatientHeader
           locale={locale}
           title={isAllDone ? t("allDone") : t("title")}

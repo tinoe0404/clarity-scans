@@ -175,15 +175,59 @@ export default function VideoPlayer({
 
   const seekFillPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
 
+  // Keyboard handler for video controls
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case " ":
+        e.preventDefault();
+        togglePlay();
+        break;
+      case "ArrowRight":
+        e.preventDefault();
+        if (videoRef.current) videoRef.current.currentTime = Math.min(videoRef.current.currentTime + 10, duration);
+        resetHideTimer();
+        break;
+      case "ArrowLeft":
+        e.preventDefault();
+        if (videoRef.current) videoRef.current.currentTime = Math.max(videoRef.current.currentTime - 10, 0);
+        resetHideTimer();
+        break;
+      case "m":
+      case "M":
+        e.preventDefault();
+        if (videoRef.current) {
+          videoRef.current.muted = !videoRef.current.muted;
+          setIsMuted(videoRef.current.muted);
+        }
+        resetHideTimer();
+        break;
+      case "f":
+      case "F":
+        e.preventDefault();
+        if (containerRef.current) {
+          if (!document.fullscreenElement) {
+            containerRef.current.requestFullscreen?.();
+          } else {
+            document.exitFullscreen?.();
+          }
+        }
+        break;
+    }
+  };
+
   return (
     <div
       ref={containerRef}
+      tabIndex={0}
+      role="region"
+      aria-label="Video player — Space to play/pause, Arrow keys to seek, M to mute, F for fullscreen"
       className={cn(
-        "group relative aspect-video w-full select-none overflow-hidden bg-black",
+        "group relative aspect-video w-full select-none overflow-hidden bg-black outline-none focus-visible:ring-2 focus-visible:ring-brand-500",
         isFullscreen && "h-screen"
       )}
       onClick={resetHideTimer}
       onMouseMove={resetHideTimer}
+      onKeyDown={handleKeyDown}
     >
       <video
         ref={videoRef}
@@ -254,9 +298,9 @@ export default function VideoPlayer({
             className="flex h-20 w-20 items-center justify-center rounded-full bg-black/40 backdrop-blur-md transition-transform hover:scale-105 active:scale-95"
           >
             {isPlaying ? (
-              <Pause className="h-10 w-10 fill-white text-white" />
+              <Pause className="h-10 w-10 fill-white text-white" aria-hidden="true" />
             ) : (
-              <Play className="ml-2 h-10 w-10 fill-white text-white" />
+              <Play className="ml-2 h-10 w-10 fill-white text-white" aria-hidden="true" />
             )}
           </button>
         </div>
@@ -278,9 +322,10 @@ export default function VideoPlayer({
             value={currentTime}
             onInput={handleSeek}
             aria-label="Video progress"
-            aria-valuenow={currentTime}
+            aria-valuenow={Math.round(currentTime)}
             aria-valuemin={0}
-            aria-valuemax={duration}
+            aria-valuemax={Math.round(duration)}
+            aria-valuetext={`${formatTime(currentTime)} of ${formatTime(duration)}`}
             className="h-3 flex-1 cursor-pointer appearance-none rounded-full bg-white/20"
             style={{
               background: `linear-gradient(to right, ${accentColor} ${seekFillPercentage}%, rgba(255,255,255,0.2) ${seekFillPercentage}%)`,
@@ -294,17 +339,17 @@ export default function VideoPlayer({
           <button
             onClick={toggleMute}
             aria-label={isMuted ? "Unmute video" : "Mute video"}
-            className="-mr-2 p-2 text-white/80 transition-colors hover:text-white"
+            className="-mr-2 p-3 min-h-[44px] min-w-[44px] flex items-center justify-center text-white/80 transition-colors hover:text-white"
           >
-            {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+            {isMuted ? <VolumeX className="h-5 w-5" aria-hidden="true" /> : <Volume2 className="h-5 w-5" aria-hidden="true" />}
           </button>
 
           <button
             onClick={toggleFullscreen}
-            aria-label="Fullscreen"
-            className="-mr-2 p-2 text-white/80 transition-colors hover:text-white"
+            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            className="-mr-2 p-3 min-h-[44px] min-w-[44px] flex items-center justify-center text-white/80 transition-colors hover:text-white"
           >
-            <Maximize className="h-5 w-5" />
+            <Maximize className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
       </div>

@@ -16,7 +16,7 @@ export default function ErrorPage({
   }, [error]);
 
   return (
-    <main className={screenContainerStyles()}>
+    <main id="main-content" tabIndex={-1} className={screenContainerStyles() + " outline-none"}>
       <div className="flex h-full min-h-[60vh] w-full flex-1 flex-col items-center justify-center text-center">
         <div className={cardStyles("important") + " mx-auto w-full max-w-sm space-y-6 p-8"}>
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-medical-red/10 text-medical-red">

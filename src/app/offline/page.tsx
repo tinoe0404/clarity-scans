@@ -32,9 +32,9 @@ export default function OfflinePage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-surface-base p-6 text-white">
+    <main id="main-content" tabIndex={-1} className="flex min-h-screen flex-col items-center justify-center bg-surface-base p-6 text-white outline-none">
       <div className="mb-8 rounded-full bg-amber-500/10 p-4">
-        <WifiOff className="h-12 w-12 text-amber-500" />
+        <WifiOff className="h-12 w-12 text-amber-500" aria-hidden="true" />
       </div>
 
       <h1 className="mb-2 text-center font-display text-2xl font-bold tracking-tight">
@@ -101,12 +101,21 @@ export default function OfflinePage() {
         <button
           onClick={handleReconnect}
           disabled={checking}
-          className="flex w-full items-center justify-center space-x-2 rounded-xl bg-surface-hover py-3.5 text-sm font-medium transition-colors hover:bg-surface-border disabled:opacity-50"
+          className="flex w-full items-center justify-center space-x-2 rounded-xl bg-surface-hover py-3.5 text-sm font-medium transition-colors hover:bg-surface-border disabled:opacity-50 min-h-[44px]"
         >
-          <RefreshCw className={`h-4 w-4 ${checking ? "animate-spin" : ""}`} />
+          <RefreshCw className={`h-4 w-4 ${checking ? "animate-spin" : ""}`} aria-hidden="true" />
           <span>{checking ? "Checking connection..." : "Try reconnecting"}</span>
         </button>
+
+        <div className="mt-4 text-center">
+          <Link
+            href="/accessibility"
+            className="text-xs text-slate-500 underline underline-offset-4 hover:text-slate-400"
+          >
+            Accessibility Statement
+          </Link>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

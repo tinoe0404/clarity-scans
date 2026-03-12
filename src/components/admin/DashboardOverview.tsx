@@ -139,7 +139,7 @@ export default function DashboardOverview({ initialData }: DashboardOverviewProp
         isRefreshing={isRefreshing || isLoadingRange}
       />
       
-      <main className="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+      <main id="main-content" tabIndex={-1} className="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6 outline-none">
         {/* Top Controls */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h2 className="text-xl font-bold text-white tracking-tight">Overview</h2>

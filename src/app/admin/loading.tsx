@@ -18,7 +18,7 @@ export default function AdminLoading() {
           </div>
         </header>
         
-        <main className="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+        <main id="main-content" tabIndex={-1} className="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6 outline-none">
           
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold text-white tracking-tight">Overview</h2>

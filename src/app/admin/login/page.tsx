@@ -11,7 +11,7 @@ export default async function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-surface-base p-6">
+    <main id="main-content" tabIndex={-1} className="flex min-h-screen items-center justify-center bg-surface-base p-6 outline-none">
       <LoginForm />
     </main>
   );

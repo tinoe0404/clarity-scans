@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import Link from "next/link";
 import { buttonStyles, inputStyles, cardStyles } from "@/lib/styles";
 import { useTranslations } from "next-intl";
 
@@ -92,7 +93,7 @@ export default function LoginForm() {
               className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 transition-colors hover:text-white"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              {showPassword ? <EyeOff className="h-5 w-5" aria-hidden="true" /> : <Eye className="h-5 w-5" aria-hidden="true" />}
             </button>
           </div>
         </div>
@@ -102,7 +103,7 @@ export default function LoginForm() {
             role="alert"
             className="animate-in fade-in slide-in-from-top-1 flex items-center gap-3 rounded-xl border border-medical-red/20 bg-medical-red/10 p-4 text-sm text-medical-red"
           >
-            <AlertCircle className="h-5 w-5 shrink-0" />
+            <AlertCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
             <p>{error}</p>
           </div>
         )}
@@ -117,8 +118,14 @@ export default function LoginForm() {
         </button>
       </form>
 
-      <div className="pt-4 text-center">
+      <div className="pt-4 text-center space-y-2">
         <p className="text-xs text-gray-500">Patient-facing app does not require login</p>
+        <Link
+          href="/accessibility"
+          className="text-xs text-gray-500 underline underline-offset-4 hover:text-gray-400"
+        >
+          Accessibility Statement
+        </Link>
       </div>
     </div>
   );

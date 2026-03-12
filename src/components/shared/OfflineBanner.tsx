@@ -36,6 +36,8 @@ export function OfflineBanner() {
 
   return (
     <div 
+      role="status"
+      aria-live="polite"
       className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-center p-2 text-sm font-medium transition-transform duration-300 ${
         !isOnline 
           ? "translate-y-0 bg-amber-500 text-amber-950" 
@@ -47,13 +49,13 @@ export function OfflineBanner() {
     >
       {!isOnline ? (
         <>
-          <WifiOff className="mr-2 h-4 w-4" />
-          No internet connection — some features may be unavailable
+          <WifiOff className="mr-2 h-4 w-4" aria-hidden="true" />
+          <span>No internet connection — some features may be unavailable</span>
         </>
       ) : (
         <>
-          <Wifi className="mr-2 h-4 w-4" />
-          {syncMessage || "Back online"}
+          <Wifi className="mr-2 h-4 w-4" aria-hidden="true" />
+          <span>{syncMessage || "Back online"}</span>
         </>
       )}
     </div>
