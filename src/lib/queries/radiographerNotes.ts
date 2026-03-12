@@ -88,3 +88,28 @@ export async function getAllNotes(
 
   return { rows: data, total };
 }
+
+export async function deleteNote(id: string): Promise<void> {
+  const result = await dbOne<{ id: string }>(
+    "DELETE FROM radiographer_notes WHERE id = $1 RETURNING id",
+    [id]
+  );
+  if (!result) throw new Error("Note not found or could not be deleted");
+}
+
+export async function getCalendarHeatmap(): Promise<{ date: string; count: number }[]> {
+  const sql = `
+    SELECT day::date::text AS date, COALESCE(COUNT(n.id), 0)::integer AS count
+    FROM generate_series(
+      (now() AT TIME ZONE 'Africa/Harare')::date - interval '83 days',
+      (now() AT TIME ZONE 'Africa/Harare')::date,
+      interval '1 day'
+    ) AS day
+    LEFT JOIN radiographer_notes n 
+      ON (n.created_at AT TIME ZONE 'Africa/Harare')::date = day::date
+    GROUP BY day
+    ORDER BY day ASC;
+  `;
+  const result = await db.query<{ date: string; count: number }>(sql);
+  return result;
+}

@@ -14,7 +14,7 @@ export const createFeedbackSchema = z.object({
 export type CreateFeedbackInput = z.infer<typeof createFeedbackSchema>;
 
 export const createNoteSchema = z.object({
-  sessionId: z.string().uuid(),
+  sessionId: z.string().uuid().nullable().optional(),
   followedBreathhold: z.boolean(),
   repeatScanRequired: z.boolean(),
   languageUsed: localeSchema,

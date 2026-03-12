@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getAdminSession } from "@/lib/auth";
-import { createNote, getAllNotes } from "@/lib/queries/radiographerNotes";
+import { createNote, getAllNotes, getNotesSummary, getCalendarHeatmap } from "@/lib/queries/radiographerNotes";
 import { createNoteSchema } from "@/lib/validations";
 import { handleApiError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
@@ -64,6 +64,14 @@ export async function GET(request: NextRequest) {
     const page = parseInt(pageRaw, 10);
     const pageSize = parseInt(pageSizeRaw, 10);
 
+    const summary = searchParams.get("summary");
+    const dateRange = searchParams.get("dateRange") as "week" | "month" | "all" || "all";
+
+    if (format === "calendar") {
+      const data = await getCalendarHeatmap();
+      return NextResponse.json({ success: true, data }, { status: 200 });
+    }
+
     const { rows, total } = await getAllNotes(page, pageSize);
 
     if (format === "csv") {
@@ -99,6 +107,24 @@ export async function GET(request: NextRequest) {
           "Content-Disposition": `attachment; filename="notes-${new Date().toISOString().split("T")[0]}.csv"`,
         },
       });
+    }
+
+    if (summary === "true") {
+      const summaryData = await getNotesSummary(dateRange);
+      return NextResponse.json(
+        {
+          success: true,
+          data: rows,
+          summary: summaryData,
+          pagination: {
+            page,
+            pageSize,
+            total,
+            totalPages: Math.ceil(total / pageSize),
+          },
+        },
+        { status: 200 }
+      );
     }
 
     return NextResponse.json(
