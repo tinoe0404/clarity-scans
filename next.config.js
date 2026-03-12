@@ -5,6 +5,7 @@ const withPWA = require('next-pwa')({
 });
 
 const nextConfig = {
+    optimizeFonts: false,
     experimental: {
         serverActions: {
            bodySizeLimit: '20mb'

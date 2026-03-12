@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import type { Route } from "next";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { LayoutDashboard, Video, BarChart3, FileText, LogOut } from "lucide-react";
@@ -11,7 +10,7 @@ import { useTranslations } from "next-intl";
 
 interface NavItem {
   label: string;
-  href: Route;
+  href: string;
   icon: React.ElementType;
 }
 

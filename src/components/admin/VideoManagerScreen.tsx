@@ -1,0 +1,568 @@
+"use client";
+
+import { useState, useCallback, useRef, useMemo } from "react";
+
+import { CheckSquare, X } from "lucide-react";
+import { upload as blobUpload } from "@vercel/blob/client";
+import { cn } from "@/lib/utils";
+import { buttonStyles } from "@/lib/styles";
+import { VIDEO_MODULE_SLUGS, SUPPORTED_LOCALES } from "@/lib/constants";
+import { ConfirmDialog } from "@/components/ui";
+import StorageUsageBar from "./StorageUsageBar";
+import StorageCleanupPanel from "./StorageCleanupPanel";
+import VideoContentMatrix from "./VideoContentMatrix";
+import VideoUploadPanel from "./VideoUploadPanel";
+import BulkActionBar from "./BulkActionBar";
+import type { VideoRecord, StorageStats, VideoSlug, Locale } from "@/types";
+
+/* ── Helpers ────────────────────────────────────────── */
+
+function getCellKey(slug: string, locale: string) {
+  return `${slug}__${locale}`;
+}
+
+function parseCellKey(key: string): { slug: VideoSlug; locale: Locale } {
+  const [slug, locale] = key.split("__");
+  return { slug: slug as VideoSlug, locale: locale as Locale };
+}
+
+interface UploadProgressEntry {
+  progress: number;
+  fileName: string;
+  xhr?: XMLHttpRequest;
+}
+
+interface ToastItem {
+  id: string;
+  message: string;
+  type: "success" | "error" | "warning";
+}
+
+/* ── Threshold for XHR vs client upload ─────────────── */
+const SERVER_UPLOAD_LIMIT = 4 * 1024 * 1024; // 4MB
+
+/* ── Props ──────────────────────────────────────────── */
+interface VideoManagerScreenProps {
+  initialGrouped: Record<string, VideoRecord[]>;
+  initialStats: StorageStats | null;
+}
+
+export default function VideoManagerScreen({
+  initialGrouped,
+  initialStats,
+}: VideoManagerScreenProps) {
+  /* ── Build initial matrix ─────────────────────── */
+  const buildMatrix = useCallback((grouped: Record<string, VideoRecord[]>) => {
+    const m: Record<string, Record<string, VideoRecord | null>> = {};
+    for (const slug of VIDEO_MODULE_SLUGS) {
+      m[slug] = {};
+      for (const loc of SUPPORTED_LOCALES) {
+        m[slug][loc] = null;
+      }
+    }
+    for (const [slug, videos] of Object.entries(grouped)) {
+      for (const v of videos) {
+        if (m[slug]) m[slug][v.language] = v;
+      }
+    }
+    return m;
+  }, []);
+
+  /* ── State ────────────────────────────────────── */
+  const [matrix, setMatrix] = useState(() => buildMatrix(initialGrouped));
+  const [stats, setStats] = useState(initialStats);
+  const [uploadProgress, setUploadProgress] = useState<Record<string, UploadProgressEntry | null>>(
+    {}
+  );
+  const [editingCellKey, setEditingCellKey] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<VideoRecord | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+  // Upload panel
+  const [uploadPanel, setUploadPanel] = useState<{ slug: VideoSlug; locale: Locale } | null>(null);
+
+  // Bulk mode
+  const [isBulkMode, setIsBulkMode] = useState(false);
+  const [selectedCells, setSelectedCells] = useState<Set<string>>(new Set());
+  const [bulkProcessing, setBulkProcessing] = useState(false);
+  const [bulkProgressText, setBulkProgressText] = useState("");
+
+  // Cleanup panel
+  const [cleanupOpen, setCleanupOpen] = useState(false);
+
+  // Thumbnail file input ref
+  const thumbInputRef = useRef<HTMLInputElement>(null);
+  const [thumbSlug, setThumbSlug] = useState<VideoSlug | null>(null);
+
+  /* ── Thumbnails map ──────────────────────────── */
+  const thumbnails = useMemo(() => {
+    const t: Record<string, string | null> = {};
+    for (const slug of VIDEO_MODULE_SLUGS) {
+      const row = matrix[slug];
+      let thumb: string | null = null;
+      for (const loc of SUPPORTED_LOCALES) {
+        if (row?.[loc]?.thumbnail_url) {
+          thumb = row[loc]?.thumbnail_url || null;
+          break;
+        }
+      }
+      t[slug] = thumb;
+    }
+    return t;
+  }, [matrix]);
+
+  /* ── Toast helpers ───────────────────────────── */
+  const addToast = useCallback((message: string, type: ToastItem["type"]) => {
+    const id = Date.now().toString();
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4000);
+  }, []);
+
+  /* ── Refresh stats ───────────────────────────── */
+  const refreshStats = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/videos?includeStats=true");
+      const json = await res.json();
+      if (json.success) {
+        setMatrix(buildMatrix(json.data.grouped));
+        setStats(json.data.stats);
+      }
+    } catch {
+      /* silent */
+    }
+  }, [buildMatrix]);
+
+  /* ── Upload: XHR (< 4 MB) ───────────────────── */
+  const uploadViaXhr = useCallback(
+    (slug: VideoSlug, locale: Locale, file: File, title: string, description: string) => {
+      const cellKey = getCellKey(slug, locale);
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("slug", slug);
+      formData.append("language", locale);
+      formData.append("title", title);
+      formData.append("description", description);
+
+      const xhr = new XMLHttpRequest();
+      setUploadProgress((prev) => ({
+        ...prev,
+        [cellKey]: { progress: 0, fileName: file.name, xhr },
+      }));
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const pct = Math.round((e.loaded / e.total) * 100);
+          setUploadProgress((prev) => ({
+            ...prev,
+            [cellKey]: prev[cellKey]
+              ? { ...(prev[cellKey] as UploadProgressEntry), progress: pct }
+              : null,
+          }));
+        }
+      };
+
+      xhr.onload = () => {
+        setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
+        if (xhr.status >= 200 && xhr.status < 300) {
+          addToast("Video uploaded successfully", "success");
+          refreshStats();
+        } else {
+          addToast("Upload failed — please try again", "error");
+        }
+      };
+
+      xhr.onerror = () => {
+        setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
+        addToast("Upload failed — network error", "error");
+      };
+
+      xhr.open("POST", "/api/admin/upload");
+      xhr.send(formData);
+    },
+    [addToast, refreshStats]
+  );
+
+  /* ── Upload: client direct (4–20 MB) ─────────── */
+  const uploadViaBlobClient = useCallback(
+    async (slug: VideoSlug, locale: Locale, file: File, title: string, description: string) => {
+      const cellKey = getCellKey(slug, locale);
+      setUploadProgress((prev) => ({
+        ...prev,
+        [cellKey]: { progress: 0, fileName: file.name },
+      }));
+
+      try {
+        await blobUpload(file.name, file, {
+          access: "public",
+          handleUploadUrl: "/api/admin/upload/token",
+          clientPayload: JSON.stringify({ slug, language: locale, title, description }),
+          onUploadProgress: (p) => {
+            setUploadProgress((prev) => ({
+              ...prev,
+              [cellKey]: prev[cellKey]
+                ? { ...(prev[cellKey] as UploadProgressEntry), progress: Math.round(p.percentage) }
+                : null,
+            }));
+          },
+        });
+
+        setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
+
+        // Poll for DB record
+        let found = false;
+        for (let i = 0; i < 15; i++) {
+          await new Promise((r) => setTimeout(r, 2000));
+          try {
+            const res = await fetch(`/api/admin/videos?includeStats=true`);
+            const json = await res.json();
+            if (json.success) {
+              const videos: VideoRecord[] = json.data.grouped[slug] || [];
+              if (videos.some((v) => v.language === locale)) {
+                setMatrix(buildMatrix(json.data.grouped));
+                setStats(json.data.stats);
+                found = true;
+                break;
+              }
+            }
+          } catch {
+            /* retry */
+          }
+        }
+
+        if (found) {
+          addToast("Video uploaded successfully", "success");
+        } else {
+          addToast(
+            "Upload completed but DB record not confirmed — refresh the page to verify",
+            "warning"
+          );
+        }
+      } catch {
+        setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
+        addToast("Direct upload failed — please try again", "error");
+      }
+    },
+    [addToast, buildMatrix]
+  );
+
+  /* ── Upload router ───────────────────────────── */
+  const handleUpload = useCallback(
+    (file: File, title: string, description: string) => {
+      if (!uploadPanel) return;
+      const { slug, locale } = uploadPanel;
+      if (file.size < SERVER_UPLOAD_LIMIT) {
+        uploadViaXhr(slug, locale, file, title, description);
+      } else {
+        uploadViaBlobClient(slug, locale, file, title, description);
+      }
+    },
+    [uploadPanel, uploadViaXhr, uploadViaBlobClient]
+  );
+
+  /* ── Cancel upload ───────────────────────────── */
+  const handleCancelUpload = useCallback(
+    (slug: VideoSlug, locale: Locale) => {
+      const cellKey = getCellKey(slug, locale);
+      const entry = uploadProgress[cellKey];
+      if (entry?.xhr) entry.xhr.abort();
+      setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
+    },
+    [uploadProgress]
+  );
+
+  /* ── Toggle active status ────────────────────── */
+  const handleToggleActive = useCallback(
+    async (video: VideoRecord, newActive: boolean) => {
+      const previous = matrix[video.slug]?.[video.language];
+
+      // Optimistic
+      setMatrix((prev) => ({
+        ...prev,
+        [video.slug]: {
+          ...prev[video.slug],
+          [video.language]: { ...video, is_active: newActive },
+        },
+      }));
+
+      try {
+        const res = await fetch(`/api/admin/videos/${video.id}/status`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isActive: newActive }),
+        });
+        if (!res.ok) throw new Error("Failed");
+        addToast(newActive ? "Video activated" : "Video deactivated", "success");
+      } catch {
+        // Revert
+        setMatrix((prev) => ({
+          ...prev,
+          [video.slug]: { ...prev[video.slug], [video.language]: previous || null },
+        }));
+        addToast("Failed to update status — reverted", "error");
+      }
+    },
+    [matrix, addToast]
+  );
+
+  /* ── Save metadata ───────────────────────────── */
+  const handleSaveMetadata = useCallback(
+    async (id: string, title: string, description: string): Promise<boolean> => {
+      try {
+        const res = await fetch(`/api/admin/videos/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, description }),
+        });
+        if (!res.ok) throw new Error("Failed");
+        const json = await res.json();
+        if (json.success && json.data) {
+          const updated = json.data as VideoRecord;
+          setMatrix((prev) => ({
+            ...prev,
+            [updated.slug]: {
+              ...prev[updated.slug],
+              [updated.language]: updated,
+            },
+          }));
+        }
+        return true;
+      } catch {
+        addToast("Failed to save metadata — reverted", "error");
+        return false;
+      }
+    },
+    [addToast]
+  );
+
+  /* ── Delete ──────────────────────────────────── */
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleteLoading(true);
+    try {
+      const res = await fetch(`/api/admin/videos/${deleteTarget.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed");
+      setMatrix((prev) => ({
+        ...prev,
+        [deleteTarget.slug]: {
+          ...prev[deleteTarget.slug],
+          [deleteTarget.language]: null,
+        },
+      }));
+      addToast("Video deleted", "success");
+      refreshStats();
+    } catch {
+      addToast("Failed to delete video — try again", "error");
+    } finally {
+      setDeleteLoading(false);
+      setDeleteTarget(null);
+    }
+  }, [deleteTarget, addToast, refreshStats]);
+
+  /* ── Bulk operations ─────────────────────────── */
+  const handleBulkOperation = useCallback(
+    async (activate: boolean) => {
+      const keys = Array.from(selectedCells);
+      const targets: VideoRecord[] = [];
+      for (const key of keys) {
+        const { slug, locale } = parseCellKey(key);
+        const v = matrix[slug]?.[locale];
+        if (v) targets.push(v);
+      }
+      if (targets.length === 0) return;
+
+      setBulkProcessing(true);
+      let done = 0;
+      for (const video of targets) {
+        done++;
+        setBulkProgressText(`Updating ${done} of ${targets.length} videos...`);
+        await handleToggleActive(video, activate);
+      }
+      setBulkProcessing(false);
+      setBulkProgressText("");
+      setSelectedCells(new Set());
+      setIsBulkMode(false);
+    },
+    [selectedCells, matrix, handleToggleActive]
+  );
+
+  /* ── Thumbnail upload ────────────────────────── */
+  const handleThumbnailUploadClick = useCallback((slug: VideoSlug) => {
+    setThumbSlug(slug);
+    thumbInputRef.current?.click();
+  }, []);
+
+  const handleThumbnailFile = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file || !thumbSlug) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("slug", thumbSlug);
+
+      try {
+        const res = await fetch("/api/admin/upload/thumbnail", {
+          method: "POST",
+          body: formData,
+        });
+        if (res.ok) {
+          addToast("Thumbnail updated", "success");
+          refreshStats();
+        } else {
+          addToast("Thumbnail upload failed", "error");
+        }
+      } catch {
+        addToast("Thumbnail upload failed — network error", "error");
+      } finally {
+        if (thumbInputRef.current) thumbInputRef.current.value = "";
+        setThumbSlug(null);
+      }
+    },
+    [thumbSlug, addToast, refreshStats]
+  );
+
+  /* ── Bulk select handler ─────────────────────── */
+  const handleBulkSelect = useCallback((cellKey: string, selected: boolean) => {
+    setSelectedCells((prev) => {
+      const next = new Set(prev);
+      if (selected) next.add(cellKey);
+      else next.delete(cellKey);
+      return next;
+    });
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-white">Video Manager</h1>
+          <p className="text-sm text-slate-400">
+            Upload, manage, and toggle patient education videos
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            setIsBulkMode(!isBulkMode);
+            setSelectedCells(new Set());
+          }}
+          className={cn(
+            buttonStyles("secondary", "sm"),
+            "flex items-center gap-1.5 text-xs",
+            isBulkMode && "bg-brand-500/10 text-brand-400"
+          )}
+        >
+          <CheckSquare className="h-3.5 w-3.5" />
+          {isBulkMode ? "Done" : "Select"}
+        </button>
+      </div>
+
+      {/* Storage usage */}
+      <StorageUsageBar stats={stats} onCleanup={() => setCleanupOpen(true)} />
+
+      {/* Content matrix */}
+      <VideoContentMatrix
+        matrix={matrix}
+        uploadProgress={uploadProgress}
+        editingCellKey={editingCellKey}
+        isBulkMode={isBulkMode}
+        selectedCells={selectedCells}
+        onUploadClick={(slug, locale) => setUploadPanel({ slug, locale })}
+        onCancelUpload={handleCancelUpload}
+        onEditClick={setEditingCellKey}
+        onEditClose={() => setEditingCellKey(null)}
+        onSaveMetadata={handleSaveMetadata}
+        onDelete={setDeleteTarget}
+        onToggleActive={handleToggleActive}
+        onBulkSelect={handleBulkSelect}
+        onThumbnailUpload={handleThumbnailUploadClick}
+        thumbnails={thumbnails}
+      />
+
+      {/* Upload panel */}
+      {uploadPanel && (
+        <VideoUploadPanel
+          isOpen
+          slug={uploadPanel.slug}
+          locale={uploadPanel.locale}
+          onClose={() => setUploadPanel(null)}
+          onUpload={handleUpload}
+        />
+      )}
+
+      {/* Delete confirm dialog */}
+      {deleteTarget && (
+        <ConfirmDialog
+          isOpen
+          title="Delete this video?"
+          message="The file will be permanently removed from storage and cannot be recovered."
+          confirmLabel={deleteLoading ? "Deleting..." : "Delete"}
+          variant="danger"
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setDeleteTarget(null)}
+        />
+      )}
+
+      {/* Storage cleanup panel */}
+      <StorageCleanupPanel
+        isOpen={cleanupOpen}
+        onClose={() => setCleanupOpen(false)}
+        onComplete={() => {
+          setCleanupOpen(false);
+          refreshStats();
+          addToast("Orphaned files cleaned up", "success");
+        }}
+      />
+
+      {/* Bulk action bar */}
+      <BulkActionBar
+        selectedCount={selectedCells.size}
+        isProcessing={bulkProcessing}
+        progressText={bulkProgressText}
+        onActivateAll={() => handleBulkOperation(true)}
+        onDeactivateAll={() => handleBulkOperation(false)}
+        onCancel={() => {
+          setSelectedCells(new Set());
+          setIsBulkMode(false);
+        }}
+      />
+
+      {/* Hidden thumbnail input */}
+      <input
+        ref={thumbInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={handleThumbnailFile}
+      />
+
+      {/* Toast notifications */}
+      <div className="fixed bottom-28 right-4 z-50 flex flex-col gap-2 md:bottom-6">
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            className={cn(
+              "animate-in slide-in-from-right fade-in flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium shadow-xl duration-300",
+              toast.type === "success" && "bg-medical-green/90 text-white",
+              toast.type === "error" && "bg-medical-red/90 text-white",
+              toast.type === "warning" && "bg-medical-amber/90 text-black"
+            )}
+          >
+            {toast.message}
+            <button
+              onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
+              className="ml-1 rounded p-0.5 hover:bg-black/10"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
