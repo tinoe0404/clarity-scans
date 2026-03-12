@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/types";
+import { OfflineBanner } from "@/components/shared/OfflineBanner";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ export default function AppShell({ children, locale: _locale, className }: AppSh
         className
       )}
     >
+      <OfflineBanner />
       {children}
     </div>
   );
