@@ -10,9 +10,6 @@ import { handleApiError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 
 export const maxDuration = 60;
-export const config = {
-  api: { bodyParser: false },
-};
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();

@@ -38,7 +38,7 @@ export async function PATCH(
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: process.env.REVALIDATION_SECRET })
         });
-      } catch (e) {
+      } catch (_e) {
          logger.warn("Toggle Webhook Trigger failure");
       }
     }

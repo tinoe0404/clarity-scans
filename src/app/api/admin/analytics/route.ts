@@ -3,6 +3,8 @@ import { getAdminSession } from "@/lib/auth";
 import { getSessionsSummary } from "@/lib/queries/sessions";
 import { getFeedbackSummary } from "@/lib/queries/feedback";
 import { getNotesSummary } from "@/lib/queries/radiographerNotes";
+import { checkDatabaseHealth } from "@/lib/db";
+import { storage } from "@/lib/blob";
 import { handleApiError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
@@ -31,16 +33,26 @@ export async function GET(request: NextRequest) {
     const range = validation.data;
 
     // Execute heavy Parallel fetching limiting Dashboard initial load times
-    const [sessions, feedback, notes] = await Promise.all([
+    const [sessions, feedback, notes, dbHealth, blobStats] = await Promise.all([
       getSessionsSummary(range),
       getFeedbackSummary(range),
       getNotesSummary(range),
+      checkDatabaseHealth(),
+      storage.getStorageStats().catch((e) => ({ error: e.message })),
     ]);
 
     return NextResponse.json(
       {
         success: true,
-        data: { sessions, feedback, notes },
+        data: { 
+          sessions, 
+          feedback, 
+          notes,
+          health: {
+            db: dbHealth,
+            blob: blobStats
+          }
+        },
       },
       { status: 200 }
     );

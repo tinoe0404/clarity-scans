@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import type { Locale } from "@/types";
+import type { Locale, VideoSlug } from "@/types";
 import { getAdminSession } from "@/lib/auth";
 import { storage } from "@/lib/blob";
 import { upsertVideo } from "@/lib/queries/videos";
@@ -11,11 +11,7 @@ import { logger } from "@/lib/logger";
 
 // Vercel serverless configurations bypassing typical parsers
 export const maxDuration = 60; // Max timeout available for Free Tier Serverless Upload proxying
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
@@ -65,19 +61,20 @@ export async function POST(request: NextRequest) {
     // IMPORTANT: Strategy A (Server Upload) proxies the Buffer right to Vercel here.
     const uploadResult = await storage.uploadVideo({
       file,
-      slug,
-      locale: locale as Locale, // Typecast validated natively
-      contentType: mimeType,
+      slug: slug as VideoSlug,
+      locale: locale as Locale, 
+      contentType: mimeType as "video/mp4" | "video/webm",
     });
 
     try {
       // 2. Database Insert (The Dual-Write critical section)
       const record = await upsertVideo({
-        slug,
+        slug: slug as VideoSlug,
         language: locale as Locale,
         title,
         description: description || undefined,
         blobUrl: uploadResult.url,
+        isActive: true, // Auto-activate newly uploaded videos
       });
 
       // 3. Cache Revalidation Pipeline organically executing self triggers securely

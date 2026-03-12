@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
-  
+
   try {
     const rawBody = await request.text();
     let body;
-    
+
     try {
-       body = JSON.parse(rawBody);
+      body = JSON.parse(rawBody);
     } catch {
-       return NextResponse.json({ success: false, error: "Invalid JSON body" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "Invalid JSON body" }, { status: 400 });
     }
 
     const { token } = body;
@@ -27,9 +27,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (!token || token !== secret) {
-      logger.warn("Invalid revalidation token attempt", { 
-         path: request.nextUrl.pathname,
-         ip: request.headers.get("x-forwarded-for") || "unknown" 
+      logger.warn("Invalid revalidation token attempt", {
+        path: request.nextUrl.pathname,
+        ip: request.headers.get("x-forwarded-for") || "unknown"
       });
       return NextResponse.json(
         { success: false, error: "Unauthorized revalidation request" },
@@ -39,15 +39,15 @@ export async function POST(request: NextRequest) {
 
     // 1. Purge Public API JSON Caches explicitly
     revalidatePath("/api/videos");
-    revalidatePath("/api/videos/[slug]", "page"); 
+    revalidatePath("/api/videos/[slug]", "page");
 
     // 2. Purge Static Next.js Patient Layouts specifically
     revalidatePath("/[locale]/modules", "page");
 
-    return NextResponse.json({ 
-       success: true, 
-       revalidated: true, 
-       timestamp: Date.now() 
+    return NextResponse.json({
+      success: true,
+      revalidated: true,
+      timestamp: Date.now()
     });
 
   } catch (error) {
@@ -57,6 +57,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   } finally {
-     logger.info("Admin Cache Purge", { durationMs: Date.now() - startTime });
+    logger.info("Admin Cache Purge", { durationMs: Date.now() - startTime });
   }
 }

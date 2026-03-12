@@ -17,7 +17,7 @@ export default function ModulesError({
 }) {
   const pathname = usePathname();
   // Attempt to recover the locale gracefully since Error views lack Next 14 standard param binding reliably
-  const rootSegment = pathname.split("/")[1];
+  const rootSegment = pathname.split("/")[1] ?? "";
   const locale = ["en", "sn", "nd"].includes(rootSegment) ? rootSegment : "en";
 
   return (

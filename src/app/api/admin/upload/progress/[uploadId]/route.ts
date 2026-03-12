@@ -1,16 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getAdminSession } from "@/lib/auth";
-
-// Warning: Not exported globally. This remains inside current Edge memory context.
-// Map expires natively across Cold Starts (this is a best-effort tracker safely isolating states securely)
-export const progressStore = new Map<
-  string,
-  {
-    progress: number;
-    status: "uploading" | "processing" | "complete" | "error";
-    lastUpdated: number;
-  }
->();
+import { progressStore } from "@/lib/progressStore";
 
 export async function GET(request: NextRequest, { params }: { params: { uploadId: string } }) {
   const session = await getAdminSession();

@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     });
 
     return response;
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ success: false, error: "Failed to set locale" }, { status: 500 });
   }
 }

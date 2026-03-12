@@ -1,4 +1,3 @@
-import { BRAND_HUES } from "@/lib/constants";
 
 export default function VisualGuideLoading() {
   return (

@@ -1,31 +1,44 @@
-import { requireAdmin } from "@/lib/requireAdmin";
+import { getAdminSession } from "@/lib/auth";
+import AdminShell from "@/components/admin/AdminShell";
+import DashboardOverview from "@/components/admin/DashboardOverview";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default async function AdminDashboardPage() {
-  await requireAdmin();
+export const metadata = {
+  title: "Dashboard — ClarityScans Admin",
+};
+
+export const revalidate = 60; // Auto-regenerate HTML natively every 60s natively mapping real-time streams safely
+
+async function getAnalyticsData() {
+  const host = headers().get("host");
+  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+  
+  try {
+    const res = await fetch(`${protocol}://${host}/api/admin/analytics?dateRange=week`, {
+      next: { revalidate: 60 }
+    });
+    
+    if (!res.ok) {
+      return null; // Return null instead of throwing avoiding Error Boundaries natively
+    }
+    const json = await res.json();
+    return json.success ? json.data : null;
+  } catch (err) {
+    console.error("Dashboard Server Fetch Failed:", err);
+    return null; // Return null rather than throwing so client can render empty/error states securely
+  }
+}
+
+export default async function AdminPage() {
+  const session = await getAdminSession();
+  if (!session) redirect("/login");
+  
+  const analyticsData = await getAnalyticsData();
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="font-display text-3xl font-bold tracking-tight text-white">Dashboard</h2>
-        <div className="rounded-full border border-brand-500/20 bg-brand-500/10 px-4 py-2 font-mono text-sm uppercase tracking-wider text-brand-400">
-          Phase 17 Placeholder
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="h-32 animate-pulse rounded-2xl border border-surface-border bg-surface-card"
-          />
-        ))}
-      </div>
-
-      <div className="flex h-64 items-center justify-center rounded-2xl border border-surface-border bg-surface-card">
-        <p className="font-display text-gray-500">
-          Full dashboard implementation coming in Phase 17
-        </p>
-      </div>
-    </div>
+    <AdminShell>
+      <DashboardOverview initialData={analyticsData} />
+    </AdminShell>
   );
 }

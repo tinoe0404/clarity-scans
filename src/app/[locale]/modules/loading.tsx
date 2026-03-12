@@ -1,6 +1,5 @@
 import { AppShell } from "@/components/shared";
 import { SkeletonCard } from "@/components/ui/Skeleton";
-import PatientHeader from "@/components/patient/PatientHeader";
 import TabNavigation from "@/components/patient/TabNavigation";
 
 export default function ModulesLoading() {

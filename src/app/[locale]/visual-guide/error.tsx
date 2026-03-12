@@ -35,10 +35,9 @@ export default function VisualGuideError({
         <h2 className="text-xl font-display font-bold text-white mb-2">
           Communication board unavailable
         </h2>
-        
-        <p className="text-slate-400 text-sm mb-8 px-2">
-          We couldn't load the visual guide smoothly. Please try reloading the system natively.
-        </p>
+                <p className="text-slate-400 mt-2 mb-6 text-sm">
+            We&apos;re sorry, but something went wrong.
+          </p>
         
         <div className="flex flex-col gap-3 w-full">
           <button

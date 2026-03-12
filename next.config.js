@@ -6,7 +6,6 @@ const withPWA = require('next-pwa')({
 
 const nextConfig = {
     experimental: {
-        typedRoutes: true,
         serverActions: {
            bodySizeLimit: '20mb'
         }

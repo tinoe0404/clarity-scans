@@ -4,7 +4,6 @@ import { getVideoById, updateVideoMetadata, deleteVideo } from "@/lib/queries/vi
 import { handleApiError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 import { storage } from "@/lib/blob";
-import { z } from "zod";
 import { upsertVideoSchema } from "@/lib/validations";
 
 // Strict API Cache Webhook execution locally cleanly executing revalidate API without relying on HTTP Roundtrips natively
@@ -57,8 +56,12 @@ export async function PATCH(
     if (!validation.success) {
       return NextResponse.json({ success: false, error: "Validation failed" }, { status: 400 });
     }
+    const data = validation.data;
+    const cleanData = Object.fromEntries(
+      Object.entries(data).filter(([_, v]) => v !== undefined)
+    ) as Parameters<typeof updateVideoMetadata>[1];
 
-    const updated = await updateVideoMetadata(params.id, validation.data);
+    const updated = await updateVideoMetadata(params.id, cleanData);
     if (!updated) {
        return NextResponse.json({ success: false, error: "Not Found" }, { status: 404 });
     }

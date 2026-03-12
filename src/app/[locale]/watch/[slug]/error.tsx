@@ -16,7 +16,7 @@ export default function VideoPlayerError({
   reset: () => void;
 }) {
   const pathname = usePathname();
-  const rootSegment = pathname.split("/")[1];
+  const rootSegment = pathname.split("/")[1] ?? "";
   const locale = ["en", "sn", "nd"].includes(rootSegment) ? rootSegment : "en";
 
   return (

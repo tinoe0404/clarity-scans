@@ -10,9 +10,9 @@ interface FeedbackQuestionCardProps {
 
 export default function FeedbackQuestionCard({ 
   question, 
-  stepIndex, 
+  _stepIndex, 
   children 
-}: FeedbackQuestionCardProps) {
+}: FeedbackQuestionCardProps & { _stepIndex?: number }) {
   const reducedMotion = useReducedMotion();
 
   return (

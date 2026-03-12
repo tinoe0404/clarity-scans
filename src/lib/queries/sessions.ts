@@ -57,6 +57,7 @@ export interface SessionsSummary {
   allModulesCompletedRate: number;
   dailyCounts: { date: string; count: number }[];
   allTimeTotal: number;
+  moduleCompletionRates: { moduleId: string; completions: number; rate: number }[];
 }
 
 export async function getSessionsSummary(
@@ -92,12 +93,21 @@ export async function getSessionsSummary(
   // 4. Global total
   const sqlAllTime = `SELECT COUNT(id) as all_time FROM sessions`;
 
-  const [agg, langs, devices, timeline, allTime] = await Promise.all([
+  // 5. Module Completions
+  const sqlModules = `
+    SELECT unnest(completed_modules) as module_id, COUNT(id) as completions
+    FROM sessions
+    WHERE 1=1 ${dateFilter}
+    GROUP BY module_id
+  `;
+
+  const [agg, langs, devices, timeline, allTime, moduleStats] = await Promise.all([
     dbOne<Record<string, string>>(sqlAgg),
     db.query<{ language: string; count: string }>(sqlLang),
     db.query<{ device_type: string; count: string }>(sqlDevice),
     db.query<{ day: Date; count: string }>(sqlTimeline),
     dbOne<{ all_time: string }>(sqlAllTime),
+    db.query<{ module_id: string; completions: string }>(sqlModules),
   ]);
 
   const langDist: Record<Locale, number> = { en: 0, sn: 0, nd: 0 };
@@ -117,13 +127,22 @@ export async function getSessionsSummary(
     count: parseInt(t.count, 10),
   }));
 
+  const totalSessionsVal = parseInt(agg?.total_range || "0", 10);
+
+  const moduleCompletionRates = moduleStats.map((m) => ({
+    moduleId: m.module_id,
+    completions: parseInt(m.completions, 10),
+    rate: totalSessionsVal > 0 ? parseInt(m.completions, 10) / totalSessionsVal : 0,
+  }));
+
   return {
-    totalSessions: parseInt(agg?.total_range || "0", 10),
+    totalSessions: totalSessionsVal,
     languageDistribution: langDist,
     deviceDistribution: deviceDist,
     avgModulesCompleted: parseFloat(agg?.avg_modules || "0") || 0,
     allModulesCompletedRate: parseFloat(agg?.all_completed_rate || "0") || 0,
     dailyCounts,
     allTimeTotal: parseInt(allTime?.all_time || "0", 10),
+    moduleCompletionRates,
   };
 }

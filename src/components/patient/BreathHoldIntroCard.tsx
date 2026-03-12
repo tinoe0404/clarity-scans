@@ -11,7 +11,7 @@ interface BreathHoldIntroCardProps {
   reducedMotion?: boolean;
 }
 
-export default function BreathHoldIntroCard({ locale, onStart, reducedMotion = false }: BreathHoldIntroCardProps) {
+export default function BreathHoldIntroCard({ _locale, onStart, reducedMotion = false }: BreathHoldIntroCardProps) {
   const t = useTranslations("breathhold");
 
   return (
