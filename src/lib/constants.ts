@@ -27,3 +27,7 @@ export const BREATH_HOLD_TIMING = {
   rest: 3000,
 } as const;
 export const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+
+// HIT 300 project benchmark targets
+export const HELPFUL_TARGET = 0.80; // 80% target for "App Helpful"
+export const UNDERSTOOD_TARGET = 0.70; // 70% target for "Understood Procedure"
