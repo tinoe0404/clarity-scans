@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { WifiOff, RefreshCw, CheckCircle2, Video, MessageSquare, CloudOff } from "lucide-react";
 import Link from "next/link";
-import { clearAppCache } from "@/lib/cacheStorage"; // We'll implement this later
+import { clearAppCache as _clearAppCache } from "@/lib/cacheStorage"; // Reserved for future use
 
 export default function OfflinePage() {
   const [checking, setChecking] = useState(false);

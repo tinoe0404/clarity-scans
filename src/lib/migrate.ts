@@ -1,26 +1,34 @@
 import fs from "fs";
 import path from "path";
-import { db } from "./db";
+import { loadEnvConfig } from "@next/env";
+import { neon } from "@neondatabase/serverless";
 
+const projectDir = process.cwd();
+loadEnvConfig(projectDir);
+
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error("DATABASE_URL is not set.");
+}
+
+const sql = neon(connectionString);
 const MIGRATIONS_DIR = path.join(process.cwd(), "src/lib/migrations");
 
 export async function runMigrations() {
   console.log("Starting database migrations...");
 
   try {
-    // 1. Create migrations tracking table
-    await db.query(`
+    // 1. Create migrations tracking table (single command)
+    await sql`
       CREATE TABLE IF NOT EXISTS _migrations (
         id SERIAL PRIMARY KEY,
         filename TEXT UNIQUE NOT NULL,
         ran_at TIMESTAMPTZ DEFAULT now()
-      );
-    `);
+      )
+    `;
 
     // 2. Fetch already run migrations
-    const ranMigrationsResult = await db.query<{ filename: string }>(
-      `SELECT filename FROM _migrations`
-    );
+    const ranMigrationsResult = await sql`SELECT filename FROM _migrations`;
     const ranMigrations = new Set(ranMigrationsResult.map((m) => m.filename));
 
     // 3. Read migration files
@@ -37,22 +45,52 @@ export async function runMigrations() {
       }
 
       console.log(`Running migration: ${file}`);
-      const sql = fs.readFileSync(path.join(MIGRATIONS_DIR, file), "utf8");
+      const fileContent = fs.readFileSync(path.join(MIGRATIONS_DIR, file), "utf8");
+
+      // Split by statements while respecting dollar-quoted blocks ($$)
+      const statements: string[] = [];
+      let currentStatement = "";
+      let inDollarQuote = false;
+
+      // Handle both \r\n and \n
+      const rawLines = fileContent.split(/\r?\n/);
+      for (const line of rawLines) {
+        currentStatement += line + "\n";
+        
+        // Toggle dollar quote state if we see $$
+        if (line.includes("$$")) {
+          // Count occurrences to handle cases where it might appear twice on one line (unlikely in DDL)
+          const occurrences = (line.match(/\$\$/g) || []).length;
+          if (occurrences % 2 !== 0) {
+            inDollarQuote = !inDollarQuote;
+          }
+        }
+
+        if (!inDollarQuote && line.trim().endsWith(";")) {
+          statements.push(currentStatement.trim());
+          currentStatement = "";
+        }
+      }
+      
+      const finalStmt = currentStatement.trim();
+      if (finalStmt) {
+        statements.push(finalStmt);
+      }
 
       try {
-        await db.query("BEGIN");
+        for (const statement of statements) {
+            if (!statement) continue;
+            // Neon requires tagged templates for the default sql function. 
+            // For raw unparameterized strings, we can use sql.query.
+            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+            await (sql as any).query(statement);
+        }
 
-        // Split file content by statement since serverless driver might have issues with multiple statements
-        // But doing it all at once if supported by Neon (Neon supports multiple statements in postgres engine but sometimes driver restricts).
-        // Let's pass the whole SQL block first and wrap in generic transaction.
-        await db.query(sql);
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        await (sql as any).query(`INSERT INTO _migrations (filename) VALUES ('${file}')`);
 
-        await db.query(`INSERT INTO _migrations (filename) VALUES ($1)`, [file]);
-
-        await db.query("COMMIT");
         console.log(`Successfully completed: ${file}`);
       } catch (err: unknown) {
-        await db.query("ROLLBACK");
         console.error(`Migration failed for ${file}:`, err instanceof Error ? err.message : err);
         throw err;
       }

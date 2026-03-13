@@ -12,7 +12,7 @@ export async function GET(request: NextRequest, { params }: { params: { uploadId
 
   // Perform organic memory leak cleanup targeting items > 10 minutes seamlessly
   const now = Date.now();
-  for (const [key, val] of progressStore.entries()) {
+  for (const [key, val] of Array.from(progressStore.entries())) {
     if (now - val.lastUpdated > 10 * 60 * 1000) {
       progressStore.delete(key);
     }

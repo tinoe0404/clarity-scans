@@ -1,21 +1,18 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
-import { format } from "date-fns";
+import { useState, useRef, useEffect } from "react";
 import { 
   CheckCircle, 
   XCircle, 
   Minus, 
   AlertTriangle, 
   Trash2, 
-  ChevronDown, 
   ChevronUp, 
   Loader2, 
   AlertCircle 
 } from "lucide-react";
 import { RadioNoteRecord } from "@/types";
 import { cn } from "@/lib/utils";
-import { buttonStyles } from "@/lib/styles";
 import { adminFetch } from "@/lib/adminFetch";
 import { handleClientError } from "@/lib/globalErrorHandler";
 
@@ -34,7 +31,7 @@ const formatDateHarare = (dateStr: string | Date) => {
       dateStyle: "medium",
       timeStyle: "short",
     }).format(new Date(dateStr));
-  } catch (e) {
+  } catch (_e) {
     return new Date(dateStr).toLocaleString();
   }
 };
@@ -52,7 +49,7 @@ const NoteCard = ({
   const [fadingOut, setFadingOut] = useState(false);
   
   // Session Lookup inner state
-  const [sessionDetails, setSessionDetails] = useState<any>(null);
+  const [sessionDetails, setSessionDetails] = useState<Record<string, unknown> | null>(null);
   const [loadingSession, setLoadingSession] = useState(false);
 
   const fetchSessionDetails = async () => {
@@ -104,7 +101,7 @@ const NoteCard = ({
   };
 
   const hasLongComments = note.comments && note.comments.length > 80;
-  const truncatedComments = hasLongComments ? `${note.comments!.substring(0, 80)}...` : note.comments;
+  const truncatedComments = hasLongComments ? `${note.comments?.substring(0, 80)}...` : note.comments;
 
   return (
     <div 
@@ -162,7 +159,7 @@ const NoteCard = ({
 
       {!expanded && note.comments && (
         <div className="text-sm text-slate-400 italic">
-          "{truncatedComments}"
+          &quot;{truncatedComments}&quot;
           {hasLongComments && (
              <span className="text-brand-400 ml-1 text-xs not-italic hover:underline font-medium">Show more</span>
           )}
@@ -192,7 +189,7 @@ const NoteCard = ({
                 ) : sessionDetails ? (
                   <div className="flex items-center gap-1 text-medical-green text-xs mt-1 font-medium bg-medical-green/10 px-2 py-1 rounded inline-flex border border-medical-green/20">
                     <CheckCircle className="w-3.5 h-3.5" /> 
-                    Found: {sessionDetails.language === 'en' ? 'English' : sessionDetails.language === 'sn' ? 'ChiShona' : 'isiNdebele'}, {sessionDetails.completed_modules_count} modules
+                    Found: {sessionDetails.language === 'en' ? 'English' : sessionDetails.language === 'sn' ? 'ChiShona' : 'isiNdebele'}, {(sessionDetails as { completed_modules_count: number }).completed_modules_count} modules
                   </div>
                 ) : (
                   <div className="flex items-center gap-1 text-amber-500 text-xs mt-1 font-medium bg-amber-500/10 px-2 py-1 rounded inline-flex border border-amber-500/20">
@@ -258,7 +255,7 @@ export default function RecentNotesList({
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
+        if (entries[0]?.isIntersecting && hasMore && !isLoadingMore) {
           onLoadMore();
         }
       },

@@ -19,10 +19,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const t = useTranslations("admin.nav");
 
   const navigation: NavItem[] = [
-    { label: t("dashboard"), href: "/admin" as Route, icon: LayoutDashboard },
-    { label: t("videos"), href: "/admin/videos" as Route, icon: Video },
-    { label: t("analytics"), href: "/admin/analytics" as Route, icon: BarChart3 },
-    { label: t("notes"), href: "/admin/notes" as Route, icon: FileText },
+    { label: t("dashboard"), href: "/admin", icon: LayoutDashboard },
+    { label: t("videos"), href: "/admin/videos", icon: Video },
+    { label: t("analytics"), href: "/admin/analytics", icon: BarChart3 },
+    { label: t("notes"), href: "/admin/notes", icon: FileText },
   ];
 
   return (

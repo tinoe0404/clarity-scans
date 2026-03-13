@@ -142,7 +142,7 @@ export default function VideoContentMatrix({
                           videoId={video.id}
                           initialTitle={video.title}
                           initialDescription={video.description}
-                          updatedAt={video.updated_at}
+                          updatedAt={new Date(video.updated_at).toISOString()}
                           onSave={onSaveMetadata}
                           onClose={onEditClose}
                         />

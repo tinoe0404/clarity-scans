@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 
-// Make TS understand the service worker global scope
-declare const self: ServiceWorkerGlobalScope;
+// Use any cast to bypass Next.js DOM typings conflicting with SW typings
+const sw = self as any;
 
 // IndexedDB Helper copied locally for SW since we can't import straightforwardly 
 // in standard ES next-pwa worker setups without heavier bundler configs.
@@ -21,7 +21,7 @@ function getDB(): Promise<IDBDatabase> {
 function idbGetQueue(): Promise<any[]> {
   return getDB().then(
     (db) =>
-      new Promise((resolve, reject) => {
+      new Promise<any[]>((resolve, reject) => {
         const tx = db.transaction(STORE_NAME, "readonly");
         const store = tx.objectStore(STORE_NAME);
         const request = store.get(QUEUE_KEY);
@@ -34,7 +34,7 @@ function idbGetQueue(): Promise<any[]> {
 function idbSetQueue(queue: any[]): Promise<void> {
   return getDB().then(
     (db) =>
-      new Promise((resolve, reject) => {
+      new Promise<void>((resolve, reject) => {
         const tx = db.transaction(STORE_NAME, "readwrite");
         const store = tx.objectStore(STORE_NAME);
         const request = store.put(queue, QUEUE_KEY);
@@ -47,7 +47,7 @@ function idbSetQueue(queue: any[]): Promise<void> {
 function idbClearQueue(): Promise<void> {
   return getDB().then(
     (db) =>
-      new Promise((resolve, reject) => {
+      new Promise<void>((resolve, reject) => {
         const tx = db.transaction(STORE_NAME, "readwrite");
         const store = tx.objectStore(STORE_NAME);
         const request = store.delete(QUEUE_KEY);
@@ -92,7 +92,7 @@ async function syncFeedbackQueue() {
   }
 
   // Notify clients
-  const clients = await self.clients.matchAll();
+  const clients = await sw.clients.matchAll();
   for (const client of clients) {
     client.postMessage({
       type: "SYNC_COMPLETE",
@@ -102,7 +102,7 @@ async function syncFeedbackQueue() {
   }
 }
 
-self.addEventListener("sync", (event: any) => {
+sw.addEventListener("sync", (event: any) => {
   if (event.tag === "feedback-queue") {
     console.log("Service Worker Background Sync triggered for feedback queue");
     event.waitUntil(syncFeedbackQueue());

@@ -93,8 +93,8 @@ export async function GET(request: NextRequest) {
           row.repeat_scan_required,
           row.language_used,
           `"${(row.comments || "").replace(/"/g, '""')}"`,
-          row.radiographer_id || "unknown",
-          new Date(row.created_at).toISOString(),
+          (row as any).radiographer_id || (row as any).radiographerId || "unknown",
+          new Date(row.created_at || (row as any).createdAt || new Date()).toISOString(),
         ].join(",");
       });
 

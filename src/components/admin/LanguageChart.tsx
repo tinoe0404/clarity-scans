@@ -125,7 +125,7 @@ export default function LanguageChart({ data }: LanguageChartProps) {
             </Pie>
             {!isEmpty && (
               <Tooltip
-                formatter={(value: number) => [`${value} Sessions`, "Count"]}
+                formatter={(value: any) => [`${value} Sessions`, "Count"]}
                 contentStyle={{
                   backgroundColor: "#1e293b",
                   borderColor: "rgba(255,255,255,0.1)",

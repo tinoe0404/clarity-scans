@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
 import { validateLocale } from "@/lib/i18n";
 import { LOCALES } from "@/types";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 
-const BreathHoldScreen = dynamic(() => import("@/components/patient/BreathHoldScreen"), {
+const BreathHoldScreen = nextDynamic(() => import("@/components/patient/BreathHoldScreen"), {
   ssr: false,
   loading: () => (
     <div className="flex h-screen w-full items-center justify-center bg-surface-base">

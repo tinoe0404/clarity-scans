@@ -35,7 +35,7 @@ export default function AnxietyReductionChart({
         const reduction = b - a;
         const pBefore = (distributionBefore[String(b)] || 0) / beforeTotal;
         const pAfter = (distributionAfter[String(a)] || 0) / afterTotal;
-        reductionCounts[reduction] += pBefore * pAfter * beforeTotal;
+        reductionCounts[reduction] = (reductionCounts[reduction] || 0) + pBefore * pAfter * beforeTotal;
       }
     }
 
@@ -77,7 +77,7 @@ export default function AnxietyReductionChart({
           <Tooltip
             contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 12, fontSize: 12 }}
             labelStyle={{ color: "#e2e8f0" }}
-            formatter={(val: number) => [val, "Patients"]}
+            formatter={(val: any) => [val, "Patients"]}
           />
           <Bar dataKey="count" radius={[4, 4, 0, 0]}>
             {data.map((entry) => (

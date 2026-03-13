@@ -30,7 +30,7 @@ export function enforceRateLimit(
 
   // Pseudo-random 5% chance to flush stale memory elements mapping natively reducing leaks natively
   if (Math.random() < 0.05) {
-    for (const [key, val] of limitStore.entries()) {
+    for (const [key, val] of Array.from(limitStore.entries())) {
       if (now > val.expiresAt) limitStore.delete(key);
     }
   }

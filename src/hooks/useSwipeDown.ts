@@ -19,13 +19,13 @@ export function useSwipeDown(
     if (!element) return;
 
     const handleTouchStart = (e: TouchEvent) => {
-      startYRef.current = e.touches[0].clientY;
+      startYRef.current = e.touches[0]?.clientY ?? null;
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
       if (startYRef.current === null) return;
 
-      const endY = e.changedTouches[0].clientY;
+      const endY = e.changedTouches[0]?.clientY;
       const deltaY = endY - startYRef.current;
 
       if (deltaY > threshold) {

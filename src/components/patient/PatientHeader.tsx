@@ -18,6 +18,7 @@ interface PatientHeaderProps {
   watchedCount?: number;
   totalCount?: number;
   isAllDone?: boolean;
+  rightAction?: React.ReactNode;
 }
 
 export default function PatientHeader({
@@ -31,6 +32,7 @@ export default function PatientHeader({
   watchedCount = 0,
   totalCount = 0,
   isAllDone = false,
+  rightAction,
 }: PatientHeaderProps) {
   const progressPercent = totalCount > 0 ? Math.round((watchedCount / totalCount) * 100) : 0;
 
@@ -70,6 +72,7 @@ export default function PatientHeader({
             {subtitle && <p className="mt-1 text-sm text-slate-400">{subtitle}</p>}
           </div>
         )}
+        {rightAction && <div className="ml-auto flex items-center">{rightAction}</div>}
       </div>
 
       {showProgress && totalCount > 0 && (

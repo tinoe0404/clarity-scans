@@ -42,7 +42,7 @@ export async function withRetry<T>(
       // delay = initialDelayMs * (multiplier ^ attempt) + random(0-100)
       const delay = initialDelayMs * Math.pow(backoffMultiplier, attempt - 1) + Math.random() * 100;
 
-      logger.warn(`Operation failed (attempt ${attempt}/${maxAttempts}). Retrying in ${Math.round(delay)}ms`, error);
+      logger.warn(`Operation failed (attempt ${attempt}/${maxAttempts}). Retrying in ${Math.round(delay)}ms`, error as any);
 
       await new Promise((resolve) => setTimeout(resolve, delay));
     }

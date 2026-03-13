@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Plus, X, List, Calendar as CalendarIcon } from "lucide-react";
 import NewNoteForm from "./NewNoteForm";
 import RecentNotesList from "./RecentNotesList";

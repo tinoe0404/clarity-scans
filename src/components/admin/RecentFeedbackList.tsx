@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { toZonedTime } from "date-fns-tz";
+import { utcToZonedTime } from "date-fns-tz";
 import { MessageSquare, ArrowRight, ThumbsUp, ThumbsDown } from "lucide-react";
 import { LanguageBadge, SkeletonBlock } from "@/components/shared";
 import { adminFetch } from "@/lib/adminFetch";
@@ -94,7 +94,7 @@ export default function RecentFeedbackList() {
             {feedback.map((item) => {
               // Convert to Harare timezone
               const date = new Date(item.createdAt);
-              const harareDate = toZonedTime(date, "Africa/Harare");
+              const harareDate = utcToZonedTime(date, "Africa/Harare");
               
               return (
                 <div key={item.id} className="p-4 hover:bg-surface-base/30 transition-colors group">

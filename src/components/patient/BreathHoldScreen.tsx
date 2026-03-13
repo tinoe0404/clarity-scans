@@ -149,7 +149,7 @@ export default function BreathHoldScreen({ locale }: BreathHoldScreenProps) {
         {(trainer.state === "running" || trainer.state === "resting") && (
           <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center py-8">
             <BreathCircle
-              phase={trainer.breathPhase}
+              phase={trainer.breathPhase as any}
               countdown={trainer.countdown}
               label={currentPhaseLabel}
             />

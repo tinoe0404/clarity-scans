@@ -125,7 +125,7 @@ export async function getSessionsSummaryUncached(
   });
 
   const dailyCounts = timeline.map((t) => ({
-    date: t.day ? new Date(t.day).toISOString().split("T")[0] : "",
+    date: t.day ? (new Date(t.day).toISOString().split("T")[0] as string) : "",
     count: parseInt(t.count, 10),
   })).filter(t => t.date !== "");
 

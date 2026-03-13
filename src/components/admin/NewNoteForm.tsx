@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -7,7 +8,7 @@ import YesNoToggle from "@/components/patient/YesNoToggle";
 import { buttonStyles } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
-import { LOCALES, Locale } from "@/types";
+import { Locale } from "@/types";
 import { createNoteSchema, CreateNoteInput } from "@/lib/validations";
 import { adminFetch } from "@/lib/adminFetch";
 import { handleClientError } from "@/lib/globalErrorHandler";
@@ -203,7 +204,7 @@ export default function NewNoteForm({ onNoteAdded }: NewNoteFormProps) {
     if (!validation.success) {
       // Find first error
       const firstErr = validation.error.errors[0];
-      setValidationError(firstErr.message);
+      setValidationError(firstErr?.message || "Validation failed");
       return;
     }
 

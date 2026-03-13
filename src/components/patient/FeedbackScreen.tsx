@@ -213,7 +213,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
           {/* Custom scaling pushing the YesNo hit targets safely passing Post-Scan motor control metrics specifically */}
           <div className="[&>div>button]:py-6">
             <YesNoToggle
-              value={formData.understoodProcedure}
+              value={formData.understoodProcedure ?? null}
               onChange={(v) => updateFieldAndAdvance("understoodProcedure", v, true)}
               yesLabel={(t as any).raw("feedback.yes")}
               noLabel={(t as any).raw("feedback.no")}
@@ -229,7 +229,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
         <div className="flex w-full max-w-sm flex-col gap-8">
           <div className="[&>div>button]:py-6">
             <YesNoToggle
-              value={formData.appHelpful}
+              value={formData.appHelpful ?? null}
               onChange={(v) => updateFieldAndAdvance("appHelpful", v, false)} // No auto-advance locally waiting on manual submit clicks safely
               yesLabel={(t as any).raw("feedback.yes")}
               noLabel={(t as any).raw("feedback.no")}
@@ -264,15 +264,15 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
     return (
       <AppShell locale={locale} className="flex h-screen flex-col overflow-hidden bg-surface-base">
         <ThankYouCard
-          anxietyBefore={formData.anxietyBefore}
-          anxietyAfter={formData.anxietyAfter}
+          anxietyBefore={formData.anxietyBefore ?? null}
+          anxietyAfter={formData.anxietyAfter ?? null}
           onNewPatient={handleNewPatient}
         />
       </AppShell>
     );
   }
 
-  const currentQ = QUESTIONS[step];
+  const currentQ = QUESTIONS[step] || QUESTIONS[0];
 
   return (
     <AppShell locale={locale} className="flex h-screen flex-col overflow-hidden bg-surface-base">

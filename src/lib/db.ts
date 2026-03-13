@@ -1,11 +1,7 @@
-import { neon, neonConfig } from "@neondatabase/serverless";
-
-// Configure fetch for Neon so it works correctly in Next.js Serverless and Edge
-neonConfig.fetchConnectionCache = true;
-
-const connectionString = process.env.DATABASE_URL;
+import { Client } from "@neondatabase/serverless";
 
 function getNeonClient() {
+  const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error(
       "DATABASE_URL is not set. Please set the DATABASE_URL environment variable to your Neon connection string. " +
@@ -13,23 +9,35 @@ function getNeonClient() {
         "If working locally, add it to your .env.local file."
     );
   }
-  return neon(connectionString);
+  return new Client({ connectionString });
 }
 
 // Lazy initialization wrapper so it doesn't throw during build or module load
 // only when actually queried if the env variable isn't set.
 export const db = {
   async query<T>(sql: string, params: unknown[] = []): Promise<T[]> {
-    const sqlClient = getNeonClient();
-    // Apply a 10s statement_timeout to prevent runaway queries
-    // on Neon serverless (each invocation creates a fresh connection)
-    const wrappedSql = `SET statement_timeout = '10s'; ${sql}`;
-    /* eslint-disable no-unused-vars */
-    const result = await (
-      sqlClient as unknown as (_query: string, _params: unknown[]) => Promise<T[]>
-    )(wrappedSql, params);
-    /* eslint-enable no-unused-vars */
-    return result;
+    const client = getNeonClient();
+    await client.connect();
+
+    try {
+      // Apply a 10s statement_timeout to prevent runaway queries
+      // on Neon serverless (each invocation creates a fresh connection)
+      const wrappedSql = `SET statement_timeout = '10s'; ${sql}`;
+
+      const result = await client.query(wrappedSql, params);
+      
+      // pg returns arrays of results for multi-query strings sometimes, but normally an object with rows.
+      // We'll normalize it to just rows for our app functions.
+      if (Array.isArray(result)) {
+        // Find the last statement that returned rows or just return empty
+        const withRows = result.filter(r => r.rows);
+        return (withRows.length > 0 ? withRows[withRows.length - 1].rows : []) as T[];
+      }
+
+      return (result.rows || []) as T[];
+    } finally {
+      await client.end();
+    }
   },
 
   async queryOne<T>(sql: string, params: unknown[] = []): Promise<T | null> {

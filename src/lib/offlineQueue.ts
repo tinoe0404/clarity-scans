@@ -42,7 +42,7 @@ export async function queueFeedback(data: CreateFeedbackInput): Promise<void> {
         await registration.sync.register("feedback-queue");
       }
     } catch (err) {
-      logger.warn("Background Sync registration failed:", err);
+      logger.warn("Background Sync registration failed:", err as any);
     }
   }
 }
@@ -84,7 +84,7 @@ export async function processFeedbackQueue(): Promise<{ processed: number; faile
           logger.warn(`Discarding rejected offline feedback (Status: ${res.status})`);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       // Network error, keep in queue
       failedCount++;
       remainingQueue.push(item);

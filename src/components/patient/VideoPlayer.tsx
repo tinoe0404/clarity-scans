@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import { Play, Pause, Volume2, VolumeX, Maximize } from "lucide-react";
-import { Spinner } from "@/components/ui/Spinner";
+import Spinner from "@/components/ui/Spinner";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { generateBlurPlaceholder } from "@/lib/imageUtils";

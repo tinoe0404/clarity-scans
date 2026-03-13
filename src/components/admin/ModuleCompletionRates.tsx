@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { moduleRegistry } from "@/lib/moduleRegistry";
+import { MODULE_REGISTRY } from "@/lib/moduleRegistry";
 import { cn } from "@/lib/utils";
 
 interface ModuleRate {
@@ -17,17 +17,17 @@ interface ModuleCompletionRatesProps {
 export default function ModuleCompletionRates({ data }: ModuleCompletionRatesProps) {
   const sortedModules = useMemo(() => {
     // We map through the registry exactly maintaining natural order defined by Phase 8 specifications
-    return moduleRegistry.map((mod) => {
-      const match = data.find((d) => d.moduleId === mod.id);
+    return MODULE_REGISTRY.map((mod) => {
+      const match = data.find((d) => d.moduleId === mod.slug);
       const rate = match?.rate || 0;
       const ratePercent = Math.round(rate * 100);
       
       return {
-        id: mod.id,
-        title: mod.titleEn,
+        id: mod.slug,
+        title: mod.slug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
         icon: mod.icon,
         ratePercent,
-        isBreathhold: mod.id === "04-breath-hold", 
+        isBreathhold: mod.slug === "breathhold", 
       };
     });
   }, [data]);
@@ -50,7 +50,7 @@ export default function ModuleCompletionRates({ data }: ModuleCompletionRatesPro
                     "p-1.5 rounded-lg border",
                     mod.isBreathhold ? "bg-amber-500/10 border-amber-500/20 text-amber-500" : "bg-surface-base border-surface-border text-slate-400"
                   )}>
-                    <Icon className="h-4 w-4" />
+                    <span className="h-4 w-4 flex items-center justify-center text-sm" aria-hidden="true">{Icon}</span>
                   </div>
                   <span className="text-sm font-medium text-slate-200">
                     {mod.title}

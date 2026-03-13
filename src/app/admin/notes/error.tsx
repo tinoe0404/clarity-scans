@@ -19,7 +19,7 @@ export default function NotesError({
   }, [error]);
 
   return (
-    <AdminShell title="Radiographer Notes" description="Log and review structured clinical observations immediately after patient CT scans.">
+    <AdminShell>
       <div className="flex flex-col items-center justify-center p-12 bg-surface-elevated rounded-2xl border border-surface-border text-center max-w-2xl mx-auto mt-8">
         <div className="w-16 h-16 rounded-full bg-medical-red/10 flex items-center justify-center mb-6">
           <AlertCircle className="w-8 h-8 text-medical-red" />

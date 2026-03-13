@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdmin } from "@/lib/requireAdmin";
 import AdminShell from "@/components/admin/AdminShell";
 import NotesScreen from "@/components/admin/NotesScreen";
 import { getAllNotes, getNotesSummary } from "@/lib/queries/radiographerNotes";
@@ -21,10 +21,7 @@ export default async function NotesPage() {
   ]);
 
   return (
-    <AdminShell 
-      title="Radiographer Notes" 
-      description="Log and review structured clinical observations immediately after patient CT scans."
-    >
+    <AdminShell>
       <NotesScreen 
         initialNotes={notesData.rows}
         initialSummary={summary}

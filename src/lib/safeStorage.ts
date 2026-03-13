@@ -32,7 +32,7 @@ export function safeGet<T>(key: string, validator: (value: unknown) => value is 
       return null;
     }
   } catch (error) {
-    logger.warn(`Failed to read from localStorage key "${key}"`, error);
+    logger.warn(`Failed to read from localStorage key "${key}"`, error as any);
     return null;
   }
 }
@@ -53,7 +53,7 @@ export function safeSet(key: string, value: unknown): boolean {
     localStorage.setItem(key, serialized);
     return true;
   } catch (error) {
-    logger.warn(`Failed to set localStorage key "${key}"`, error);
+    logger.warn(`Failed to set localStorage key "${key}"`, error as any);
     return false;
   }
 }
@@ -69,6 +69,6 @@ export function safeDelete(key: string): void {
   try {
     localStorage.removeItem(key);
   } catch (error) {
-    logger.warn(`Failed to delete localStorage key "${key}"`, error);
+    logger.warn(`Failed to delete localStorage key "${key}"`, error as any);
   }
 }

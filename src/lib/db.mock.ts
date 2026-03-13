@@ -26,6 +26,7 @@ let mockVideos: VideoRecord[] = [
     sort_order: 1,
     is_active: false,
     created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id: "v2",
@@ -39,6 +40,7 @@ let mockVideos: VideoRecord[] = [
     sort_order: 2,
     is_active: false,
     created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id: "v3",
@@ -52,6 +54,7 @@ let mockVideos: VideoRecord[] = [
     sort_order: 3,
     is_active: false,
     created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id: "v4",
@@ -65,6 +68,7 @@ let mockVideos: VideoRecord[] = [
     sort_order: 4,
     is_active: false,
     created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id: "v5",
@@ -78,6 +82,7 @@ let mockVideos: VideoRecord[] = [
     sort_order: 5,
     is_active: false,
     created_at: new Date(),
+    updated_at: new Date(),
   },
 ];
 
@@ -211,6 +216,7 @@ export async function upsertVideo(data: UpsertVideoInput): Promise<VideoRecord> 
     sort_order: mockVideos.length + 1,
     is_active: data.isActive ?? true,
     created_at: new Date(),
+    updated_at: new Date(),
   };
   mockVideos.push(novel);
   return { ...novel };
@@ -290,6 +296,11 @@ export async function getFeedbackSummary(
     helpfulRate: 0.9,
     understoodRate: 0.85,
     totalFeedback: mockFeedback.length,
+    positiveReductionRate: 0.8,
+    distributionBefore: { "1": 0, "2": 0, "3": 1, "4": 1, "5": 1 },
+    distributionAfter: { "1": 0, "2": 1, "3": 2, "4": 0, "5": 0 },
+    dailyCounts: [],
+    languageDistribution: { en: 0, sn: 0, nd: 0 } as Record<Locale, number>,
   };
 }
 /* eslint-enable no-unused-vars */
@@ -307,7 +318,7 @@ export async function getAllFeedback(
 export async function createNote(data: CreateNoteInput): Promise<RadioNoteRecord> {
   const n: RadioNoteRecord = {
     id: uuid(),
-    session_id: data.sessionId,
+    session_id: data.sessionId || "unknown_session",
     followed_breathhold: data.followedBreathhold,
     repeat_scan_required: data.repeatScanRequired,
     language_used: data.languageUsed as Locale,

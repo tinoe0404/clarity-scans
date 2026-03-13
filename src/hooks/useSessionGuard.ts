@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { getSessionId } from '@/lib/session';
 import { Locale } from '@/types';
 import { handleClientError } from '@/lib/globalErrorHandler';
-import { SessionError } from '@/lib/errorTypes';
+import { SessionError as _SessionError } from '@/lib/errorTypes';
 
 export function useSessionGuard(locale: Locale) {
   const router = useRouter();

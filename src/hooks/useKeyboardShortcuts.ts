@@ -30,7 +30,7 @@ export function useKeyboardShortcuts(
         if (e.key !== "Tab" && e.key !== "Enter") { // Avoid stealing core accessibility keys accidentally
            e.preventDefault();
         }
-        shortcuts[e.key]();
+        shortcuts[e.key]?.();
       }
     };
 

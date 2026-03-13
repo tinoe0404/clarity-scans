@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       if (!acc[video.slug]) {
         acc[video.slug] = [];
       }
-      acc[video.slug].push(video);
+      acc[video.slug]!.push(video);
       return acc;
     }, {} as Record<VideoSlug | string, VideoRecord[]>);
 
