@@ -1,108 +1,103 @@
-import { handleUpload } from "@vercel/blob/client";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Locale } from "@/types";
 import { upsertVideo } from "@/lib/queries/videos";
 import { logUploadAction } from "@/lib/queries/uploadLog";
-import { validateBlobWebhookPayload } from "@/lib/uploadValidation";
 import { storage } from "@/lib/blob";
+import { getR2PublicUrl } from "@/lib/r2";
 import { logger } from "@/lib/logger";
 
-// Unprotected Route: Vercel Servers execute Webhook callbacks directly post-upload bypassing Admin cookies naturally
+/**
+ * POST /api/admin/upload/complete
+ *
+ * Called by the client AFTER a successful presigned upload to R2.
+ * This endpoint creates the database record linking the uploaded file.
+ */
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
 
   try {
-    const body = await request.json();
+    const body = (await request.json()) as {
+      key: string;
+      slug: string;
+      locale: string;
+      title: string;
+      description?: string;
+      fileSize?: number;
+    };
 
-    if (!validateBlobWebhookPayload(body)) {
+    if (!body.key || !body.slug || !body.locale || !body.title) {
       return NextResponse.json(
-        { success: false, error: "Invalid generic layout" },
+        { success: false, error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // handleUpload natively verifies internal Vercel webhook signatures stopping tampered inputs accurately
-    const webhookResponse = await handleUpload({
-      body,
-      request,
-      onBeforeGenerateToken: async () => ({ tokenPayload: "{}" }),
-      onUploadCompleted: async ({ blob, tokenPayload }) => {
-        if (!tokenPayload) {
-          logger.error("Webhook triggered lacking tokenPayload bindings. Trashing blob natively.", {
-            blobUrl: blob.url,
-          });
-          await storage.deleteBlob(blob.url);
-          return;
-        }
+    const publicUrl = getR2PublicUrl(body.key);
 
-        const metadata = JSON.parse(tokenPayload) as {
-          slug: string;
-          locale: string;
-          title: string;
-          description?: string;
-          radiographerId: string;
-        };
+    try {
+      // Create/update the database record linking the R2 object
+      const record = await upsertVideo({
+        slug: body.slug,
+        language: body.locale as Locale,
+        title: body.title,
+        description: body.description,
+        blobUrl: publicUrl,
+        isActive: true,
+      });
 
+      // Log success
+      await logUploadAction({
+        action: "upload_video",
+        slug: body.slug,
+        locale: body.locale as Locale,
+        blob_url: publicUrl,
+        file_size_bytes: body.fileSize ?? 0,
+        success: true,
+      });
+
+      // Revalidation
+      if (process.env.REVALIDATION_SECRET) {
         try {
-          // Establish exact bindings executing dual-write guarantees purely
-          await upsertVideo({
-            slug: metadata.slug,
-            language: metadata.locale as Locale,
-            title: metadata.title,
-            description: metadata.description,
-            blobUrl: blob.url,
+          await fetch(new URL("/api/revalidate", request.url).toString(), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ secret: process.env.REVALIDATION_SECRET }),
           });
-
-          // Log the successful Phase 16 Client-side pipeline
-          await logUploadAction({
-            action: "upload_video",
-            slug: metadata.slug,
-            locale: metadata.locale as Locale,
-            blob_url: blob.url,
-            file_size_bytes: blob.size,
-            success: true,
-          });
-
-          // Revalidation runs automatically pushing changes directly outwards seamlessly
-          if (process.env.REVALIDATION_SECRET) {
-            try {
-              await fetch(new URL("/api/revalidate", request.url).toString(), {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ secret: process.env.REVALIDATION_SECRET }),
-              });
-            } catch (_e) {
-              /* Async */
-            }
-          }
-        } catch (dbError) {
-          const errMsg = dbError instanceof Error ? dbError.message : "Webhook DB insert failure";
-          logger.error(
-            "Database constraint failed during Client-Side Webhook completion. Triggering Purge.",
-            { slug: metadata.slug, error: errMsg }
-          );
-
-          // Cleanup Pattern identically ensuring Ghost files are nuked smoothly
-          await storage.deleteBlob(blob.url);
-
-          await logUploadAction({
-            action: "upload_video",
-            slug: metadata.slug,
-            locale: metadata.locale as Locale,
-            blob_url: blob.url,
-            success: false,
-            error_message: `Webhook Purge active: ${errMsg}`,
-          });
+        } catch (_e) {
+          /* Non-fatal */
         }
-      },
-    });
+      }
 
-    return NextResponse.json(webhookResponse, { status: 200 });
+      return NextResponse.json({ success: true, data: record }, { status: 200 });
+    } catch (dbError) {
+      // If DB insert fails, clean up the R2 object to prevent orphans
+      const errMsg = dbError instanceof Error ? dbError.message : "DB insertion failed";
+      logger.error("Database tracking failed post-R2-upload. Triggering cleanup.", {
+        key: body.key,
+        error: errMsg,
+      });
+
+      await storage.deleteBlob(publicUrl);
+
+      await logUploadAction({
+        action: "upload_video",
+        slug: body.slug,
+        locale: body.locale as Locale,
+        blob_url: publicUrl,
+        success: false,
+        error_message: `Post-Upload DB failure, R2 object cleaned: ${errMsg}`,
+      });
+
+      return NextResponse.json(
+        { success: false, error: "Database error during upload completion" },
+        { status: 500 }
+      );
+    }
   } catch (error) {
-    logger.error("Vercel Webhook completion sequence failed", error);
-    return NextResponse.json({ success: false, error: "Webhook failure" }, { status: 500 });
+    logger.error("Upload completion failed", error);
+    return NextResponse.json({ success: false, error: "Completion failed" }, { status: 500 });
   } finally {
-    logger.info("Admin Webhook Execution", {
+    logger.info("Admin Upload Completion", {
       method: "POST",
       path: request.nextUrl.pathname,
       durationMs: Date.now() - startTime,

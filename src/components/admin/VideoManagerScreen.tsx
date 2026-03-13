@@ -3,7 +3,6 @@
 import { useState, useCallback, useRef, useMemo } from "react";
 
 import { CheckSquare, X } from "lucide-react";
-import { upload as blobUpload } from "@vercel/blob/client";
 import { cn } from "@/lib/utils";
 import { buttonStyles } from "@/lib/styles";
 import { SUPPORTED_LOCALES, VIDEO_MODULE_SLUGS } from "@/lib/constants";
@@ -193,8 +192,8 @@ export default function VideoManagerScreen({
     [addToast, refreshStats]
   );
 
-  /* ── Upload: client direct (4–20 MB) ─────────── */
-  const uploadViaBlobClient = useCallback(
+  /* ── Upload: R2 presigned URL (4–20 MB) ────────── */
+  const uploadViaPresignedUrl = useCallback(
     async (slug: VideoSlug, locale: Locale, file: File, title: string, description: string) => {
       const cellKey = getCellKey(slug, locale);
       setUploadProgress((prev) => ({
@@ -203,58 +202,87 @@ export default function VideoManagerScreen({
       }));
 
       try {
-        await blobUpload(file.name, file, {
-          access: "public",
-          handleUploadUrl: "/api/admin/upload/token",
-          clientPayload: JSON.stringify({ slug, language: locale, title, description }),
-          onUploadProgress: (p) => {
-            setUploadProgress((prev) => ({
-              ...prev,
-              [cellKey]: prev[cellKey]
-                ? { ...(prev[cellKey] as UploadProgressEntry), progress: Math.round(p.percentage) }
-                : null,
-            }));
-          },
+        // 1. Get presigned URL from our API
+        const tokenRes = await adminFetch("/api/admin/upload/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            filename: file.name,
+            contentType: file.type,
+            slug,
+            locale,
+            title,
+            description,
+          }),
         });
+        const tokenJson = await tokenRes.json();
+        if (!tokenJson.success) throw new Error(tokenJson.error || "Failed to get upload URL");
+
+        const { presignedUrl, key } = tokenJson.data;
+
+        // 2. Upload directly to R2 via XHR for progress tracking
+        await new Promise<void>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+
+          xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+              const pct = Math.round((e.loaded / e.total) * 100);
+              setUploadProgress((prev) => ({
+                ...prev,
+                [cellKey]: prev[cellKey]
+                  ? { ...(prev[cellKey] as UploadProgressEntry), progress: pct, xhr }
+                  : null,
+              }));
+            }
+          };
+
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve();
+            } else {
+              reject(new Error(`R2 upload failed with status ${xhr.status}`));
+            }
+          };
+          xhr.onerror = () => reject(new Error("R2 upload network error"));
+
+          xhr.open("PUT", presignedUrl);
+          xhr.setRequestHeader("Content-Type", file.type);
+          xhr.send(file);
+        });
+
+        // 3. Register the upload in the database
+        const completeRes = await adminFetch("/api/admin/upload/complete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            key,
+            slug,
+            locale,
+            title,
+            description,
+            fileSize: file.size,
+          }),
+        });
+        const completeJson = await completeRes.json();
 
         setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
 
-        // Poll for DB record
-        let found = false;
-        for (let i = 0; i < 15; i++) {
-          await new Promise((r) => setTimeout(r, 2000));
-          try {
-            const res = await adminFetch(`/api/admin/videos?includeStats=true`);
-            const json = await res.json();
-            if (json.success) {
-              const videos: VideoRecord[] = json.data.grouped[slug] || [];
-              if (videos.some((v) => v.language === locale)) {
-                setMatrix(buildMatrix(json.data.grouped));
-                setStats(json.data.stats);
-                found = true;
-                break;
-              }
-            }
-          } catch (error) {
-            handleClientError(error, "VideoManagerScreen - poll for DB record retry");
-          }
-        }
-
-        if (found) {
+        if (completeJson.success) {
           addToast("Video uploaded successfully", "success");
+          refreshStats();
         } else {
           addToast(
-            "Upload completed but DB record not confirmed — refresh the page to verify",
+            "Upload completed but DB record failed — refresh the page to verify",
             "warning"
           );
         }
       } catch (error) {
-        handleClientError(error, "VideoManagerScreen - uploadViaBlobClient");
+        handleClientError(error, "VideoManagerScreen - uploadViaPresignedUrl");
         setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
         addToast("Direct upload failed — please try again", "error");
       }
     },
-    [addToast, buildMatrix]
+    [addToast, refreshStats]
   );
 
   /* ── Upload router ───────────────────────────── */
@@ -265,10 +293,10 @@ export default function VideoManagerScreen({
       if (file.size < SERVER_UPLOAD_LIMIT) {
         uploadViaXhr(slug, locale, file, title, description);
       } else {
-        uploadViaBlobClient(slug, locale, file, title, description);
+        uploadViaPresignedUrl(slug, locale, file, title, description);
       }
     },
-    [uploadPanel, uploadViaXhr, uploadViaBlobClient]
+    [uploadPanel, uploadViaXhr, uploadViaPresignedUrl]
   );
 
   /* ── Cancel upload ───────────────────────────── */

@@ -17,7 +17,7 @@ import {
   FREE_TIER_LIMIT_BYTES,
 } from "./constants";
 
-export const USE_MOCK_BLOB = !process.env.BLOB_READ_WRITE_TOKEN;
+export const USE_MOCK_BLOB = !process.env.R2_ACCESS_KEY_ID;
 
 // Local in-memory map for mock storage
 interface MockBlobData {

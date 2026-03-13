@@ -1,4 +1,10 @@
-import { put, del, list, type ListBlobResultBlob } from "@vercel/blob";
+import {
+  PutObjectCommand,
+  DeleteObjectCommand,
+  ListObjectsV2Command,
+  HeadObjectCommand,
+} from "@aws-sdk/client-s3";
+import { getR2Client, R2_BUCKET_NAME, getR2PublicUrl } from "./r2";
 import {
   Locale,
   VideoSlug,
@@ -17,16 +23,15 @@ import {
   ACCEPTED_IMAGE_TYPES,
   FREE_TIER_LIMIT_BYTES,
 } from "./constants";
-import { isBlobUrl } from "./utils";
 import { mockBlobStorage } from "./blob.mock";
 
 export const BlobPaths = {
-  video: (locale: Locale, slug: VideoSlug): string => `videos / ${locale}/${slug}.mp4`,
+  video: (locale: Locale, slug: VideoSlug): string => `videos/${locale}/${slug}.mp4`,
   thumbnail: (slug: VideoSlug): string => `thumbnails/${slug}.jpg`,
   tempUpload: (filename: string): string => `temp/${Date.now()}-${filename}`,
 };
 
-export const blobStorage = {
+export const r2Storage = {
   async uploadVideo({
     file,
     locale,
@@ -37,7 +42,6 @@ export const blobStorage = {
       throw new BlobValidationError("INVALID_TYPE", `Invalid video content type: ${contentType}`);
     }
 
-    // Size validation - Note: for Streams this is optimistic padding, relying on Vercel's limits too
     const isBuffer = Buffer.isBuffer(file);
     if (isBuffer && (file as Buffer).length > MAX_VIDEO_SIZE_BYTES) {
       throw new BlobValidationError(
@@ -47,29 +51,34 @@ export const blobStorage = {
     }
 
     try {
-      const pathname = BlobPaths.video(locale, slug);
-      const rawBlob = await put(pathname, file as unknown as File, {
-        access: "public",
-        addRandomSuffix: false,
-        contentType: contentType,
-      });
-      const blob = rawBlob as unknown as {
-        url: string;
-        pathname: string;
-        size: number;
-        uploadedAt: Date;
-      };
+      const key = BlobPaths.video(locale, slug);
+      const body = Buffer.isBuffer(file)
+        ? file
+        : Buffer.from(await streamToBuffer(file as ReadableStream));
+
+      const client = getR2Client();
+      await client.send(
+        new PutObjectCommand({
+          Bucket: R2_BUCKET_NAME,
+          Key: key,
+          Body: body,
+          ContentType: contentType,
+        })
+      );
+
+      const url = getR2PublicUrl(key);
 
       return {
-        url: blob.url,
-        pathname: blob.pathname,
-        size: blob.size ?? 0,
-        uploadedAt: blob.uploadedAt ?? new Date(),
+        url,
+        pathname: key,
+        size: body.length,
+        uploadedAt: new Date(),
       };
     } catch (err: unknown) {
+      if (err instanceof BlobValidationError) throw err;
       throw new BlobValidationError(
         "UPLOAD_FAILED",
-        err instanceof Error ? err.message : "Failed to upload video"
+        err instanceof Error ? err.message : "Failed to upload video to R2"
       );
     }
   },
@@ -91,40 +100,47 @@ export const blobStorage = {
     }
 
     try {
-      const pathname = BlobPaths.thumbnail(slug);
-      const rawBlob = await put(pathname, file, {
-        access: "public",
-        addRandomSuffix: false,
-        contentType: contentType,
-      });
-      const blob = rawBlob as unknown as { url: string; pathname: string; size: number };
+      const key = BlobPaths.thumbnail(slug);
+      const client = getR2Client();
+      await client.send(
+        new PutObjectCommand({
+          Bucket: R2_BUCKET_NAME,
+          Key: key,
+          Body: file,
+          ContentType: contentType,
+        })
+      );
+
+      const url = getR2PublicUrl(key);
 
       return {
-        url: blob.url,
-        pathname: blob.pathname,
-        size: blob.size ?? 0,
+        url,
+        pathname: key,
+        size: file.length,
       };
     } catch (err: unknown) {
+      if (err instanceof BlobValidationError) throw err;
       throw new BlobValidationError(
         "UPLOAD_FAILED",
-        err instanceof Error ? err.message : "Failed to upload thumbnail"
+        err instanceof Error ? err.message : "Failed to upload thumbnail to R2"
       );
     }
   },
 
   async deleteBlob(url: string): Promise<void> {
-    if (!isBlobUrl(url)) {
-      throw new BlobValidationError(
-        "INVALID_URL",
-        "Cannot delete blob: not a valid Vercel Blob URL"
-      );
-    }
-
     try {
-      await del(url);
+      // Extract the key from the public URL
+      const key = extractKeyFromUrl(url);
+      const client = getR2Client();
+      await client.send(
+        new DeleteObjectCommand({
+          Bucket: R2_BUCKET_NAME,
+          Key: key,
+        })
+      );
     } catch (err: unknown) {
       console.warn(
-        `Warning: failed to delete blob ${url}`,
+        `Warning: failed to delete R2 object ${url}`,
         err instanceof Error ? err.message : ""
       );
     }
@@ -134,25 +150,33 @@ export const blobStorage = {
     const prefix = `videos/${locale ? locale + "/" : ""}`;
     const blobs: BlobListResult[] = [];
 
-    let hasMore = true;
-    let cursor: string | undefined;
+    const client = getR2Client();
+    let continuationToken: string | undefined;
 
-    while (hasMore) {
-      const options: { prefix: string; cursor?: string } = { prefix };
-      if (cursor) options.cursor = cursor;
-
-      const listResult = await list(options);
-      blobs.push(
-        ...listResult.blobs.map((b) => ({
-          url: b.url,
-          pathname: b.pathname,
-          size: b.size,
-          uploadedAt: b.uploadedAt,
-        }))
+    do {
+      const result = await client.send(
+        new ListObjectsV2Command({
+          Bucket: R2_BUCKET_NAME,
+          Prefix: prefix,
+          ContinuationToken: continuationToken,
+        })
       );
-      hasMore = listResult.hasMore;
-      cursor = listResult.cursor;
-    }
+
+      if (result.Contents) {
+        for (const obj of result.Contents) {
+          if (obj.Key) {
+            blobs.push({
+              url: getR2PublicUrl(obj.Key),
+              pathname: obj.Key,
+              size: obj.Size ?? 0,
+              uploadedAt: obj.LastModified ?? new Date(),
+            });
+          }
+        }
+      }
+
+      continuationToken = result.IsTruncated ? result.NextContinuationToken : undefined;
+    } while (continuationToken);
 
     return blobs;
   },
@@ -161,61 +185,79 @@ export const blobStorage = {
     const prefix = `thumbnails/`;
     const blobs: BlobListResult[] = [];
 
-    let hasMore = true;
-    let cursor: string | undefined;
+    const client = getR2Client();
+    let continuationToken: string | undefined;
 
-    while (hasMore) {
-      const options: { prefix: string; cursor?: string } = { prefix };
-      if (cursor) options.cursor = cursor;
-
-      const listResult = await list(options);
-      blobs.push(
-        ...listResult.blobs.map((b: ListBlobResultBlob) => ({
-          url: b.url,
-          pathname: b.pathname,
-          size: b.size,
-          uploadedAt: b.uploadedAt,
-        }))
+    do {
+      const result = await client.send(
+        new ListObjectsV2Command({
+          Bucket: R2_BUCKET_NAME,
+          Prefix: prefix,
+          ContinuationToken: continuationToken,
+        })
       );
-      hasMore = listResult.hasMore;
-      cursor = listResult.cursor;
-    }
+
+      if (result.Contents) {
+        for (const obj of result.Contents) {
+          if (obj.Key) {
+            blobs.push({
+              url: getR2PublicUrl(obj.Key),
+              pathname: obj.Key,
+              size: obj.Size ?? 0,
+              uploadedAt: obj.LastModified ?? new Date(),
+            });
+          }
+        }
+      }
+
+      continuationToken = result.IsTruncated ? result.NextContinuationToken : undefined;
+    } while (continuationToken);
 
     return blobs;
   },
 
   async videoExists(locale: Locale, slug: VideoSlug): Promise<boolean> {
-    const pathname = BlobPaths.video(locale, slug);
+    const key = BlobPaths.video(locale, slug);
     try {
-      // head expects url, since we don't have url we fetch list with prefix
-      const result = await list({ prefix: pathname, limit: 1 });
-      return result.blobs.length > 0 && result.blobs[0]?.pathname === pathname;
+      const client = getR2Client();
+      await client.send(
+        new HeadObjectCommand({
+          Bucket: R2_BUCKET_NAME,
+          Key: key,
+        })
+      );
+      return true;
     } catch {
       return false;
     }
   },
 
   async getStorageStats(): Promise<StorageStats> {
-    let hasMore = true;
-    let cursor: string | undefined;
     let totalBytes = 0;
     let videoCount = 0;
     let thumbnailCount = 0;
 
-    // List all to calculate total sizes (acceptable for < 20 files total)
-    while (hasMore) {
-      const options: { cursor?: string } = {};
-      if (cursor) options.cursor = cursor;
+    const client = getR2Client();
+    let continuationToken: string | undefined;
 
-      const listResult = await list(options);
-      for (const b of listResult.blobs) {
-        totalBytes += b.size;
-        if (b.pathname.startsWith("videos/")) videoCount++;
-        if (b.pathname.startsWith("thumbnails/")) thumbnailCount++;
+    do {
+      const result = await client.send(
+        new ListObjectsV2Command({
+          Bucket: R2_BUCKET_NAME,
+          ContinuationToken: continuationToken,
+        })
+      );
+
+      if (result.Contents) {
+        for (const obj of result.Contents) {
+          totalBytes += obj.Size ?? 0;
+          if (obj.Key?.startsWith("videos/")) videoCount++;
+          if (obj.Key?.startsWith("thumbnails/")) thumbnailCount++;
+        }
       }
-      hasMore = listResult.hasMore;
-      cursor = listResult.cursor;
-    }
+
+      continuationToken = result.IsTruncated ? result.NextContinuationToken : undefined;
+    } while (continuationToken);
 
     return {
       totalBytes,
@@ -223,23 +265,60 @@ export const blobStorage = {
       videoCount,
       thumbnailCount,
       percentUsed: totalBytes / FREE_TIER_LIMIT_BYTES,
-      freetierLimitGB: 1,
+      freetierLimitGB: 10,
     };
   },
 };
 
+// --- Helper: Extract R2 key from a public URL ---
+function extractKeyFromUrl(url: string): string {
+  const publicUrl = process.env.R2_PUBLIC_URL || "";
+  if (publicUrl && url.startsWith(publicUrl)) {
+    const base = publicUrl.endsWith("/") ? publicUrl : publicUrl + "/";
+    return url.slice(base.length);
+  }
+  // Fallback: try to extract path after domain
+  try {
+    const parsed = new URL(url);
+    return parsed.pathname.startsWith("/") ? parsed.pathname.slice(1) : parsed.pathname;
+  } catch {
+    return url;
+  }
+}
+
+// --- Helper: Stream to Buffer ---
+async function streamToBuffer(stream: ReadableStream): Promise<Uint8Array> {
+  const chunks: Uint8Array[] = [];
+  const reader = stream.getReader();
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (value) chunks.push(value);
+  }
+
+  const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+  const result = new Uint8Array(totalLength);
+  let offset = 0;
+  for (const chunk of chunks) {
+    result.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return result;
+}
+
 // --- Storage Auto-Selector ---
 
-let selectedStorage = blobStorage;
+let selectedStorage = r2Storage;
 
-if (!process.env.BLOB_READ_WRITE_TOKEN) {
+if (!process.env.R2_ACCESS_KEY_ID) {
   if (process.env.NODE_ENV === "development") {
-    console.warn("⚠️ BLOB_READ_WRITE_TOKEN not set. Running Vercel Blob storage in MOCK mode.");
+    console.warn("⚠️ R2_ACCESS_KEY_ID not set. Running R2 storage in MOCK mode.");
     selectedStorage = mockBlobStorage;
   } else if (process.env.NODE_ENV === "production") {
     throw new Error(
-      "CRITICAL: BLOB_READ_WRITE_TOKEN is not set in production. " +
-        "You must add this token to your Vercel project environment variables via the Vercel Dashboard Storage tab."
+      "CRITICAL: R2_ACCESS_KEY_ID is not set in production. " +
+        "You must add R2 credentials to your environment variables. " +
+        "See the Cloudflare R2 setup guide for details."
     );
   }
 }

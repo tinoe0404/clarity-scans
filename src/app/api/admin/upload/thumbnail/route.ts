@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { storage } from "@/lib/blob";
 import { upsertVideo } from "@/lib/queries/videos";
-import type { Locale } from "@/types";
+import type { Locale, VideoSlug } from "@/types";
 import { logUploadAction } from "@/lib/queries/uploadLog";
 import { validateUploadRequest } from "@/lib/uploadValidation";
 import { enforceRateLimit } from "@/lib/rateLimit";
@@ -47,8 +47,8 @@ export async function POST(request: NextRequest) {
 
     const uploadResult = await storage.uploadThumbnail({
       file,
-      slug,
-      contentType: mimeType,
+      slug: slug as VideoSlug,
+      contentType: mimeType as "image/jpeg" | "image/png" | "image/webp",
     });
 
     try {
@@ -63,9 +63,10 @@ export async function POST(request: NextRequest) {
           upsertVideo({
             slug,
             language: loc as Locale,
-            title: "", // Partial update — title preserved via ON CONFLICT
-            blobUrl: "", // Partial update — blobUrl preserved via ON CONFLICT
+            title: "",
+            blobUrl: "",
             thumbnailUrl: uploadResult.url,
+            isActive: true,
           }).catch((_e) => {
             /* Ignore missing language variants natively */
           })

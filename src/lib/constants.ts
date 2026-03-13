@@ -6,7 +6,7 @@ export const MAX_THUMBNAIL_SIZE_BYTES = 500 * 1024; // 500KB
 export const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/webm"] as const;
 export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 
-export const FREE_TIER_LIMIT_BYTES = 1 * 1024 * 1024 * 1024; // 1GB
+export const FREE_TIER_LIMIT_BYTES = 10 * 1024 * 1024 * 1024; // 10GB (Cloudflare R2 free tier)
 export const STORAGE_WARNING_THRESHOLD = 0.8; // Warn at 80% usage
 
 export const VIDEO_MODULE_SLUGS: readonly VideoSlug[] = [

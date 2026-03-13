@@ -22,11 +22,14 @@ export function isLocale(value: unknown): value is Locale {
   return typeof value === "string" && (LOCALES as string[]).includes(value);
 }
 
-// --- Blob Storage Utilities ---
+// --- Storage URL Utilities ---
 
 export function isBlobUrl(url: string): boolean {
+  const r2PublicUrl = process.env.R2_PUBLIC_URL || process.env.NEXT_PUBLIC_R2_PUBLIC_URL || "";
   return (
-    url.includes(".public.blob.vercel-storage.com") ||
+    (r2PublicUrl && url.startsWith(r2PublicUrl)) ||
+    url.includes(".r2.dev") ||
+    url.includes("r2.cloudflarestorage.com") ||
     url.startsWith("http://localhost:3000/mock-blob/")
   );
 }

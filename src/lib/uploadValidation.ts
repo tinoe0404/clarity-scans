@@ -1,4 +1,3 @@
-import { type HandleUploadBody } from "@vercel/blob/client";
 import { BlobValidationError } from "./errors";
 import {
   MAX_VIDEO_SIZE_BYTES,
@@ -91,20 +90,29 @@ export async function validateUploadRequest(
       valid: false,
       error: new BlobValidationError(
         "UPLOAD_FAILED",
-        "Failed to parse file chunks into Buffer seamlessly"
+        "Failed to parse file chunks into Buffer"
       ),
     };
   }
 }
 
-// Wrapper securing generic payload Webhooks against manual tampering bypassing generic Any loops natively
-export function validateBlobWebhookPayload(body: unknown): body is HandleUploadBody {
-  const webhookSchema = z
-    .object({
-      type: z.string(),
-      payload: z.any(),
-    })
-    .passthrough();
+// Generic webhook/completion body validation
+export function validateUploadCompletionPayload(body: unknown): body is {
+  key: string;
+  slug: string;
+  locale: string;
+  title: string;
+  description?: string;
+  fileSize?: number;
+} {
+  const schema = z.object({
+    key: z.string().min(1),
+    slug: z.string().min(1),
+    locale: z.string().min(1),
+    title: z.string().min(1),
+    description: z.string().optional(),
+    fileSize: z.number().optional(),
+  });
 
-  return webhookSchema.safeParse(body).success;
+  return schema.safeParse(body).success;
 }

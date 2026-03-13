@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const [videos, storageStats, dbRecordsRaw] = await Promise.all([
       storage.listVideos(),
       storage.getStorageStats(),
-      getAllVideos(false), // Fetches EVERY video natively inc Inactive variants
+      getAllVideos(),
     ]);
 
     const activeDbUrls = new Set<string>();
@@ -29,9 +29,9 @@ export async function GET(request: NextRequest) {
 
     dbRecordsRaw.forEach((record) => {
       if (record.is_active) {
-        activeDbUrls.add(record.video_url);
+        activeDbUrls.add(record.blob_url);
       } else {
-        inactiveDbUrls.add(record.video_url);
+        inactiveDbUrls.add(record.blob_url);
       }
     });
 
@@ -96,15 +96,15 @@ export async function DELETE(request: NextRequest) {
     const targetUrls = validation.data.urls;
 
     // Must explicitly enforce DB verification stopping live video purges!
-    const dbRecordsRaw = await getAllVideos(false);
-    const allBoundUrls = new Set(dbRecordsRaw.map((r) => r.video_url));
+    const dbRecordsRaw = await getAllVideos();
+    const allBoundUrls = new Set(dbRecordsRaw.map((r) => r.blob_url));
 
     const successful: string[] = [];
     const failed: string[] = [];
 
     for (const url of targetUrls) {
       if (!isBlobUrl(url)) {
-        failed.push(`${url} (Invalid Blob Format)`);
+        failed.push(`${url} (Invalid storage URL format)`);
         continue;
       }
 
@@ -129,13 +129,13 @@ export async function DELETE(request: NextRequest) {
           success: true,
         });
       } catch (e) {
-        failed.push(`${url} (Vercel API Failure)`);
+        failed.push(`${url} (R2 API Failure)`);
         await logUploadAction({
           action: "delete_blob",
           blob_url: url,
           success: false,
           error_message:
-            e instanceof Error ? e.message : "Vercel SDK threw inside iterator natively",
+            e instanceof Error ? e.message : "R2 delete operation failed",
         });
       }
     }
