@@ -21,12 +21,13 @@ function getNeonClient() {
 export const db = {
   async query<T>(sql: string, params: unknown[] = []): Promise<T[]> {
     const sqlClient = getNeonClient();
-    // The neon client types primarily expect tagged template literals,
-    // but it supports standard parameterized queries at runtime.
+    // Apply a 10s statement_timeout to prevent runaway queries
+    // on Neon serverless (each invocation creates a fresh connection)
+    const wrappedSql = `SET statement_timeout = '10s'; ${sql}`;
     /* eslint-disable no-unused-vars */
     const result = await (
       sqlClient as unknown as (_query: string, _params: unknown[]) => Promise<T[]>
-    )(sql, params);
+    )(wrappedSql, params);
     /* eslint-enable no-unused-vars */
     return result;
   },

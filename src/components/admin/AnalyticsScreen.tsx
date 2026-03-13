@@ -6,6 +6,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonStyles } from "@/lib/styles";
+import { adminFetch } from "@/lib/adminFetch";
+import { handleClientError } from "@/lib/globalErrorHandler";
 import DateRangeSelector from "./DateRangeSelector";
 import type { DateRangeOption } from "./DateRangeSelector";
 import AnxietyReductionSummary from "./AnxietyReductionSummary";
@@ -56,13 +58,15 @@ export default function AnalyticsScreen({ initialSummary }: AnalyticsScreenProps
   const fetchSummary = useCallback(async (range: DateRangeOption) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/feedback/summary?dateRange=${range}`);
+      const res = await adminFetch(`/api/feedback/summary?dateRange=${range}`);
       const json = await res.json();
       if (json.success) {
         setSummary(json.data);
         setLastFetch(Date.now());
       }
-    } catch { /* silent */ }
+    } catch (error) {
+      handleClientError(error, "AnalyticsScreen - fetchSummary");
+    }
     finally { setLoading(false); }
   }, []);
 
@@ -101,7 +105,7 @@ export default function AnalyticsScreen({ initialSummary }: AnalyticsScreenProps
     setExportOpen(false);
     addToast("Preparing download...", "info");
     try {
-      const res = await fetch(`/api/feedback?format=csv&pageSize=10000`);
+      const res = await adminFetch(`/api/feedback?format=csv&pageSize=10000`);
       if (!res.ok) throw new Error("Export failed");
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
@@ -112,7 +116,8 @@ export default function AnalyticsScreen({ initialSummary }: AnalyticsScreenProps
       a.click();
       URL.revokeObjectURL(url);
       addToast("Download ready", "success");
-    } catch {
+    } catch (error) {
+      handleClientError(error, "AnalyticsScreen - exportFeedbackCsv");
       addToast("Export failed — please try again", "error");
     }
   }, [dateRange, addToast]);

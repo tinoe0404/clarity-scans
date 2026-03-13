@@ -11,6 +11,8 @@ import SystemStatusCard from "./SystemStatusCard";
 import OnboardingCard from "./OnboardingCard";
 import dynamic from "next/dynamic";
 import { LazyWrapper } from "@/components/shared/LazyWrapper";
+import { adminFetch } from "@/lib/adminFetch";
+import { handleClientError } from "@/lib/globalErrorHandler";
 
 const SessionsChart = dynamic(() => import("./SessionsChart"), {
   ssr: false,
@@ -65,15 +67,15 @@ export default function DashboardOverview({ initialData }: DashboardOverviewProp
   const fetchClientData = async (range: DateRangeOption, background = false) => {
     if (!background) setIsLoadingRange(true);
     try {
-      const res = await fetch(`/api/admin/analytics?dateRange=${range}`);
-      if (!res.ok) throw new Error("Failed to fetch custom range");
+      const res = await adminFetch(`/api/admin/analytics?dateRange=${range}`);
+      if (!res.ok) throw new Error(`Failed to fetch custom range: ${res.status}`);
       const json = await res.json();
       if (json.success && json.data) {
         setData(json.data);
         setLastUpdated(new Date());
       }
     } catch (err) {
-      console.error("Dashboard fetch error", err);
+      handleClientError(err, "DashboardOverview.tsx - fetchClientData");
     } finally {
       if (!background) setIsLoadingRange(false);
       setIsRefreshing(false);
@@ -144,6 +146,9 @@ export default function DashboardOverview({ initialData }: DashboardOverviewProp
 
   const appHelpfulRate = feedback?.helpfulRate !== undefined ? Math.round(feedback.helpfulRate * 100) : null;
 
+  // Stale data detection (diff > 10 mins)
+  const isDataStale = data?.dataAge && (new Date().getTime() - new Date(data.dataAge).getTime()) > 10 * 60 * 1000;
+
   return (
     <div className="flex flex-col h-full bg-surface-base pb-10">
       <AdminHeader 
@@ -153,6 +158,15 @@ export default function DashboardOverview({ initialData }: DashboardOverviewProp
         isRefreshing={isRefreshing || isLoadingRange}
       />
       
+      {isDataStale && (
+        <div className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-3">
+          <p className="max-w-7xl mx-auto text-sm font-medium text-amber-500 flex items-center gap-2">
+            <ShieldAlert className="h-4 w-4" />
+            Dashboard data may be outdated — click refresh to update.
+          </p>
+        </div>
+      )}
+
       <main id="main-content" tabIndex={-1} className="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6 outline-none">
         {/* Top Controls */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

@@ -13,6 +13,8 @@ import type { Locale, VideoRecord, VideoSlug } from "@/types";
 import type { ModuleRegistryEntry } from "@/lib/moduleRegistry";
 import { getNextUnwatchedSlug } from "@/lib/moduleRegistry";
 import { getSessionId, isModuleWatched, addWatchedModule, getWatchedModules } from "@/lib/session";
+import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
+import { handleClientError } from "@/lib/globalErrorHandler";
 
 import { AppShell } from "@/components/shared";
 import { LazyWrapper } from "@/components/shared/LazyWrapper";
@@ -103,8 +105,8 @@ export default function VideoPlayerScreen({
   const handleLanguageSwitch = async (newLocale: Locale) => {
     setIsFetchingAlternate(true);
     try {
-      const res = await fetch(`/api/videos/${slug}?locale=${newLocale}`);
-      if (!res.ok) throw new Error("Not Found");
+      const res = await fetchWithTimeout(`/api/videos/${slug}?locale=${newLocale}`);
+      if (!res.ok) throw new Error(`Not Found: ${res.status}`);
       const data = await res.json();
       if (data.success && data.data.is_active) {
         setAlternateVideoUrl(data.data.blob_url);
@@ -112,7 +114,8 @@ export default function VideoPlayerScreen({
       } else {
         toast.showToast(t("video.noVideo", { language: newLocale }), "error");
       }
-    } catch {
+    } catch (error) {
+      handleClientError(error, "VideoPlayerScreen - handleLanguageSwitch");
       toast.showToast(t("video.noVideo", { language: newLocale }), "error");
     } finally {
       setIsFetchingAlternate(false);
@@ -131,14 +134,16 @@ export default function VideoPlayerScreen({
 
     try {
       // 2. Best-effort API Dispatch persisting
-      await fetch(`/api/sessions/${sessionId}`, {
+      await fetchWithTimeout(`/api/sessions/${sessionId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ completedModules: getWatchedModules() }),
+        timeoutMs: 5000, // Shorter timeout for silent background sync
       });
       trackEvent("module_watched", { locale, slug });
-    } catch {
+    } catch (error) {
       // Intentionally silences errors resolving cleanly off local Storage hooks
+      handleClientError(error, "VideoPlayerScreen - markWatched background sync");
     } finally {
       setIsMarkingWatched(false);
       // Auto-jump logic handling implicitly after 2000 ms read window

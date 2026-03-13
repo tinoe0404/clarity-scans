@@ -8,6 +8,8 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 
 import { getSessionId, clearPatientSession } from "@/lib/session";
 import type { CreateFeedbackInput } from "@/lib/validations";
+import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
+import { handleClientError } from "@/lib/globalErrorHandler";
 
 import { AppShell, PatientHeader, ProgressDots } from "@/components/shared";
 import AnxietyScale from "./AnxietyScale";
@@ -118,7 +120,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
         throw new Error("offline");
       }
 
-      const response = await fetch("/api/feedback", {
+      const response = await fetchWithTimeout("/api/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -135,7 +137,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
 
       setStep(4);
     } catch (err: any) {
-      console.error("Feedback submit crash:", err);
+      handleClientError(err, "FeedbackScreen - handleSubmitFinal");
       
       if (err.message === "offline" || (err instanceof TypeError && err.message.includes("fetch"))) {
         // Network error - queue it

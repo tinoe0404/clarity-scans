@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { X, Trash2, AlertTriangle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonStyles } from "@/lib/styles";
+import { adminFetch } from "@/lib/adminFetch";
+import { handleClientError } from "@/lib/globalErrorHandler";
 
 interface OrphanedBlob {
   url: string;
@@ -29,13 +31,13 @@ export default function StorageCleanupPanel({
   const fetchOrphaned = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/storage");
+      const res = await adminFetch("/api/admin/storage");
       const json = await res.json();
       if (json.success) {
         setOrphaned((json.data.orphanedBlobs as string[]).map((url) => ({ url })));
       }
-    } catch {
-      // silently fail
+    } catch (error) {
+      handleClientError(error, "StorageCleanupPanel - fetchOrphaned");
     } finally {
       setLoading(false);
     }
@@ -48,7 +50,7 @@ export default function StorageCleanupPanel({
   const deleteOne = async (url: string) => {
     setDeleting((prev) => new Set(prev).add(url));
     try {
-      const res = await fetch("/api/admin/storage", {
+      const res = await adminFetch("/api/admin/storage", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ urls: [url] }),
@@ -56,6 +58,8 @@ export default function StorageCleanupPanel({
       if (res.ok) {
         setOrphaned((prev) => prev.filter((b) => b.url !== url));
       }
+    } catch (error) {
+      handleClientError(error, "StorageCleanupPanel - deleteOne");
     } finally {
       setDeleting((prev) => {
         const next = new Set(prev);
@@ -70,7 +74,7 @@ export default function StorageCleanupPanel({
     setDeletingAll(true);
     try {
       const urls = orphaned.map((b) => b.url);
-      const res = await fetch("/api/admin/storage", {
+      const res = await adminFetch("/api/admin/storage", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ urls }),
@@ -79,6 +83,8 @@ export default function StorageCleanupPanel({
         setOrphaned([]);
         onComplete();
       }
+    } catch (error) {
+      handleClientError(error, "StorageCleanupPanel - deleteAll");
     } finally {
       setDeletingAll(false);
     }

@@ -36,7 +36,7 @@ interface VideoContentMatrixProps {
   onCancelUpload: (slug: VideoSlug, locale: Locale) => void;
   onEditClick: (cellKey: string) => void;
   onEditClose: () => void;
-  onSaveMetadata: (id: string, title: string, description: string) => Promise<boolean>;
+  onSaveMetadata: (id: string, title: string, description: string, expectedUpdatedAt?: string) => Promise<boolean>;
   onDelete: (video: VideoRecord) => void;
   onToggleActive: (video: VideoRecord, newActive: boolean) => void;
   onBulkSelect: (cellKey: string, selected: boolean) => void;
@@ -142,6 +142,7 @@ export default function VideoContentMatrix({
                           videoId={video.id}
                           initialTitle={video.title}
                           initialDescription={video.description}
+                          updatedAt={video.updated_at}
                           onSave={onSaveMetadata}
                           onClose={onEditClose}
                         />

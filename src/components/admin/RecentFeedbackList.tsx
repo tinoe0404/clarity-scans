@@ -6,6 +6,8 @@ import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { MessageSquare, ArrowRight, ThumbsUp, ThumbsDown } from "lucide-react";
 import { LanguageBadge, SkeletonBlock } from "@/components/shared";
+import { adminFetch } from "@/lib/adminFetch";
+import { handleClientError } from "@/lib/globalErrorHandler";
 
 // Approximate type based on typical feedback response
 interface FeedbackItem {
@@ -26,8 +28,8 @@ export default function RecentFeedbackList() {
   useEffect(() => {
     async function fetchFeedback() {
       try {
-        const res = await fetch("/api/feedback?pageSize=5&page=1");
-        if (!res.ok) throw new Error("Failed to fetch");
+        const res = await adminFetch("/api/feedback?pageSize=5&page=1");
+        if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
         const json = await res.json();
         if (json.success && json.data?.items) {
           setFeedback(json.data.items);
@@ -35,7 +37,7 @@ export default function RecentFeedbackList() {
           setError(true);
         }
       } catch (err) {
-        console.error("Failed to load recent feedback", err);
+        handleClientError(err, "RecentFeedbackList - fetchFeedback");
         setError(true);
       } finally {
         setIsLoading(false);

@@ -16,6 +16,8 @@ import {
 import { RadioNoteRecord } from "@/types";
 import { cn } from "@/lib/utils";
 import { buttonStyles } from "@/lib/styles";
+import { adminFetch } from "@/lib/adminFetch";
+import { handleClientError } from "@/lib/globalErrorHandler";
 
 interface RecentNotesListProps {
   notes: RadioNoteRecord[];
@@ -57,13 +59,13 @@ const NoteCard = ({
     if (!note.session_id) return;
     setLoadingSession(true);
     try {
-      const res = await fetch(`/api/admin/sessions/${note.session_id}`);
+      const res = await adminFetch(`/api/admin/sessions/${note.session_id}`);
       const data = await res.json();
       if (data.success && data.data) {
         setSessionDetails(data.data);
       }
-    } catch (e) {
-      console.error("Failed to fetch session details", e);
+    } catch (error) {
+      handleClientError(error, "RecentNotesList - fetchSessionDetails");
     } finally {
       setLoadingSession(false);
     }
@@ -81,7 +83,7 @@ const NoteCard = ({
     e.stopPropagation();
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/admin/notes/${note.id}`, {
+      const res = await adminFetch(`/api/admin/notes/${note.id}`, {
         method: "DELETE",
       });
       const data = await res.json();
@@ -93,8 +95,8 @@ const NoteCard = ({
       } else {
         throw new Error(data.error || "Failed to delete");
       }
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      handleClientError(error, "RecentNotesList - handleDelete");
       alert("Failed to delete note. Please try again.");
       setIsDeleting(false);
       setConfirmDelete(false);

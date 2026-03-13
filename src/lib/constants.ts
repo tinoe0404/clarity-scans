@@ -31,3 +31,14 @@ export const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 // HIT 300 project benchmark targets
 export const HELPFUL_TARGET = 0.80; // 80% target for "App Helpful"
 export const UNDERSTOOD_TARGET = 0.70; // 70% target for "Understood Procedure"
+
+// Network Timeouts
+export const API_TIMEOUT_MS = 10000;
+export const UPLOAD_TIMEOUT_MS = 120000;
+export const SESSION_SYNC_TIMEOUT_MS = 5000;
+export const DB_HEALTH_TIMEOUT_MS = 3000;
+
+// Blob Retry constants
+export const BLOB_MAX_RETRIES = 3;
+export const BLOB_INITIAL_RETRY_MS = 1000;
+

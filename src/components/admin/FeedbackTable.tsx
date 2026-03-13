@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { ChevronUp, ChevronDown, Search } from "lucide-react";
 import type { FeedbackRecord } from "@/types";
 import type { DateRangeOption } from "./DateRangeSelector";
+import { adminFetch } from "@/lib/adminFetch";
+import { handleClientError } from "@/lib/globalErrorHandler";
 
 const EMOJI_MAP: Record<number, string> = { 1: "😌", 2: "🙂", 3: "😐", 4: "😟", 5: "😰" };
 
@@ -29,13 +31,15 @@ export default function FeedbackTable({ dateRange }: FeedbackTableProps) {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/feedback?page=${page}&pageSize=${pageSize}`);
+      const res = await adminFetch(`/api/feedback?page=${page}&pageSize=${pageSize}`);
       const json = await res.json();
       if (json.success) {
         setRows(json.data);
         setTotal(json.pagination.total);
       }
-    } catch { /* silent */ }
+    } catch (error) {
+      handleClientError(error, "FeedbackTable - fetchData");
+    }
     finally { setLoading(false); }
   }, [page, pageSize]);
 

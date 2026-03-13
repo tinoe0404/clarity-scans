@@ -9,6 +9,8 @@ import NotesCalendar from "./NotesCalendar";
 import { RadioNoteRecord } from "@/types";
 import { DateRangeOption } from "./DateRangeSelector";
 import { cn } from "@/lib/utils";
+import { adminFetch } from "@/lib/adminFetch";
+import { handleClientError } from "@/lib/globalErrorHandler";
 
 interface NotesScreenProps {
   initialNotes: RadioNoteRecord[];
@@ -52,13 +54,13 @@ export default function NotesScreen({
   const fetchCalendarData = async () => {
     setIsLoadingCalendar(true);
     try {
-      const res = await fetch("/api/admin/notes?format=calendar&dateRange=all");
+      const res = await adminFetch("/api/admin/notes?format=calendar&dateRange=all");
       const data = await res.json();
       if (data.success) {
         setCalendarData(data.data);
       }
-    } catch (e) {
-      console.error("Failed to fetch calendar data", e);
+    } catch (error) {
+      handleClientError(error, "NotesScreen - fetchCalendarData");
     } finally {
       setIsLoadingCalendar(false);
     }
@@ -69,15 +71,15 @@ export default function NotesScreen({
     setIsLoadingMore(true);
     try {
       const nextPage = page + 1;
-      const res = await fetch(`/api/admin/notes?page=${nextPage}&pageSize=10`);
+      const res = await adminFetch(`/api/admin/notes?page=${nextPage}&pageSize=10`);
       const data = await res.json();
       if (data.success) {
         setNotes((prev) => [...prev, ...data.data]);
         setPage(nextPage);
         setHasMore(data.pagination.page < data.pagination.totalPages);
       }
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      handleClientError(error, "NotesScreen - loadMoreNotes");
     } finally {
       setIsLoadingMore(false);
     }
@@ -87,13 +89,13 @@ export default function NotesScreen({
     setDateRange(range);
     setIsLoadingSummary(true);
     try {
-      const res = await fetch(`/api/admin/notes?page=1&pageSize=1&summary=true&dateRange=${range}`);
+      const res = await adminFetch(`/api/admin/notes?page=1&pageSize=1&summary=true&dateRange=${range}`);
       const data = await res.json();
       if (data.success && data.summary) {
         setSummary(data.summary);
       }
-    } catch (e) {
-      console.error("Failed to load new summary stats", e);
+    } catch (error) {
+      handleClientError(error, "NotesScreen - handleDateRangeChange");
     } finally {
       setIsLoadingSummary(false);
     }

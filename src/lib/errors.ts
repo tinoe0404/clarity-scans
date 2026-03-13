@@ -59,7 +59,16 @@ export function isAppError(error: unknown): boolean {
 }
 
 export function handleApiError(error: unknown): { message: string; statusCode: number } {
-  console.error("API Error:", error);
+  // Structured logging with error classification
+  const errorInfo = {
+    name: error instanceof Error ? error.name : 'UnknownError',
+    message: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined,
+  };
+
+  // Use structured logger instead of raw console.error
+  const { logger } = require('./logger');
+  logger.error('API Error:', errorInfo);
 
   if (error instanceof BlobValidationError) {
     return { message: error.message, statusCode: error.statusCode };

@@ -137,6 +137,27 @@ export function useBreathHoldTrainer({
     }, 1000);
   }, [clearCurrentTimer, onRepComplete, onComplete, onPhaseChange]);
 
+  // Pause on visibility change (tab hidden) — prevents timer drift on hospital tablets
+  const pausedPhaseRef = useRef<{ phase: BreathPhase; countdown: number; rep: number } | null>(null);
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden && state === "running") {
+        pausedPhaseRef.current = {
+          phase: stateRef.current.breathPhase,
+          countdown: stateRef.current.countdown,
+          rep: stateRef.current.currentRep,
+        };
+        clearCurrentTimer();
+      } else if (!document.hidden && pausedPhaseRef.current && state === "running") {
+        const { phase, countdown: cd, rep } = pausedPhaseRef.current;
+        pausedPhaseRef.current = null;
+        scheduleNextTick(phase, cd, rep);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [state, clearCurrentTimer, scheduleNextTick]);
+
   const start = useCallback(() => {
     clearCurrentTimer();
     setState("running");

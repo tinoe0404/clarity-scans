@@ -7,7 +7,8 @@ interface VideoMetadataEditorProps {
   videoId: string;
   initialTitle: string;
   initialDescription: string;
-  onSave: (id: string, title: string, description: string) => Promise<boolean>;
+  updatedAt: string;
+  onSave: (id: string, title: string, description: string, expectedUpdatedAt?: string) => Promise<boolean>;
   onClose: () => void;
 }
 
@@ -15,6 +16,7 @@ export default function VideoMetadataEditor({
   videoId,
   initialTitle,
   initialDescription,
+  updatedAt,
   onSave,
   onClose,
 }: VideoMetadataEditorProps) {
@@ -32,7 +34,7 @@ export default function VideoMetadataEditor({
       setSaving(true);
       if (isAuto) setAutoSaveLabel("Saving...");
       try {
-        const ok = await onSave(videoId, title, description);
+        const ok = await onSave(videoId, title, description, updatedAt);
         if (ok && isAuto) {
           setAutoSaveLabel("Saved");
           setTimeout(() => setAutoSaveLabel(null), 2000);

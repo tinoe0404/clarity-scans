@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import type { Locale } from "@/types";
 import { AppShell } from "@/components/shared";
 import BrandHeader from "./BrandHeader";
 import LanguageButton from "./LanguageButton";
 import { clearPatientSession, setSessionId } from "@/lib/session";
+import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
+import { handleClientError } from "@/lib/globalErrorHandler";
 import { useHoldToNavigate } from "@/hooks/useHoldToNavigate";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +26,7 @@ const LANGUAGES: Array<{ locale: Locale; nativeName: string; englishName: string
 
 export default function LanguagePickerScreen({ suggestedLocale }: LanguagePickerScreenProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [selectedLocale, setSelectedLocale] = useState<Locale | null>(null);
   const { trackEvent } = useAnalytics();
 
@@ -41,7 +44,7 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
 
     try {
       // 1. Explicitly set the cookie so next-intl respects it immediately on redirect.
-      await fetch("/api/locale", {
+      await fetchWithTimeout("/api/locale", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ locale }),
@@ -50,7 +53,7 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
       // 2. Generate an anonymous session from our database/backend
       // Note: As you mentioned /api/sessions path is Phase X existing. We assume it replies with { success: true, data: { id: string } }
       // If the `/api/sessions` backend endpoint doesn't strictly exist or isn't perfect, we can still fall back generating a UUID client-side for localStorage
-      const sessionRes = await fetch("/api/sessions", {
+      const sessionRes = await fetchWithTimeout("/api/sessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -58,7 +61,10 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
           deviceType:
             typeof window !== "undefined" && window.innerWidth >= 768 ? "tablet" : "phone",
         }),
-      }).catch(() => null);
+      }).catch((e) => {
+        handleClientError(e, "LanguagePickerScreen - Session API failed");
+        return null;
+      });
 
       let sessionId = crypto.randomUUID(); // Fallback
       if (sessionRes?.ok) {
@@ -80,7 +86,8 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
 
       // 5. Navigate to patient education module index
       router.push(`/${locale}/modules`);
-    } catch (_error) {
+    } catch (error) {
+      handleClientError(error, "LanguagePickerScreen - handleLanguageSelect");
       // Recover navigation state on extreme block
       setSelectedLocale(null);
     }
@@ -92,6 +99,18 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
         <BrandHeader />
 
         <div className="mt-8 space-y-3">
+          {searchParams?.get("reason") === "session_expired" && (
+            <div 
+              className="mb-6 rounded-lg bg-surface-elevated p-4 text-center border border-amber-500/20"
+              role="alert" 
+              aria-live="polite"
+            >
+              <p className="text-sm font-medium text-amber-200">
+                Your session ended — please choose your language to continue.
+              </p>
+            </div>
+          )}
+
           <p className="mb-4 text-center font-display text-sm font-semibold text-slate-400">
             Choose Your Language / Sarudza Mutauro / Khetha Ulimi
           </p>

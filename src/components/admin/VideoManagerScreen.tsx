@@ -9,6 +9,10 @@ import { buttonStyles } from "@/lib/styles";
 import { SUPPORTED_LOCALES, VIDEO_MODULE_SLUGS } from "@/lib/constants";
 import dynamic from "next/dynamic";
 
+import { adminFetch } from "@/lib/adminFetch";
+import { handleClientError } from "@/lib/globalErrorHandler";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+
 import StorageUsageBar from "./StorageUsageBar";
 import StorageCleanupPanel from "./StorageCleanupPanel";
 import VideoContentMatrix from "./VideoContentMatrix";
@@ -81,6 +85,7 @@ export default function VideoManagerScreen({
   const [deleteTarget, setDeleteTarget] = useState<VideoRecord | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const isOnline = useOnlineStatus();
 
   // Upload panel
   const [uploadPanel, setUploadPanel] = useState<{ slug: VideoSlug; locale: Locale } | null>(null);
@@ -127,14 +132,14 @@ export default function VideoManagerScreen({
   /* ── Refresh stats ───────────────────────────── */
   const refreshStats = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/videos?includeStats=true");
+      const res = await adminFetch("/api/admin/videos?includeStats=true");
       const json = await res.json();
       if (json.success) {
         setMatrix(buildMatrix(json.data.grouped));
         setStats(json.data.stats);
       }
-    } catch {
-      /* silent */
+    } catch (error) {
+      handleClientError(error, "VideoManagerScreen - refreshStats");
     }
   }, [buildMatrix]);
 
@@ -219,7 +224,7 @@ export default function VideoManagerScreen({
         for (let i = 0; i < 15; i++) {
           await new Promise((r) => setTimeout(r, 2000));
           try {
-            const res = await fetch(`/api/admin/videos?includeStats=true`);
+            const res = await adminFetch(`/api/admin/videos?includeStats=true`);
             const json = await res.json();
             if (json.success) {
               const videos: VideoRecord[] = json.data.grouped[slug] || [];
@@ -230,8 +235,8 @@ export default function VideoManagerScreen({
                 break;
               }
             }
-          } catch {
-            /* retry */
+          } catch (error) {
+            handleClientError(error, "VideoManagerScreen - poll for DB record retry");
           }
         }
 
@@ -243,7 +248,8 @@ export default function VideoManagerScreen({
             "warning"
           );
         }
-      } catch {
+      } catch (error) {
+        handleClientError(error, "VideoManagerScreen - uploadViaBlobClient");
         setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
         addToast("Direct upload failed — please try again", "error");
       }
@@ -291,35 +297,52 @@ export default function VideoManagerScreen({
       }));
 
       try {
-        const res = await fetch(`/api/admin/videos/${video.id}/status`, {
+        const res = await adminFetch(`/api/admin/videos/${video.id}/status`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ isActive: newActive }),
+          body: JSON.stringify({ 
+            isActive: newActive,
+            expectedUpdatedAt: video.updated_at // Optimistic locking guard
+          }),
         });
+        if (res.status === 409) {
+          throw new Error("Conflict: This video was modified by another user. Please refresh.");
+        }
         if (!res.ok) throw new Error("Failed");
+        
+        // Background sync to ensure we get the latest DB state (updated_at etc)
+        refreshStats();
         addToast(newActive ? "Video activated" : "Video deactivated", "success");
-      } catch {
+      } catch (error: any) {
         // Revert
         setMatrix((prev) => ({
           ...prev,
           [video.slug]: { ...prev[video.slug], [video.language]: previous || null },
         }));
-        addToast("Failed to update status — reverted", "error");
+        handleClientError(error, "VideoManagerScreen - handleToggleActive");
+        addToast(error.message?.includes("Conflict") ? error.message : "Failed to update status — reverted", "error");
       }
     },
-    [matrix, addToast]
+    [matrix, addToast, refreshStats]
   );
 
   /* ── Save metadata ───────────────────────────── */
   const handleSaveMetadata = useCallback(
-    async (id: string, title: string, description: string): Promise<boolean> => {
+    async (id: string, title: string, description: string, expectedUpdatedAt?: string): Promise<boolean> => {
       try {
-        const res = await fetch(`/api/admin/videos/${id}`, {
+        const res = await adminFetch(`/api/admin/videos/${id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title, description }),
+          body: JSON.stringify({ 
+            title, 
+            description,
+            expectedUpdatedAt // Optimistic locking
+          }),
         });
-        if (!res.ok) throw new Error("Failed");
+        if (res.status === 409) {
+          throw new Error("Conflict: This video was modified by another user. Please refresh.");
+        }
+        if (!res.ok) throw new Error("Failed to save metadata");
         const json = await res.json();
         if (json.success && json.data) {
           const updated = json.data as VideoRecord;
@@ -332,8 +355,9 @@ export default function VideoManagerScreen({
           }));
         }
         return true;
-      } catch {
-        addToast("Failed to save metadata — reverted", "error");
+      } catch (error: any) {
+        handleClientError(error, "VideoManagerScreen - handleSaveMetadata");
+        addToast(error.message?.includes("Conflict") ? error.message : "Failed to save metadata — reverted", "error");
         return false;
       }
     },
@@ -345,10 +369,10 @@ export default function VideoManagerScreen({
     if (!deleteTarget) return;
     setDeleteLoading(true);
     try {
-      const res = await fetch(`/api/admin/videos/${deleteTarget.id}`, {
+      const res = await adminFetch(`/api/admin/videos/${deleteTarget.id}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Failed");
+      if (!res.ok) throw new Error("Failed to delete");
       setMatrix((prev) => ({
         ...prev,
         [deleteTarget.slug]: {
@@ -358,7 +382,8 @@ export default function VideoManagerScreen({
       }));
       addToast("Video deleted", "success");
       refreshStats();
-    } catch {
+    } catch (error) {
+      handleClientError(error, "VideoManagerScreen - handleDeleteConfirm");
       addToast("Failed to delete video — try again", "error");
     } finally {
       setDeleteLoading(false);
@@ -409,7 +434,7 @@ export default function VideoManagerScreen({
       formData.append("slug", thumbSlug);
 
       try {
-        const res = await fetch("/api/admin/upload/thumbnail", {
+        const res = await adminFetch("/api/admin/upload/thumbnail", {
           method: "POST",
           body: formData,
         });
@@ -419,7 +444,8 @@ export default function VideoManagerScreen({
         } else {
           addToast("Thumbnail upload failed", "error");
         }
-      } catch {
+      } catch (error) {
+        handleClientError(error, "VideoManagerScreen - handleThumbnailFile");
         addToast("Thumbnail upload failed — network error", "error");
       } finally {
         if (thumbInputRef.current) thumbInputRef.current.value = "";
@@ -475,7 +501,13 @@ export default function VideoManagerScreen({
         editingCellKey={editingCellKey}
         isBulkMode={isBulkMode}
         selectedCells={selectedCells}
-        onUploadClick={(slug, locale) => setUploadPanel({ slug, locale })}
+        onUploadClick={(slug, locale) => {
+          if (!isOnline) {
+            addToast("Cannot upload while offline", "warning");
+            return;
+          }
+          setUploadPanel({ slug, locale });
+        }}
         onCancelUpload={handleCancelUpload}
         onEditClick={setEditingCellKey}
         onEditClose={() => setEditingCellKey(null)}

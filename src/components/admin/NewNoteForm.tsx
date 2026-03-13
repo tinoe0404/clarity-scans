@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { LOCALES, Locale } from "@/types";
 import { createNoteSchema, CreateNoteInput } from "@/lib/validations";
+import { adminFetch } from "@/lib/adminFetch";
+import { handleClientError } from "@/lib/globalErrorHandler";
 
 interface NewNoteFormProps {
   onNoteAdded: (note: any) => void;
@@ -59,7 +61,33 @@ export default function NewNoteForm({ onNoteAdded }: NewNoteFormProps) {
         lookupSession(recSessionId);
       }
     }
+
+    // 4. Restore draft from sessionStorage
+    const draft = sessionStorage.getItem("cs_notes_draft");
+    if (draft) {
+      try {
+        const parsed = JSON.parse(draft);
+        if (parsed.comments) setComments(parsed.comments);
+        if (parsed.sessionId) setSessionId(parsed.sessionId);
+        if (parsed.languageUsed && ["en", "sn", "nd"].includes(parsed.languageUsed)) {
+          setLanguageUsed(parsed.languageUsed);
+        }
+        if (typeof parsed.followedBreathhold === "boolean") setFollowedBreathhold(parsed.followedBreathhold);
+        if (typeof parsed.repeatScanRequired === "boolean") setRepeatScanRequired(parsed.repeatScanRequired);
+      } catch {
+        sessionStorage.removeItem("cs_notes_draft");
+      }
+    }
   }, []);
+
+  // Auto-save draft to sessionStorage on field changes
+  useEffect(() => {
+    const draft = { comments, sessionId, languageUsed, followedBreathhold, repeatScanRequired };
+    // Only save if there's meaningful data
+    if (comments || sessionId) {
+      sessionStorage.setItem("cs_notes_draft", JSON.stringify(draft));
+    }
+  }, [comments, sessionId, languageUsed, followedBreathhold, repeatScanRequired]);
 
   const lookupSession = async (id: string) => {
     // Validate format first visually
@@ -71,7 +99,7 @@ export default function NewNoteForm({ onNoteAdded }: NewNoteFormProps) {
 
     setSessionLookupStatus("loading");
     try {
-      const res = await fetch(`/api/admin/sessions/${id}`);
+      const res = await adminFetch(`/api/admin/sessions/${id}`);
       const data = await res.json();
       if (data.success && data.data) {
         setSessionLookupStatus("found");
@@ -84,7 +112,8 @@ export default function NewNoteForm({ onNoteAdded }: NewNoteFormProps) {
         setSessionLookupStatus("not_found");
         setSessionDetails(null);
       }
-    } catch (e) {
+    } catch (error) {
+      handleClientError(error, "NewNoteForm - lookupSession");
       setSessionLookupStatus("not_found");
       setSessionDetails(null);
     }
@@ -135,6 +164,7 @@ export default function NewNoteForm({ onNoteAdded }: NewNoteFormProps) {
     setAutoLinkedMessage(null);
     setValidationError(null);
     setErrorToast(null);
+    sessionStorage.removeItem("cs_notes_draft");
   }, []);
 
   useKeyboardShortcuts(
@@ -179,7 +209,7 @@ export default function NewNoteForm({ onNoteAdded }: NewNoteFormProps) {
 
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/admin/notes", {
+      const res = await adminFetch("/api/admin/notes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validation.data),
@@ -191,6 +221,7 @@ export default function NewNoteForm({ onNoteAdded }: NewNoteFormProps) {
         setSubmitSuccess(true);
         onNoteAdded(data.data);
         sessionStorage.setItem("cs_last_note_lang", languageUsed);
+        sessionStorage.removeItem("cs_notes_draft");
         
         setTimeout(() => {
           setSubmitSuccess(false);
@@ -200,8 +231,9 @@ export default function NewNoteForm({ onNoteAdded }: NewNoteFormProps) {
       } else {
         throw new Error(data.error || "Failed to save note");
       }
-    } catch (e: any) {
-      setErrorToast(e.message || "Network error. Please try again.");
+    } catch (error: any) {
+      handleClientError(error, "NewNoteForm - handleSubmit");
+      setErrorToast(error.message || "Network error. Please try again.");
       setIsSubmitting(false);
     }
   };
