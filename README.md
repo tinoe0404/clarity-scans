@@ -1,36 +1,167 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ClarityScans 🏥
 
-## Getting Started
+> CT scan patient education PWA — reduces anxiety and improves breath-hold compliance during scans.
 
-First, run the development server:
+**HIT 300 Final Year Project — Harare Institute of Technology**  
+
+---
+
+## What It Does
+
+ClarityScans is a Progressive Web App placed in CT scan waiting rooms. Patients watch short educational videos, practise breath-holding, and use a visual communication board — all before entering the scanner. The result is calmer patients, fewer repeat scans, and better image quality.
+
+**The problem it solves:** Patients who don't understand the CT procedure move during scans, can't hold their breath on command, and experience high anxiety — causing motion artefacts and repeat exposures.
+
+---
+
+## Key Features
+
+- 🌍 **Three languages** — English, ChiShona, isiNdebele
+- 🎬 **Video education** — 5 CT procedure modules with key points
+- 🫁 **Breath-hold trainer** — interactive timed practice with audio cues
+- 🤝 **Visual communication board** — full-screen pictograms patients hold up to the radiographer
+- 📋 **Feedback collection** — anonymous post-scan anxiety scoring
+- 📊 **Radiographer dashboard** — analytics, video management, and scan notes
+- 📱 **Fully offline** — works without Wi-Fi once installed as a PWA
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 14 App Router + TypeScript |
+| Database | Neon (serverless Postgres) |
+| File Storage | Vercel Blob |
+| Auth | NextAuth v4 (JWT) |
+| i18n | next-intl |
+| PWA | next-pwa |
+| Styling | Tailwind CSS |
+| Charts | Recharts |
+| Hosting | Vercel (free tier) |
+
+---
+
+## Quick Start
+
+### Prerequisites
+- Node.js 18+
+- A [Neon](https://neon.tech) account (free)
+- A [Vercel](https://vercel.com) account (free)
+
+### Local Development
 
 ```bash
+# 1. Clone the repo
+git clone https://github.com/your-username/clarityscans.git
+cd clarityscans
+
+# 2. Install dependencies
+npm install
+
+# 3. Set up environment variables
+cp .env.example .env.local
+# Fill in your values — see .env.example for instructions
+
+# 4. Run database migrations
+npm run db:migrate
+
+# 5. Generate admin password hash
+npm run setup:admin
+
+# 6. Start the dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) — the patient language picker loads first.  
+Admin dashboard is at [http://localhost:3000/admin](http://localhost:3000/admin).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment Variables
 
-## Learn More
+See `.env.example` for the full list. The essential ones:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+DATABASE_URL=           # Neon connection string
+BLOB_READ_WRITE_TOKEN=  # Vercel Blob token
+NEXTAUTH_SECRET=        # Random 32+ char string
+NEXTAUTH_URL=           # Your deployment URL
+ADMIN_PASSWORD_HASH=    # bcrypt hash from setup:admin script
+REVALIDATION_SECRET=    # Random string for cache revalidation
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment
 
-## Deploy on Vercel
+```bash
+# Deploy to Vercel
+vercel --prod
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Full step-by-step deployment guide: [`docs/deployment.md`](docs/deployment.md)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── [locale]/          # Patient-facing pages (EN/SN/ND)
+│   └── admin/             # Radiographer dashboard
+├── components/
+│   ├── patient/           # Patient UI components
+│   ├── admin/             # Dashboard components
+│   └── shared/            # Shared components
+├── lib/                   # Database, blob, auth, utils
+├── hooks/                 # Custom React hooks
+├── messages/              # EN, SN, ND translation files
+└── types/                 # TypeScript type definitions
+```
+
+---
+
+## Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Development server |
+| `npm run build` | Production build |
+| `npm run lint` | ESLint check |
+| `npm run db:migrate` | Run database migrations |
+| `npm run setup:admin` | Generate admin password hash |
+| `npm run analyze` | Bundle size analysis |
+| `npm run validate:translations` | Check translation completeness |
+
+---
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [`docs/deployment.md`](docs/deployment.md) | Full deployment guide |
+| [`docs/radiographer-guide.md`](docs/radiographer-guide.md) | Admin dashboard user guide |
+| [`docs/patient-card.md`](docs/patient-card.md) | Printable patient instruction card |
+| [`docs/project-summary.md`](docs/project-summary.md) | HIT 300 project summary |
+
+---
+
+## Patient Flow
+
+```
+Select Language → Watch Videos → Practise Breath-Hold → Visual Guide → Feedback
+```
+
+## Radiographer Flow
+
+```
+Login → Upload Videos → Monitor Analytics → Log Scan Notes → Export Reports
+```
+
+---
+
+## License
+
+Academic project — Harare Institute of Technology, 2024–2025.
