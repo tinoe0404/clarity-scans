@@ -19,6 +19,7 @@ export interface VideoRecord {
   sort_order: number;
   is_active: boolean;
   created_at: Date;
+  updated_at: Date;
 }
 
 export interface SessionRecord {
