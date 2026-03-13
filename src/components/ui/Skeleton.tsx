@@ -18,7 +18,7 @@ export function SkeletonBlock({ className }: SkeletonProps) {
 export function SkeletonCard({ className }: SkeletonProps) {
   return (
     <div
-      className={cn(cardStyles("default"), "space-y-4 p-4", className)}
+      className={cn(cardStyles("default"), "min-h-[104px] space-y-4 p-4", className)}
       aria-busy="true"
       aria-label="Loading module..."
     >

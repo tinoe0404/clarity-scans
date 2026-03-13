@@ -1,6 +1,7 @@
 import { db, dbOne } from "../db";
-import { FeedbackRecord } from "@/types";
+import { FeedbackRecord, Locale } from "@/types";
 import { CreateFeedbackInput } from "../validations";
+import { withQueryCache } from "../queryCache";
 
 export interface FeedbackSummary {
   totalSessions: number;
@@ -52,7 +53,7 @@ export interface FeedbackSummary {
   languageDistribution: Record<Locale, number>;
 }
 
-export async function getFeedbackSummary(
+export async function getFeedbackSummaryUncached(
   dateRange: "week" | "month" | "all"
 ): Promise<FeedbackSummary> {
   let dateFilter = "";
@@ -104,6 +105,7 @@ export async function getFeedbackSummary(
     WHERE 1=1 ${dateFilter} 
     GROUP BY day 
     ORDER BY day ASC
+    LIMIT 365
   `;
 
   const [agg, langs, timeline] = await Promise.all([
@@ -120,9 +122,9 @@ export async function getFeedbackSummary(
   });
 
   const dailyCounts = timeline.map((t) => ({
-    date: new Date(t.day).toISOString().split("T")[0],
+    date: t.day ? new Date(t.day).toISOString().split("T")[0] : "",
     count: parseInt(t.count, 10),
-  }));
+  })).filter(t => t.date !== "");
 
   return {
     totalSessions: parseInt(agg?.totalSessions || "0", 10),
@@ -151,6 +153,17 @@ export async function getFeedbackSummary(
     languageDistribution: langDist,
   };
 }
+
+export const getFeedbackSummary = Object.assign(
+  async (dateRange: "week" | "month" | "all") => {
+    return withQueryCache(
+      () => getFeedbackSummaryUncached(dateRange),
+      [`feedback-summary-${dateRange}`],
+      30 // Cache for 30s
+    )();
+  },
+  { uncached: getFeedbackSummaryUncached }
+);
 
 export async function getAllFeedback(
   page: number,

@@ -1,5 +1,6 @@
 import { db, dbOne } from "../db";
 import { SessionRecord, VideoSlug, Locale } from "@/types";
+import { withQueryCache } from "../queryCache";
 
 export async function createSession(
   language: Locale,
@@ -60,12 +61,12 @@ export interface SessionsSummary {
   moduleCompletionRates: { moduleId: string; completions: number; rate: number }[];
 }
 
-export async function getSessionsSummary(
+export async function getSessionsSummaryUncached(
   dateRange: "week" | "month" | "all"
 ): Promise<SessionsSummary> {
   let dateFilter = "";
-  if (dateRange === "week") dateFilter = "AND created_at >= now() - interval '7 days'";
-  if (dateRange === "month") dateFilter = "AND created_at >= now() - interval '30 days'";
+  if (dateRange === "week") dateFilter = "AND started_at >= now() - interval '7 days'";
+  if (dateRange === "month") dateFilter = "AND started_at >= now() - interval '30 days'";
 
   // 1. Core aggregates
   const sqlAgg = `
@@ -83,11 +84,12 @@ export async function getSessionsSummary(
 
   // 3. Daily Timeline mapping exactly grouping timestamps
   const sqlTimeline = `
-    SELECT date_trunc('day', created_at) as day, COUNT(id) 
+    SELECT date_trunc('day', started_at) as day, COUNT(id) 
     FROM sessions 
     WHERE 1=1 ${dateFilter} 
     GROUP BY day 
     ORDER BY day ASC
+    LIMIT 365
   `;
 
   // 4. Global total
@@ -123,9 +125,9 @@ export async function getSessionsSummary(
   });
 
   const dailyCounts = timeline.map((t) => ({
-    date: new Date(t.day).toISOString().split("T")[0],
+    date: t.day ? new Date(t.day).toISOString().split("T")[0] : "",
     count: parseInt(t.count, 10),
-  }));
+  })).filter(t => t.date !== "");
 
   const totalSessionsVal = parseInt(agg?.total_range || "0", 10);
 
@@ -146,3 +148,14 @@ export async function getSessionsSummary(
     moduleCompletionRates,
   };
 }
+
+export const getSessionsSummary = Object.assign(
+  async (dateRange: "week" | "month" | "all") => {
+    return withQueryCache(
+      () => getSessionsSummaryUncached(dateRange),
+      [`sessions-summary-${dateRange}`],
+      30 // Cache for 30 seconds
+    )();
+  },
+  { uncached: getSessionsSummaryUncached }
+);

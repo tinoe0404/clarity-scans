@@ -3,8 +3,10 @@
 
 import { useState } from "react";
 import { Upload, X, Play, Pencil, Trash2, ToggleLeft, ToggleRight, Check } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { VideoRecord } from "@/types";
+import { generateBlurPlaceholder } from "@/lib/imageUtils";
 
 type CellState = "empty" | "uploading" | "inactive" | "active";
 
@@ -132,10 +134,14 @@ export default function VideoMatrixCell({
           {/* Thumbnail + duration */}
           <div className="relative mb-2 flex-1 overflow-hidden rounded-lg bg-black/30">
             {video.thumbnail_url ? (
-              <img
+              <Image
                 src={video.thumbnail_url}
                 alt={video.title}
-                className="h-full w-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                placeholder="blur"
+                blurDataURL={generateBlurPlaceholder(320, 180, "#1e293b")}
+                className="object-cover"
               />
             ) : (
               <div className="flex h-full min-h-[48px] items-center justify-center">
@@ -183,10 +189,14 @@ export default function VideoMatrixCell({
           {/* Thumbnail + duration */}
           <div className="relative mb-2 flex-1 overflow-hidden rounded-lg bg-black/30">
             {video.thumbnail_url ? (
-              <img
+              <Image
                 src={video.thumbnail_url}
                 alt={video.title}
-                className="h-full w-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                placeholder="blur"
+                blurDataURL={generateBlurPlaceholder(320, 180, "#1e293b")}
+                className="object-cover"
               />
             ) : (
               <div className="flex h-full min-h-[48px] items-center justify-center">

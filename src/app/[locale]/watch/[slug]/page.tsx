@@ -67,10 +67,19 @@ export default async function WatchPage({ params }: WatchPageProps) {
   try {
     videoRecord = await getVideoBySlug(slugTarget, locale);
   } catch (error) {
-    // If Postgres is down entirely, log it silently.
-    // The Patient Client relies exclusively on the static `registryEntry` and translations to maintain offline PWA illusions.
     console.error("Database connection fault hitting /watch:", error);
   }
+
+  const t = await getTranslations({ locale });
+  const title = videoRecord?.title || (t as any).raw(`modules.slugs.${slugTarget}.title`);
+  const description = videoRecord?.description || (t as any).raw(`modules.slugs.${slugTarget}.description`);
+  
+  // Extract keypoints array
+  let keyPoints: string[] = [];
+  try {
+    const p = (t as any).raw(`video.keypoints.${slugTarget}`);
+    if (Array.isArray(p)) keyPoints = p;
+  } catch {}
 
   return (
     <VideoPlayerScreen
@@ -78,6 +87,9 @@ export default async function WatchPage({ params }: WatchPageProps) {
       slug={slugTarget}
       videoRecord={videoRecord}
       registryEntry={registryEntry}
+      serverTitle={title}
+      serverDescription={description}
+      serverKeyPoints={keyPoints}
     />
   );
 }

@@ -3,6 +3,7 @@ import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
 import { validateLocale } from "@/lib/i18n";
 import { getVideosByLanguage } from "@/lib/queries/videos";
 import type { VideoRecord } from "@/types";
+import { MODULE_REGISTRY, mergeModuleData } from "@/lib/moduleRegistry";
 import ModulesScreen from "@/components/patient/ModulesScreen";
 import { LOCALES } from "@/types";
 
@@ -32,10 +33,17 @@ export default async function ModulesPage({
   try {
     videos = await getVideosByLanguage(locale);
   } catch (err) {
-    // Database transient error: absorb aggressively
-    // Core patient loop continues flawlessly using hardcoded static fallbacks downstream
     console.error("Neon DB fetch failed inside /modules:", err);
   }
 
-  return <ModulesScreen locale={locale} dbVideos={videos} />;
+  const t = await getTranslations({ locale, namespace: "modules" });
+  let mergedModules = mergeModuleData(MODULE_REGISTRY, videos, locale);
+  // Inject translations on the server side to shrink client bundle
+  mergedModules = mergedModules.map((mod) => ({
+    ...mod,
+    title: mod.title || t(`slugs.${mod.slug}.title`),
+    description: mod.description || t(`slugs.${mod.slug}.description`),
+  }));
+
+  return <ModulesScreen locale={locale} mergedModules={mergedModules} />;
 }

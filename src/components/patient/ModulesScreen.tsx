@@ -3,10 +3,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { track } from "@vercel/analytics";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
-import type { Locale, VideoRecord, VideoSlug } from "@/types";
+import type { Locale, VideoSlug } from "@/types";
+import type { MergedModule } from "@/lib/moduleRegistry";
 import { AppShell } from "@/components/shared";
+import { LazyWrapper } from "@/components/shared/LazyWrapper";
 import { SkeletonCard } from "@/components/ui/Skeleton";
 import PatientHeader from "@/components/patient/PatientHeader";
 import TabNavigation from "@/components/patient/TabNavigation";
@@ -18,20 +20,19 @@ import { getWatchedModules, getSessionId } from "@/lib/session";
 import { useSessionSync } from "@/hooks/useSessionSync";
 import { useFocusManagement } from "@/hooks/useFocusManagement";
 import {
-  MODULE_REGISTRY,
-  mergeModuleData,
   getNextUnwatchedSlug,
 } from "@/lib/moduleRegistry";
 import { formatDuration } from "@/lib/utils";
 
 interface ModulesScreenProps {
   locale: Locale;
-  dbVideos: VideoRecord[];
+  mergedModules: MergedModule[];
 }
 
-export default function ModulesScreen({ locale, dbVideos }: ModulesScreenProps) {
+export default function ModulesScreen({ locale, mergedModules }: ModulesScreenProps) {
   const router = useRouter();
   const t = useTranslations("modules");
+  const { trackEvent } = useAnalytics();
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
@@ -61,9 +62,9 @@ export default function ModulesScreen({ locale, dbVideos }: ModulesScreenProps) 
     moveFocusTo(headingRef);
 
     try {
-      track("modules_screen_viewed", { locale, sessionId: currentSession });
+      trackEvent("modules_screen_viewed", { locale, sessionId: currentSession });
       if (stored.length === 5) {
-        track("all_modules_completed", { locale });
+        trackEvent("all_modules_completed", { locale });
       }
     } catch {}
 
@@ -93,7 +94,6 @@ export default function ModulesScreen({ locale, dbVideos }: ModulesScreenProps) 
   };
 
   // 4. Data Derivation
-  const mergedModules = mergeModuleData(MODULE_REGISTRY, dbVideos, locale);
   const hasAnyActiveVideos = mergedModules.some((m) => m.hasVideo);
   const nextUpSlug = getNextUnwatchedSlug(watchedModules);
   const isAllDone = isLoaded && watchedModules.length === 5;
@@ -132,22 +132,26 @@ export default function ModulesScreen({ locale, dbVideos }: ModulesScreenProps) 
           {!isLoaded ? (
             Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)
           ) : (
-            mergedModules.map((mod) => (
-              <ModuleCard
+            mergedModules.map((mod, index) => (
+              <LazyWrapper
                 key={mod.slug}
-                slug={mod.slug}
-                // Pull directly from messages tree preventing null evaluations 
-                // DB strings override fallback technically, but we enforce TS defaults here
-                title={mod.title || t(`slugs.${mod.slug}.title`)} 
-                description={mod.description || t(`slugs.${mod.slug}.description`)}
-                icon={mod.icon}
-                duration={formatDuration(mod.durationSeconds)}
-                accentColor={mod.accentColor}
-                isImportant={mod.isImportant}
-                isWatched={watchedModules.includes(mod.slug)}
-                isNextUp={mod.slug === nextUpSlug}
-                href={`/${locale}/watch/${mod.slug}`}
-              />
+                isAboveFold={index < 2}
+                fallback={<SkeletonCard />}
+                minHeight="104px"
+              >
+                <ModuleCard
+                  slug={mod.slug}
+                  title={mod.title || ""} 
+                  description={mod.description || ""}
+                  icon={mod.icon}
+                  duration={formatDuration(mod.durationSeconds)}
+                  accentColor={mod.accentColor}
+                  isImportant={mod.isImportant}
+                  isWatched={watchedModules.includes(mod.slug)}
+                  isNextUp={mod.slug === nextUpSlug}
+                  href={`/${locale}/watch/${mod.slug}`}
+                />
+              </LazyWrapper>
             ))
           )}
         </div>

@@ -1,14 +1,23 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Space_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
+import dynamic from "next/dynamic";
 import { AppleMetaTags } from "@/components/shared/AppleMetaTags";
 import { InstallPromptBanner } from "@/components/shared/InstallPromptBanner";
 import "./globals.css";
+
+const DynamicWebVitals = dynamic(
+  () => import("@/components/shared/WebVitals").then((mod) => mod.WebVitals),
+  { ssr: false }
+);
 
 const jakarta = Plus_Jakarta_Sans({
   weight: ["400", "500", "600", "700", "800"],
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
+  preload: true,
+  adjustFontFallback: true,
 });
 
 const space = Space_Mono({
@@ -16,6 +25,8 @@ const space = Space_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
   display: "swap",
+  preload: true,
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
@@ -51,6 +62,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <InstallPromptBanner />
         </div>
+        <Analytics />
+        <DynamicWebVitals />
       </body>
     </html>
   );

@@ -3,13 +3,14 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { Locale } from "@/types";
-import { useTranslations } from "next-intl";
-import { track } from "@vercel/analytics";
 
-import { SIGNAL_REGISTRY, getSignalBySlug, type SignalSlug } from "@/lib/signalRegistry";
+import { getSignalBySlug, type SignalSlug } from "@/lib/signalRegistry";
 import { useWakeLock } from "@/hooks/useWakeLock";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
-import { AppShell, PatientHeader, TabNavigation } from "@/components/shared";
+import { AppShell } from "@/components/shared";
+import PatientHeader from "@/components/patient/PatientHeader";
+import TabNavigation from "@/components/patient/TabNavigation";
 import VisualSignalCard from "./VisualSignalCard";
 import FullScreenSignalOverlay from "./FullScreenSignalOverlay";
 import RecentSignalChip from "./RecentSignalChip";
@@ -18,11 +19,13 @@ import PrintCTACard from "./PrintCTACard";
 
 interface VisualGuideScreenProps {
   locale: Locale;
+  signals: any[];
+  title: string;
+  subtitle: string;
 }
 
-export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
-  const t = useTranslations();
-
+export default function VisualGuideScreen({ locale, signals, title, subtitle }: VisualGuideScreenProps) {
+  const { trackEvent } = useAnalytics();
   const [activeSignal, setActiveSignal] = useState<SignalSlug | null>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [recentlyUsed, setRecentlyUsed] = useState<SignalSlug[]>([]);
@@ -36,7 +39,7 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
 
   useEffect(() => {
     requestWakeLock();
-    track("visual_guide_viewed", { locale });
+    trackEvent("visual_guide_viewed", { locale });
 
     // Load session array
     try {
@@ -58,8 +61,8 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
       setFullscreenStartTime(Date.now());
 
       try {
-        track("signal_used", { locale, signal: slug });
-        track("signal_fullscreen", { locale, signal: slug });
+        trackEvent("signal_used", { locale, signal: slug });
+        trackEvent("signal_fullscreen", { locale, signal: slug });
 
         setRecentlyUsed((prev) => {
           // Prepend, dedupe, clamp to 3 items matching UI width max safely
@@ -78,7 +81,7 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
     if (activeSignal && fullscreenStartTime) {
       const durationMs = Date.now() - fullscreenStartTime;
       try {
-        track("signal_fullscreen_closed", { locale, signal: activeSignal, durationMs });
+        trackEvent("signal_fullscreen_closed", { locale, signal: activeSignal, durationMs });
       } catch {}
     }
 
@@ -87,7 +90,7 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
 
     // Return explicit physical focus targeting exactly restoring A11y
     if (activeSignal) {
-      const index = SIGNAL_REGISTRY.findIndex((s) => s.slug === activeSignal);
+      const index = signals.findIndex((s) => s.slug === activeSignal);
       if (index >= 0 && cardRefs.current[index]) {
         // Tiny delay mapping matching CSS animation decay bounds guaranteeing Ref restoration
         setTimeout(() => {
@@ -103,7 +106,7 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
     if (currentIndex === -1) return;
 
     let nextIndex = currentIndex;
-    const total = SIGNAL_REGISTRY.length;
+    const total = signals.length;
 
     switch (e.key) {
       case "ArrowRight":
@@ -135,8 +138,8 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
     <AppShell locale={locale} className="flex h-screen flex-col overflow-hidden bg-surface-base">
       <PatientHeader
         locale={locale}
-        title={(t as any).raw("visual.title")}
-        subtitle={(t as any).raw("visual.subtitle")}
+        title={title}
+        subtitle={subtitle}
         showBack={true}
         backHref={`/${locale}/modules`}
         showProgress={false}
@@ -145,15 +148,15 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
       <TabNavigation locale={locale} activeTab="visual" />
 
       <div className="custom-scrollbar flex w-full flex-1 flex-col overflow-y-auto pt-4">
-        <VisualInstructionBanner locale={locale} />
+        <VisualInstructionBanner />
 
         <div
           className="grid grid-cols-2 gap-3 px-6 pb-4"
           role="group"
-          aria-label={(t as any).raw("visual.title")}
+          aria-label={title}
           onKeyDown={handleGridKeyDown}
         >
-          {SIGNAL_REGISTRY.map((signal, index) => (
+          {signals.map((signal: any, index: number) => (
             <div
               key={signal.slug}
               ref={(el) => {
@@ -164,7 +167,7 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
             >
               <VisualSignalCard
                 emoji={signal.emoji}
-                label={(t as any).raw(`visual.signals.${signal.translationKey}` as string)}
+                label={signal.translatedLabel}
                 color={signal.color}
                 isRecentlyUsed={recentlyUsed.includes(signal.slug)}
                 tabIndex={0}
@@ -181,13 +184,13 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
             </p>
             <div className="custom-scrollbar relative -mx-6 flex items-center gap-3 overflow-x-auto px-6 pb-4">
               {recentlyUsed.map((slug) => {
-                const signal = getSignalBySlug(slug);
+                const signal = signals.find(s => s.slug === slug);
                 if (!signal) return null;
                 return (
                   <RecentSignalChip
                     key={slug}
                     signal={signal}
-                    label={(t as any).raw(`visual.signals.${signal.translationKey}` as string)}
+                    label={signal.translatedLabel}
                     onClick={() => handleSignalSelect(slug)}
                   />
                 );
@@ -197,14 +200,14 @@ export default function VisualGuideScreen({ locale }: VisualGuideScreenProps) {
         )}
 
         <div className="mb-6 mt-auto border-t border-white/5 px-6 pt-8">
-          <PrintCTACard locale={locale} />
+          <PrintCTACard />
         </div>
       </div>
 
       {isFullScreen && activeSignalData && (
         <FullScreenSignalOverlay
           signal={activeSignalData}
-          label={(t as any).raw(`visual.signals.${activeSignalData.translationKey}` as string)}
+          label={signals.find(s => s.slug === activeSignalData.slug)?.translatedLabel || ""}
           onClose={handleCloseOverlay}
         />
       )}

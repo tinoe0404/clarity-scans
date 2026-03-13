@@ -34,3 +34,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# auto-generated PWA worker files
+public/worker-*.js
+
+# gemini
+.gemini/

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { track } from "@vercel/analytics";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import type { Locale } from "@/types";
 import { AppShell } from "@/components/shared";
 import BrandHeader from "./BrandHeader";
@@ -25,6 +25,7 @@ const LANGUAGES: Array<{ locale: Locale; nativeName: string; englishName: string
 export default function LanguagePickerScreen({ suggestedLocale }: LanguagePickerScreenProps) {
   const router = useRouter();
   const [selectedLocale, setSelectedLocale] = useState<Locale | null>(null);
+  const { trackEvent } = useAnalytics();
 
   const { handlers: holdHandlers, progress, isHolding } = useHoldToNavigate("/admin/login", 3000);
 
@@ -72,7 +73,7 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
 
       // 4. Analytics
       try {
-        track("language_selected", { locale });
+        trackEvent("language_selected", { locale });
       } catch (_e) {
         // Must never block execution
       }

@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import type { Locale } from "@/types";
-import { track } from "@vercel/analytics";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 import { getSessionId, clearPatientSession } from "@/lib/session";
 import type { CreateFeedbackInput } from "@/lib/validations";
@@ -28,6 +28,7 @@ type FeedbackState = Partial<CreateFeedbackInput>;
 export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
   const t = useTranslations();
   const router = useRouter();
+  const { trackEvent } = useAnalytics();
 
   // Route State: 0-3 (Questions), 4 (Thank You View)
   const [step, setStep] = useState(0);
@@ -59,7 +60,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
 
   const handleSkip = () => {
     // Explicit tracking mapping skips natively
-    track("feedback_skipped", { locale });
+    trackEvent("feedback_skipped", { locale });
     setStep(4);
   };
 
@@ -130,7 +131,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
 
       // Delta tracking
       const anxietyReduction = (formData.anxietyBefore || 0) - (formData.anxietyAfter || 0);
-      track("feedback_submitted", { locale, anxietyReduction });
+      trackEvent("feedback_submitted", { locale, anxietyReduction });
 
       setStep(4);
     } catch (err: any) {

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { track } from "@vercel/analytics";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { useTranslations } from "next-intl";
 
 import type { Locale, VideoRecord, VideoSlug } from "@/types";
@@ -15,6 +15,7 @@ import { getNextUnwatchedSlug } from "@/lib/moduleRegistry";
 import { getSessionId, isModuleWatched, addWatchedModule, getWatchedModules } from "@/lib/session";
 
 import { AppShell } from "@/components/shared";
+import { LazyWrapper } from "@/components/shared/LazyWrapper";
 import VideoPlaceholder from "./VideoPlaceholder";
 import KeyPointCard from "./KeyPointCard";
 import BreathTrainerCTA from "./BreathTrainerCTA";
@@ -46,6 +47,9 @@ interface VideoPlayerScreenProps {
   slug: VideoSlug;
   videoRecord: VideoRecord | null;
   registryEntry: ModuleRegistryEntry;
+  serverTitle: string;
+  serverDescription: string;
+  serverKeyPoints: string[];
 }
 
 export default function VideoPlayerScreen({
@@ -53,12 +57,16 @@ export default function VideoPlayerScreen({
   slug,
   videoRecord,
   registryEntry,
+  serverTitle,
+  serverDescription,
+  serverKeyPoints,
 }: VideoPlayerScreenProps) {
   const router = useRouter();
   const t = useTranslations();
   const toast = useToast();
 
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const { trackEvent } = useAnalytics();
 
   // State
   const [isWatched, setIsWatched] = useState(false);
@@ -128,7 +136,7 @@ export default function VideoPlayerScreen({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ completedModules: getWatchedModules() }),
       });
-      track("module_watched", { locale, slug });
+      trackEvent("module_watched", { locale, slug });
     } catch {
       // Intentionally silences errors resolving cleanly off local Storage hooks
     } finally {
@@ -154,20 +162,9 @@ export default function VideoPlayerScreen({
   const nextSlugTarget = getNextUnwatchedSlug([...getWatchedModules(), slug]);
 
   // Derived Title / Descriptions mapping straight to static locales supporting missing DB scenarios cleanly
-  const title = videoRecord?.title || t(`modules.slugs.${slug}.title`);
-  const description = videoRecord?.description || t(`modules.slugs.${slug}.description`);
-
-  // Explicit translations mappings for keys
-  const getKeys = () => {
-    try {
-      // Type assertion handling the dynamic tree depth
-      const keys = (t as any).raw(`video.keypoints.${slug}`);
-      return Array.isArray(keys) ? keys : [];
-    } catch {
-      return [];
-    }
-  };
-  const keyPoints = getKeys();
+  const title = serverTitle;
+  const description = serverDescription;
+  const keyPoints = serverKeyPoints;
 
   return (
     <AppShell locale={locale} className="flex h-screen flex-col overflow-hidden bg-surface-base">
@@ -241,7 +238,13 @@ export default function VideoPlayerScreen({
           <h1 className="mb-2 font-display text-2xl font-bold leading-tight text-white">{title}</h1>
           <p className="mb-4 text-sm leading-relaxed text-slate-400">{description}</p>
 
-          <KeyPointCard points={keyPoints} accentColor={registryEntry.accentColor} />
+          <LazyWrapper
+            fallback={<div className="h-48 w-full animate-pulse rounded-2xl bg-surface-elevated" />}
+            minHeight="192px"
+            rootMargin="100px"
+          >
+            <KeyPointCard points={keyPoints} accentColor={registryEntry.accentColor} />
+          </LazyWrapper>
         </div>
 
         {slug === "breathhold" && <BreathTrainerCTA locale={locale} />}

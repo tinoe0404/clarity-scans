@@ -7,13 +7,27 @@ import type { DateRangeOption } from "./DateRangeSelector";
 import AdminHeader from "./AdminHeader";
 import DateRangeSelector from "./DateRangeSelector";
 import StatCard from "./StatCard";
-import SessionsChart from "./SessionsChart";
-import LanguageChart from "./LanguageChart";
-import ModuleCompletionRates from "./ModuleCompletionRates";
-import RecentFeedbackList from "./RecentFeedbackList";
 import SystemStatusCard from "./SystemStatusCard";
 import OnboardingCard from "./OnboardingCard";
+import dynamic from "next/dynamic";
+import { LazyWrapper } from "@/components/shared/LazyWrapper";
 
+const SessionsChart = dynamic(() => import("./SessionsChart"), {
+  ssr: false,
+  loading: () => <div className="h-[400px] w-full animate-pulse rounded-xl bg-slate-800/50" />
+});
+const LanguageChart = dynamic(() => import("./LanguageChart"), {
+  ssr: false,
+  loading: () => <div className="h-[400px] w-full animate-pulse rounded-xl bg-slate-800/50" />
+});
+const ModuleCompletionRates = dynamic(() => import("./ModuleCompletionRates"), {
+  ssr: false,
+  loading: () => <div className="h-[400px] w-full animate-pulse rounded-xl bg-slate-800/50" />
+});
+const RecentFeedbackList = dynamic(() => import("./RecentFeedbackList"), {
+  ssr: false,
+  loading: () => <div className="h-[400px] w-full animate-pulse rounded-xl bg-slate-800/50" />
+});
 interface DashboardOverviewProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialData: any; // Using explicit mapped analytics response object
@@ -213,22 +227,30 @@ export default function DashboardOverview({ initialData }: DashboardOverviewProp
         {/* Row 3: Charts */}
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <SessionsChart data={sessions?.dailyCounts || []} dateRange={dateRange} />
+            <LazyWrapper fallback={<div className="h-[400px] w-full animate-pulse rounded-xl bg-slate-800/50" />} minHeight="400px">
+              <SessionsChart data={sessions?.dailyCounts || []} dateRange={dateRange} />
+            </LazyWrapper>
           </div>
           <div className="lg:col-span-1">
-            <LanguageChart data={
-              Object.entries(sessions?.languageDistribution || {}).map(([lang, count]) => ({ language: lang, count: Number(count) }))
-            } />
+            <LazyWrapper fallback={<div className="h-[400px] w-full animate-pulse rounded-xl bg-slate-800/50" />} minHeight="400px">
+              <LanguageChart data={
+                Object.entries(sessions?.languageDistribution || {}).map(([lang, count]) => ({ language: lang, count: Number(count) }))
+              } />
+            </LazyWrapper>
           </div>
         </div>
 
         {/* Row 4: Mixed */}
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1">
-            <ModuleCompletionRates data={sessions?.moduleCompletionRates || []} />
+            <LazyWrapper fallback={<div className="h-[400px] w-full animate-pulse rounded-xl bg-slate-800/50" />} minHeight="400px">
+              <ModuleCompletionRates data={sessions?.moduleCompletionRates || []} />
+            </LazyWrapper>
           </div>
           <div className="lg:col-span-1">
-            <RecentFeedbackList />
+            <LazyWrapper fallback={<div className="h-[400px] w-full animate-pulse rounded-xl bg-slate-800/50" />} minHeight="400px">
+              <RecentFeedbackList />
+            </LazyWrapper>
           </div>
           <div className="lg:col-span-1">
             <SystemStatusCard db={health?.db} blob={health?.blob} />

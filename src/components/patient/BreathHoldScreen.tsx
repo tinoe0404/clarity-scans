@@ -4,7 +4,7 @@
 import { useState } from "react";
 import type { Locale } from "@/types";
 import { useTranslations } from "next-intl";
-import { track } from "@vercel/analytics";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 import { BREATH_HOLD_REPS } from "@/lib/constants";
 import { addWatchedModule, getWatchedModules, getSessionId } from "@/lib/session";
@@ -31,6 +31,7 @@ export default function BreathHoldScreen({ locale }: BreathHoldScreenProps) {
   const t = useTranslations();
   const reducedMotion = useReducedMotion();
   const [completedAt, setCompletedAt] = useState<Date | null>(null);
+  const { trackEvent } = useAnalytics();
 
   // 1. Audio Mapping
   const {
@@ -50,7 +51,7 @@ export default function BreathHoldScreen({ locale }: BreathHoldScreenProps) {
       // Clinical Requirements
       addWatchedModule("breathhold");
       sessionStorage.setItem("cs_breathhold_completed_at", now.toISOString());
-      track("breathhold_completed", { locale, reps: BREATH_HOLD_REPS });
+      trackEvent("breathhold_completed", { locale, reps: BREATH_HOLD_REPS });
 
       const sid = getSessionId();
       if (sid) {

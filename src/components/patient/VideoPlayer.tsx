@@ -3,6 +3,8 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import { Play, Pause, Volume2, VolumeX, Maximize } from "lucide-react";
 import { Spinner } from "@/components/ui/Spinner";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
+import { generateBlurPlaceholder } from "@/lib/imageUtils";
 
 interface VideoPlayerProps {
   blobUrl: string;
@@ -232,7 +234,6 @@ export default function VideoPlayer({
       <video
         ref={videoRef}
         src={blobUrl}
-        poster={thumbnailUrl || undefined}
         playsInline
         preload="metadata"
         className="h-full w-full object-cover"
@@ -275,6 +276,22 @@ export default function VideoPlayer({
           aria-label="Video loading"
         >
           <Spinner size="lg" className="text-white" />
+        </div>
+      )}
+
+      {/* Optimized Next.js Thumbnail Poster Layer */}
+      {!isPlaying && currentTime === 0 && thumbnailUrl && (
+        <div className="absolute inset-0 z-10 bg-black pointer-events-none">
+          <Image
+            src={thumbnailUrl}
+            alt="Video thumbnail"
+            fill
+            priority
+            sizes="100vw"
+            placeholder="blur"
+            blurDataURL={generateBlurPlaceholder(1280, 720, accentColor || "#0a0f1e")}
+            className="object-cover"
+          />
         </div>
       )}
 

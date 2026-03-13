@@ -1,15 +1,28 @@
 import { db, dbOne } from "../db";
 import { VideoRecord, VideoSlug, Locale } from "@/types";
 import { UpsertVideoInput } from "../validations";
+import { withQueryCache } from "../queryCache";
 
-export async function getVideosByLanguage(language: Locale): Promise<VideoRecord[]> {
+export async function getVideosByLanguageUncached(language: Locale): Promise<VideoRecord[]> {
   const sql = `
     SELECT * FROM videos 
     WHERE language = $1 AND is_active = true 
     ORDER BY sort_order ASC
+    LIMIT 100
   `;
   return db.query<VideoRecord>(sql, [language]);
 }
+
+export const getVideosByLanguage = Object.assign(
+  async (language: Locale) => {
+    return withQueryCache(
+      () => getVideosByLanguageUncached(language),
+      [`videos-${language}`],
+      3600 // Cache for 1 hour
+    )();
+  },
+  { uncached: getVideosByLanguageUncached }
+);
 
 export async function getVideoBySlug(
   slug: VideoSlug,
@@ -27,6 +40,7 @@ export async function getAllVideos(): Promise<VideoRecord[]> {
   const sql = `
     SELECT * FROM videos 
     ORDER BY language ASC, sort_order ASC
+    LIMIT 100
   `;
   return db.query<VideoRecord>(sql);
 }

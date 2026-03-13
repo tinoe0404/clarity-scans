@@ -6,12 +6,15 @@ import { CheckSquare, X } from "lucide-react";
 import { upload as blobUpload } from "@vercel/blob/client";
 import { cn } from "@/lib/utils";
 import { buttonStyles } from "@/lib/styles";
-import { VIDEO_MODULE_SLUGS, SUPPORTED_LOCALES } from "@/lib/constants";
-import { ConfirmDialog } from "@/components/ui";
+import { SUPPORTED_LOCALES, VIDEO_MODULE_SLUGS } from "@/lib/constants";
+import dynamic from "next/dynamic";
+
 import StorageUsageBar from "./StorageUsageBar";
 import StorageCleanupPanel from "./StorageCleanupPanel";
 import VideoContentMatrix from "./VideoContentMatrix";
-import VideoUploadPanel from "./VideoUploadPanel";
+
+const ConfirmDialog = dynamic(() => import("@/components/ui").then((mod) => mod.ConfirmDialog), { ssr: false });
+const VideoUploadPanel = dynamic(() => import("./VideoUploadPanel"), { ssr: false });
 import BulkActionBar from "./BulkActionBar";
 import type { VideoRecord, StorageStats, VideoSlug, Locale } from "@/types";
 

@@ -5,7 +5,7 @@ export default getRequestConfig(async ({ locale }) => {
   // Validate that the incoming `locale` parameter is valid
   if (!LOCALES.includes(locale as Locale)) {
     return {
-      messages: (await import(`../../messages/${DEFAULT_LOCALE}.json`)).default,
+      messages: (await import(`../messages/${DEFAULT_LOCALE}.json`)).default,
       timeZone: "Africa/Harare",
       now: new Date(),
     };
@@ -13,13 +13,13 @@ export default getRequestConfig(async ({ locale }) => {
 
   let messages;
   try {
-    messages = (await import(`../../messages/${locale}.json`)).default;
+    messages = (await import(`../messages/${locale}.json`)).default;
   } catch (error) {
     console.error(
       `Failed to load messages for locale: ${locale}. Falling back to ${DEFAULT_LOCALE}.`,
       error
     );
-    messages = (await import(`../../messages/${DEFAULT_LOCALE}.json`)).default;
+    messages = (await import(`../messages/${DEFAULT_LOCALE}.json`)).default;
   }
 
   if (process.env.NODE_ENV === "development") {

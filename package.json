@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "analyze": "npx cross-env ANALYZE=true next build",
     "prepare": "husky"
   },
   "dependencies": {
@@ -27,10 +28,12 @@
     "react-dom": "^18",
     "recharts": "^3.8.0",
     "tailwind-merge": "^3.5.0",
+    "web-vitals": "^5.1.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@axe-core/react": "^4.11.1",
+    "@next/bundle-analyzer": "^16.1.6",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^18",

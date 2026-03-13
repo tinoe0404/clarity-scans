@@ -1,6 +1,7 @@
 import { db, dbOne } from "../db";
 import { RadioNoteRecord, Locale } from "@/types";
 import { CreateNoteInput } from "../validations";
+import { withQueryCache } from "../queryCache";
 
 export interface NotesSummary {
   totalNotes: number;
@@ -28,7 +29,7 @@ export async function createNote(data: CreateNoteInput): Promise<RadioNoteRecord
   return result;
 }
 
-export async function getNotesSummary(dateRange: "week" | "month" | "all"): Promise<NotesSummary> {
+export async function getNotesSummaryUncached(dateRange: "week" | "month" | "all"): Promise<NotesSummary> {
   let dateFilter = "";
   if (dateRange === "week") dateFilter = "AND created_at >= now() - interval '7 days'";
   if (dateRange === "month") dateFilter = "AND created_at >= now() - interval '30 days'";
@@ -67,6 +68,17 @@ export async function getNotesSummary(dateRange: "week" | "month" | "all"): Prom
   };
 }
 
+export const getNotesSummary = Object.assign(
+  async (dateRange: "week" | "month" | "all") => {
+    return withQueryCache(
+      () => getNotesSummaryUncached(dateRange),
+      [`notes-summary-${dateRange}`],
+      30
+    )();
+  },
+  { uncached: getNotesSummaryUncached }
+);
+
 export async function getAllNotes(
   page: number,
   pageSize: number
@@ -97,7 +109,7 @@ export async function deleteNote(id: string): Promise<void> {
   if (!result) throw new Error("Note not found or could not be deleted");
 }
 
-export async function getCalendarHeatmap(): Promise<{ date: string; count: number }[]> {
+export async function getCalendarHeatmapUncached(): Promise<{ date: string; count: number }[]> {
   const sql = `
     SELECT day::date::text AS date, COALESCE(COUNT(n.id), 0)::integer AS count
     FROM generate_series(
@@ -108,8 +120,20 @@ export async function getCalendarHeatmap(): Promise<{ date: string; count: numbe
     LEFT JOIN radiographer_notes n 
       ON (n.created_at AT TIME ZONE 'Africa/Harare')::date = day::date
     GROUP BY day
-    ORDER BY day ASC;
+    ORDER BY day ASC
+    LIMIT 100;
   `;
   const result = await db.query<{ date: string; count: number }>(sql);
   return result;
 }
+
+export const getCalendarHeatmap = Object.assign(
+  async () => {
+    return withQueryCache(
+      () => getCalendarHeatmapUncached(),
+      [`notes-heatmap`],
+      3600 // High TTL for heatmap, caching for an entire hour is safe
+    )();
+  },
+  { uncached: getCalendarHeatmapUncached }
+);
