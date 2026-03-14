@@ -25,7 +25,7 @@ export function useSwipeDown(
     const handleTouchEnd = (e: TouchEvent) => {
       if (startYRef.current === null) return;
 
-      const endY = e.changedTouches[0]?.clientY;
+      const endY = e.changedTouches[0]?.clientY ?? 0;
       const deltaY = endY - startYRef.current;
 
       if (deltaY > threshold) {
