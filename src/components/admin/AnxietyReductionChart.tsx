@@ -77,8 +77,7 @@ export default function AnxietyReductionChart({
           <Tooltip
             contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 12, fontSize: 12 }}
             labelStyle={{ color: "#e2e8f0" }}
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            formatter={(val: any) => [val, "Patients"]}
+            formatter={(val: number) => [val, "Patients"]}
           />
           <Bar dataKey="count" radius={[4, 4, 0, 0]}>
             {data.map((entry) => (

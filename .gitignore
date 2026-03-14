@@ -40,3 +40,7 @@ public/worker-*.js
 
 # gemini
 .gemini/
+
+# logs
+*.log
+tsc_errors.txt
