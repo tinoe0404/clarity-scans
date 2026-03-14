@@ -166,7 +166,7 @@ export default function FeedbackTable({ dateRange }: FeedbackTableProps) {
                     </td>
                     <td className="px-4 py-3">
                       <span className="rounded-full bg-brand-500/10 px-2 py-0.5 text-[10px] font-medium text-brand-400">
-                        {(r as any).language_used as string ?? "—"}
+                        {((r as unknown as Record<string, unknown>).language_used as string) ?? "—"}
                       </span>
                     </td>
                     <td className="px-4 py-3">{r.anxiety_before ? `${EMOJI_MAP[r.anxiety_before]} ${r.anxiety_before}` : "—"}</td>

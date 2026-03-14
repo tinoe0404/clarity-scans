@@ -50,8 +50,7 @@ export default function LanguageChart({ data }: LanguageChartProps) {
   const isEmpty = totalSessions === 0;
 
   // Custom label that hides if percentage is < 10%
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: { cx: number, cy: number, midAngle: number, innerRadius: number, outerRadius: number, percent: number }) => {
     if (percent < 0.1) return null;
     
     // Position outside a bit
@@ -66,11 +65,10 @@ export default function LanguageChart({ data }: LanguageChartProps) {
     );
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const CustomLegend = ({ payload }: any) => {
+  const CustomLegend = ({ payload }: { payload: Array<{ value: string, color: string }> }) => {
     return (
       <ul className="flex justify-center gap-6 mt-4">
-        {payload.map((entry: any /* eslint-disable-line @typescript-eslint/no-explicit-any */, index: number) => {
+        {payload.map((entry, index: number) => {
           const entryData = chartData.find(d => d.name === entry.value);
           const percent = totalSessions > 0 ? Math.round(((entryData?.count || 0) / totalSessions) * 100) : 0;
           
@@ -125,7 +123,7 @@ export default function LanguageChart({ data }: LanguageChartProps) {
             </Pie>
             {!isEmpty && (
               <Tooltip
-                formatter={(value: any) => [`${value} Sessions`, "Count"]}
+                formatter={(value: number) => [`${value} Sessions`, "Count"]}
                 contentStyle={{
                   backgroundColor: "#1e293b",
                   borderColor: "rgba(255,255,255,0.1)",

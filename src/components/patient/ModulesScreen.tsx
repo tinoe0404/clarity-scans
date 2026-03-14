@@ -73,7 +73,7 @@ export default function ModulesScreen({ locale, mergedModules }: ModulesScreenPr
     if (savedScroll && scrollRef.current) {
       scrollRef.current.scrollTop = parseInt(savedScroll, 10);
     }
-  }, [locale, router]);
+  }, [locale, router, moveFocusTo, trackEvent]);
 
   // 2. Refresh watched state organically upon returning to the PWA tab externally
   useEffect(() => {

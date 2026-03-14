@@ -87,14 +87,15 @@ export async function GET(request: NextRequest) {
       ];
 
       const csvRows = rows.map((row) => {
+        const r = row as unknown as Record<string, unknown>;
         return [
           row.id,
           row.followed_breathhold,
           row.repeat_scan_required,
           row.language_used,
           `"${(row.comments || "").replace(/"/g, '""')}"`,
-          (row as any).radiographer_id || (row as any).radiographerId || "unknown",
-          new Date(row.created_at || (row as any).createdAt || new Date()).toISOString(),
+          (r.radiographer_id || r.radiographerId || "unknown") as string,
+          new Date((row.created_at || r.createdAt || new Date()) as string | number | Date).toISOString(),
         ].join(",");
       });
 

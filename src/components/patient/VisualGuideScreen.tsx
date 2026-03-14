@@ -52,7 +52,7 @@ export default function VisualGuideScreen({ locale, signals, title, subtitle }: 
     return () => {
       releaseWakeLock();
     };
-  }, [locale, requestWakeLock, releaseWakeLock]);
+  }, [locale, requestWakeLock, releaseWakeLock, trackEvent]);
 
   const handleSignalSelect = useCallback(
     (slug: SignalSlug) => {
@@ -74,7 +74,7 @@ export default function VisualGuideScreen({ locale, signals, title, subtitle }: 
         console.warn("Analytics/Session Error:", err);
       }
     },
-    [locale]
+    [locale, trackEvent]
   );
 
   const handleCloseOverlay = useCallback(() => {
@@ -98,7 +98,7 @@ export default function VisualGuideScreen({ locale, signals, title, subtitle }: 
         }, 50);
       }
     }
-  }, [activeSignal, fullscreenStartTime, locale]);
+  }, [activeSignal, fullscreenStartTime, locale, signals, trackEvent]);
 
   // Handle explicit 2-Column grid Arrow navigational arrays Native to physical specs natively
   const handleGridKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {

@@ -99,7 +99,7 @@ export default function SessionsChart({ data, dateRange }: SessionsChartProps) {
                   color: "#f8fafc",
                 }}
                 itemStyle={{ color: "#38bdf8" }} // brand-400
-                formatter={(value: any) => [value, "Sessions"]}
+                formatter={(value: number) => [value, "Sessions"]}
                 labelStyle={{ color: "#94a3b8", marginBottom: "4px" }}
               />
               <Bar

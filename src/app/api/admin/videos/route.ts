@@ -28,7 +28,10 @@ export async function GET(request: NextRequest) {
       if (!acc[video.slug]) {
         acc[video.slug] = [];
       }
-      acc[video.slug]!.push(video);
+      const list = acc[video.slug];
+      if (list) {
+        list.push(video);
+      }
       return acc;
     }, {} as Record<VideoSlug | string, VideoRecord[]>);
 

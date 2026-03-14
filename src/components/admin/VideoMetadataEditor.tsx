@@ -43,7 +43,7 @@ export default function VideoMetadataEditor({
         setSaving(false);
       }
     },
-    [videoId, title, description, isDirty, onSave]
+    [videoId, title, description, isDirty, onSave, updatedAt]
   );
 
   // Auto-save after 2s inactivity

@@ -29,7 +29,7 @@ export function handleClientError(error: unknown, context: string): void {
       context 
     });
   } catch (trackErr) {
-    logger.warn('Failed to track error analytics', trackErr as any);
+    logger.warn('Failed to track error analytics', trackErr as Error);
   }
 }
 

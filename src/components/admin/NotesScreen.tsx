@@ -50,7 +50,7 @@ export default function NotesScreen({
     if (viewMode === "calendar" && calendarData.length === 0) {
       fetchCalendarData();
     }
-  }, [viewMode]);
+  }, [viewMode, calendarData.length]);
 
   const fetchCalendarData = async () => {
     setIsLoadingCalendar(true);

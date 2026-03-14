@@ -42,7 +42,7 @@ export async function queueFeedback(data: CreateFeedbackInput): Promise<void> {
         await registration.sync.register("feedback-queue");
       }
     } catch (err) {
-      logger.warn("Background Sync registration failed:", err as any);
+      logger.warn("Background Sync registration failed:", err as Error);
     }
   }
 }
