@@ -9,6 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import type { PieLabelRenderProps } from "recharts";
 import type { Locale } from "@/types";
 
 interface LanguageStat {
@@ -50,7 +51,14 @@ export default function LanguageChart({ data }: LanguageChartProps) {
   const isEmpty = totalSessions === 0;
 
   // Custom label that hides if percentage is < 10%
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: { cx: number, cy: number, midAngle: number, innerRadius: number, outerRadius: number, percent: number }) => {
+  const renderCustomizedLabel = (props: PieLabelRenderProps) => {
+    const cx = Number(props.cx ?? 0);
+    const cy = Number(props.cy ?? 0);
+    const midAngle = Number(props.midAngle ?? 0);
+    const innerRadius = Number(props.innerRadius ?? 0);
+    const outerRadius = Number(props.outerRadius ?? 0);
+    const percent = Number(props.percent ?? 0);
+
     if (percent < 0.1) return null;
     
     // Position outside a bit
@@ -65,7 +73,7 @@ export default function LanguageChart({ data }: LanguageChartProps) {
     );
   };
 
-  const CustomLegend = ({ payload }: { payload: Array<{ value: string, color: string }> }) => {
+  const CustomLegend = ({ payload = [] }: { payload?: Array<{ value: string, color: string }> }) => {
     return (
       <ul className="flex justify-center gap-6 mt-4">
         {payload.map((entry, index: number) => {
@@ -123,7 +131,7 @@ export default function LanguageChart({ data }: LanguageChartProps) {
             </Pie>
             {!isEmpty && (
               <Tooltip
-                formatter={(value: number) => [`${value} Sessions`, "Count"]}
+                formatter={(value) => [`${value} Sessions`, "Count"]}
                 contentStyle={{
                   backgroundColor: "#1e293b",
                   borderColor: "rgba(255,255,255,0.1)",
