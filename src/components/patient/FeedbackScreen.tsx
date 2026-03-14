@@ -272,7 +272,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
     );
   }
 
-  const currentQ = QUESTIONS[step] || QUESTIONS[0];
+  const currentQ = QUESTIONS[step]!;
 
   return (
     <AppShell locale={locale} className="flex h-screen flex-col overflow-hidden bg-surface-base">
