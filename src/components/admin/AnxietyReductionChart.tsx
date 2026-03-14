@@ -77,7 +77,7 @@ export default function AnxietyReductionChart({
           <Tooltip
             contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 12, fontSize: 12 }}
             labelStyle={{ color: "#e2e8f0" }}
-            formatter={(val: number) => [val, "Patients"]}
+            formatter={(val) => [Number(val), "Patients"]}
           />
           <Bar dataKey="count" radius={[4, 4, 0, 0]}>
             {data.map((entry) => (
