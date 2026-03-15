@@ -16,7 +16,7 @@ interface ModuleCompletionRatesProps {
 
 export default function ModuleCompletionRates({ data }: ModuleCompletionRatesProps) {
   const sortedModules = useMemo(() => {
-    // We map through the registry exactly maintaining natural order defined by Phase 8 specifications
+    // Map through the registry to maintain natural module order
     return MODULE_REGISTRY.map((mod) => {
       const match = data.find((d) => d.moduleId === mod.slug);
       const rate = match?.rate || 0;

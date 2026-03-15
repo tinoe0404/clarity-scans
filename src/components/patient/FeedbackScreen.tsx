@@ -47,7 +47,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
 
   const autoAdvanceTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // Fallback cleanup ensuring timers die gracefully
+  // Cleanup timer on unmount
   useEffect(() => {
     return () => {
       if (autoAdvanceTimer.current) {
@@ -61,7 +61,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
   };
 
   const handleSkip = () => {
-    // Explicit tracking mapping skips natively
+    // Track skipped feedback
     trackEvent("feedback_skipped", { locale });
     setStep(4);
   };
@@ -71,13 +71,13 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
     router.push("/");
   };
 
-  // Pure state updater wrapping 600ms delays natively bypassing Next button friction completely
+  // Delay advance slightly so user can see selection
   const updateFieldAndAdvance = (field: keyof FeedbackState, value: any, autoAdvance: boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setSubmitError(null);
 
     if (autoAdvance) {
-      // Debounce resetting naturally if patient taps around deciding
+      // Reset timer if patient changes their mind
       if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
       autoAdvanceTimer.current = setTimeout(() => {
         handleNextSequence();
@@ -210,7 +210,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
       q: (t as any).raw("feedback.questions.understood"),
       render: () => (
         <div className="w-full max-w-sm" style={{ "--tap-target": "72px" } as React.CSSProperties}>
-          {/* Custom scaling pushing the YesNo hit targets safely passing Post-Scan motor control metrics specifically */}
+          {/* Large hit targets for accessibility */}
           <div className="[&>div>button]:py-6">
             <YesNoToggle
               value={formData.understoodProcedure ?? null}
@@ -230,7 +230,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
           <div className="[&>div>button]:py-6">
             <YesNoToggle
               value={formData.appHelpful ?? null}
-              onChange={(v) => updateFieldAndAdvance("appHelpful", v, false)} // No auto-advance locally waiting on manual submit clicks safely
+              onChange={(v) => updateFieldAndAdvance("appHelpful", v, false)} // No auto-advance on the final question
               yesLabel={(t as any).raw("feedback.yes")}
               noLabel={(t as any).raw("feedback.no")}
               disabled={isSubmitting}
@@ -280,7 +280,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
       <PatientHeader
         locale={locale}
         title={(t as any).raw("feedback.title")}
-        showBack={false} // Trapping patients forcing them into the exact linear conclusion natively
+        showBack={false} // Prevent navigating back away from feedback
         showProgress={false}
       />
 
@@ -290,7 +290,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
         </div>
 
         <div className="relative flex w-full flex-1 flex-col px-4">
-          {/* Render explicit Key forced re-mount boundaries natively hitting accurate Slide transitions purely */}
+          {/* Key ensures animation triggers on step change */}
           <FeedbackQuestionCard key={`step-${step}`} question={currentQ.q} stepIndex={step}>
             {currentQ.render()}
           </FeedbackQuestionCard>

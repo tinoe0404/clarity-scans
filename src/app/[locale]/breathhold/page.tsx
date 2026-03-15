@@ -14,14 +14,14 @@ const BreathHoldScreen = nextDynamic(() => import("@/components/patient/BreathHo
   ),
 });
 
-// 1. Fully static offline path generation
+// Static path generation
 export const dynamic = "force-static";
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
 }
 
-// 2. Localized SEO & Shell boundaries
+// Localized SEO
 export async function generateMetadata({ params }: { params: { locale: string } }) {
   const locale = validateLocale(params.locale);
   if (!locale) return {};
@@ -37,15 +37,14 @@ interface BreathHoldPageProps {
   params: { locale: string };
 }
 
-// 3. Primary Server Layout Route
+// Main Page Component
 export default async function BreathHoldPage({ params }: BreathHoldPageProps) {
   const locale = validateLocale(params.locale);
   if (!locale) notFound();
 
-  // Explicit Next-Intl context mapping
+  // Set next-intl locale context
   unstable_setRequestLocale(locale);
 
-  // Directly yield to client engine matching Phase 11 layout spec
-  // bypassing any DB requests maximizing offline speed natively
+  // Render the client component
   return <BreathHoldScreen locale={locale} />;
 }

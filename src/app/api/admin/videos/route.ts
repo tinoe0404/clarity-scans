@@ -20,10 +20,10 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const includeStats = searchParams.get("includeStats") === "true";
     
-    // Admin route inherently requests everything bypassing active gates strictly 
+    // Fetch all videos 
     const videos = await getAllVideos();
 
-    // Group heavily optimizing Phase 18 Matrix lists natively
+    // Group videos by slug for the grid matrix
     const grouped = videos.reduce((acc, video) => {
       if (!acc[video.slug]) {
         acc[video.slug] = [];

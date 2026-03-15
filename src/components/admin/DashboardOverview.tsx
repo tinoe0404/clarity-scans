@@ -43,7 +43,7 @@ export default function DashboardOverview({ initialData }: DashboardOverviewProp
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoadingRange, setIsLoadingRange] = useState(false);
 
-  // Sync server component refreshes to local state if we are viewing the default 'week' range
+  // Sync server component refreshes to local state for the default 'week' range
   useEffect(() => {
     if (dateRange === "week" && initialData) {
       setData(initialData);
@@ -51,13 +51,13 @@ export default function DashboardOverview({ initialData }: DashboardOverviewProp
     }
   }, [initialData, dateRange]);
 
-  // Auto-refresh every 60 seconds natively querying server components
+  // Auto-refresh every 60 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       if (dateRange === "week") {
         router.refresh(); // Triggers server component re-fetch
       } else {
-        // Fallback for custom ranges to remain live
+        // Fetch custom ranges conditionally
         fetchClientData(dateRange, true);
       }
     }, 60000);
@@ -102,13 +102,13 @@ export default function DashboardOverview({ initialData }: DashboardOverviewProp
     }
   };
 
-  // Safe extract mappings preventing strict type errors on missing maps
+  // Safe extract mappings
   const sessions = data?.sessions;
   const feedback = data?.feedback;
   const notes = data?.notes;
   const health = data?.health;
 
-  // Empty State Logic explicitly requested
+  // Empty State Logic
   const isBrandNew = sessions?.allTimeTotal === 0 && !isLoadingRange;
 
   if (isBrandNew) {
@@ -140,8 +140,7 @@ export default function DashboardOverview({ initialData }: DashboardOverviewProp
   const breathholdCompliance = notes?.breathholdComplianceRate !== undefined ? Math.round(notes.breathholdComplianceRate * 100) : null;
   
   const repeatScanRate = notes?.repeatScanRate !== undefined ? Math.round(notes.repeatScanRate * 100) : null;
-  // Repeat scan rate trend: we just use the raw value since we have no previous period securely available in this Phase.
-  // We mock a 'down' trend visually if it's below 10% natively marking it as excellent.
+  // Mock a 'down' trend visually if it's below 10%
   const repeatScanTrend = repeatScanRate !== null && repeatScanRate < 10 ? "down" : repeatScanRate !== null && repeatScanRate > 20 ? "up" : "neutral";
 
   const appHelpfulRate = feedback?.helpfulRate !== undefined ? Math.round(feedback.helpfulRate * 100) : null;
@@ -196,7 +195,7 @@ export default function DashboardOverview({ initialData }: DashboardOverviewProp
             value={avgReduction}
             unit="pts"
             trendDirection={reductionTrend}
-            trendPercentage={avgReduction ? Math.abs(avgReduction * 20) : null} // Fake percentage purely demonstrating inverted trend logic until Phase 18
+            trendPercentage={avgReduction ? Math.abs(avgReduction * 20) : null} // Mock percentage
             invertedTrend={true} // Lower anxiety is better (thus "down" drop is green)
             icon={<HeartPulse className="h-5 w-5" />}
             accentColor="bg-medical-green"
@@ -221,7 +220,7 @@ export default function DashboardOverview({ initialData }: DashboardOverviewProp
             value={repeatScanRate}
             unit="%"
             trendDirection={repeatScanTrend}
-            trendPercentage={repeatScanRate ? Math.abs(repeatScanRate) : null} // Demonstrating inverted logic 
+            trendPercentage={repeatScanRate ? Math.abs(repeatScanRate) : null} 
             invertedTrend={true} // Lower repeat scans is better (thus "down" drop is green)
             icon={<ShieldAlert className="h-5 w-5" />}
             accentColor="bg-red-500"

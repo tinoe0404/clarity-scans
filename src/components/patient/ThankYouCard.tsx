@@ -17,7 +17,7 @@ export default function ThankYouCard({
 }: ThankYouCardProps) {
   const t = useTranslations("feedback");
 
-  // 1. 30-Second global reset constraint natively dropping session configurations returning to Picker safely
+  // Reset to language picker after 30 seconds
   const { remainingTime, resetTimer } = useAutoReset(30000, onNewPatient);
   const progressPct = (remainingTime / 30) * 100;
 
