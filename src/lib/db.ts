@@ -22,9 +22,9 @@ export const db = {
     try {
       // Apply a 10s statement_timeout to prevent runaway queries
       // on Neon serverless (each invocation creates a fresh connection)
-      const wrappedSql = `SET statement_timeout = '10s'; ${sql}`;
+      await client.query("SET statement_timeout = '10s'");
 
-      const result = await client.query(wrappedSql, params);
+      const result = await client.query(sql, params);
       
       // pg returns arrays of results for multi-query strings sometimes, but normally an object with rows.
       // We'll normalize it to just rows for our app functions.
