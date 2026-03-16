@@ -25,7 +25,6 @@ const LANGUAGES: Array<{ locale: Locale; nativeName: string; englishName: string
   ];
 
 export default function LanguagePickerScreen({ suggestedLocale }: LanguagePickerScreenProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedLocale, setSelectedLocale] = useState<Locale | null>(null);
   const { trackEvent } = useAnalytics();

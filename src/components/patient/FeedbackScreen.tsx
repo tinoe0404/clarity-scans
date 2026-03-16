@@ -29,7 +29,6 @@ type FeedbackState = Partial<CreateFeedbackInput>;
 
 export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
   const t = useTranslations();
-  const router = useRouter();
   const { trackEvent } = useAnalytics();
 
   // Route State: 0-3 (Questions), 4 (Thank You View)
