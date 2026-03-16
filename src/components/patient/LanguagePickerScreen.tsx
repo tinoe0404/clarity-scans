@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import type { Locale } from "@/types";
 import { AppShell } from "@/components/shared";

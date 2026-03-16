@@ -19,7 +19,7 @@ import ThankYouCard from "./ThankYouCard";
 import { buttonStyles } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+
 
 interface FeedbackScreenProps {
   locale: Locale;
