@@ -49,7 +49,8 @@ export default function ModulesScreen({ locale, mergedModules }: ModulesScreenPr
   useEffect(() => {
     const currentSession = getSessionId();
     if (!currentSession) {
-      router.push(`/${locale}`);
+      // Redirect to absolute root to ensure a clean session start if missing
+      router.push("/");
       return;
     }
 
