@@ -68,7 +68,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
 
   const handleNewPatient = () => {
     clearPatientSession();
-    router.push("/");
+    window.location.href = "/";
   };
 
   // Delay advance slightly so user can see selection

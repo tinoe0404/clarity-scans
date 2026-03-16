@@ -1,5 +1,3 @@
-import Link from "next/link";
-import type { Route } from "next";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/types";
 
@@ -28,9 +26,9 @@ export default function TabNavigation({ locale, activeTab }: TabNavigationProps)
       {tabs.map((tab) => {
         const isActive = tab.key === activeTab;
         return (
-          <Link
+          <a
             key={tab.key}
-            href={tab.path as Route}
+            href={tab.path}
             role="tab"
             aria-current={isActive ? "page" : undefined}
             aria-selected={isActive}
@@ -43,7 +41,7 @@ export default function TabNavigation({ locale, activeTab }: TabNavigationProps)
               {tab.emoji}
             </span>
             <span>{tab.label}</span>
-          </Link>
+          </a>
         );
       })}
     </nav>

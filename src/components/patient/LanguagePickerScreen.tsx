@@ -85,7 +85,7 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
       }
 
       // 5. Navigate to patient education module index
-      router.push(`/${locale}/modules`);
+      window.location.href = `/${locale}/modules`;
     } catch (error) {
       handleClientError(error, "LanguagePickerScreen - handleLanguageSelect");
       // Recover navigation state on extreme block

@@ -1,8 +1,6 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import type { Route } from "next";
 import { cn } from "@/lib/utils";
 import { buttonStyles } from "@/lib/styles";
 import type { Locale } from "@/types";
@@ -36,12 +34,12 @@ export default function AllDoneCard({ locale }: AllDoneCardProps) {
           {t("allDoneSubtitle")}
         </p>
         
-        <Link 
-          href={`/${locale}/feedback` as Route}
-          className={cn(buttonStyles("primary", "md"), "w-full bg-medical-green text-green-950 hover:bg-green-400 hover:text-green-950 border-none shadow-glow")}
+        <a 
+          href={`/${locale}/feedback`}
+          className={cn(buttonStyles("primary", "md"), "w-full inline-block text-center bg-medical-green text-green-950 hover:bg-green-400 hover:text-green-950 border-none shadow-glow")}
         >
           Give Feedback
-        </Link>
+        </a>
       </div>
     </div>
   );
