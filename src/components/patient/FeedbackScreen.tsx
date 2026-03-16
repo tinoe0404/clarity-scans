@@ -169,7 +169,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
   // Question 4: App Helpful
   const QUESTIONS = [
     {
-      q: (t as any).raw("feedback.questions.anxietyBefore"),
+      q: (t as any).raw("feedback.anxietyBefore"),
       render: () => (
         <div className="flex w-full max-w-sm flex-col items-center">
           <AnxietyScale
@@ -188,7 +188,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
       ),
     },
     {
-      q: (t as any).raw("feedback.questions.anxietyAfter"),
+      q: (t as any).raw("feedback.anxietyAfter"),
       render: () => (
         <div className="flex w-full max-w-sm flex-col items-center">
           <AnxietyScale
@@ -207,7 +207,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
       ),
     },
     {
-      q: (t as any).raw("feedback.questions.understood"),
+      q: (t as any).raw("feedback.understood"),
       render: () => (
         <div className="w-full max-w-sm" style={{ "--tap-target": "72px" } as React.CSSProperties}>
           {/* Large hit targets for accessibility */}
@@ -224,7 +224,7 @@ export default function FeedbackScreen({ locale }: FeedbackScreenProps) {
       ),
     },
     {
-      q: (t as any).raw("feedback.questions.appHelpful"),
+      q: (t as any).raw("feedback.helpful"),
       render: () => (
         <div className="flex w-full max-w-sm flex-col gap-8">
           <div className="[&>div>button]:py-6">

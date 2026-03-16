@@ -4,8 +4,8 @@ import { localeSchema } from "@/lib/validations";
 import { handleApiError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 
-// Maximum Cache Revalidation (60 mins) completely circumventing heavy DB loads mapping to Slow Hospital WiFis seamlessly
-export const revalidate = 3600;
+// Force dynamic rendering since we rely on searchParams which cannot be statically known at build time
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
