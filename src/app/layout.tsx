@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Space_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import dynamic from "next/dynamic";
-import { AppleMetaTags } from "@/components/shared/AppleMetaTags";
 import { InstallPromptBanner } from "@/components/shared/InstallPromptBanner";
 import "./globals.css";
 
@@ -54,9 +53,6 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${jakarta.variable} ${space.variable}`}>
-      <head>
-        <AppleMetaTags />
-      </head>
       <body className="bg-surface-base text-white antialiased">
         <div className="app-shell relative mx-auto min-h-screen max-w-[480px] overflow-x-hidden bg-surface-card shadow-2xl">
           {children}
