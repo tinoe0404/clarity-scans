@@ -1,7 +1,6 @@
-import { redirect } from "next/navigation";
 import { unstable_setRequestLocale } from "next-intl/server";
 import { validateLocale } from "@/lib/i18n";
-import { LOCALES, type Locale } from "@/types";
+import { LOCALES } from "@/types";
 import LanguagePickerScreen from "@/components/patient/LanguagePickerScreen";
 
 export function generateStaticParams() {
