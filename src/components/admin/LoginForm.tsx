@@ -6,10 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { buttonStyles, inputStyles, cardStyles } from "@/lib/styles";
-import { useTranslations } from "next-intl";
 
 export default function LoginForm() {
-  const t = useTranslations("admin.login");
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/admin";
@@ -34,13 +32,13 @@ export default function LoginForm() {
       });
 
       if (result?.error) {
-        setError(t("error"));
+        setError("Invalid username or password");
       } else if (result?.ok) {
         router.push(callbackUrl as import("next").Route);
         router.refresh();
       }
     } catch (_err) {
-      setError(t("error"));
+      setError("Invalid username or password");
     } finally {
       setIsLoading(false);
     }
@@ -52,13 +50,13 @@ export default function LoginForm() {
         <h1 className="font-display text-3xl font-bold text-white">
           Clarity<span className="text-brand-500">Scans</span>
         </h1>
-        <p className="font-mono text-sm uppercase tracking-widest text-gray-400">{t("title")}</p>
+        <p className="font-mono text-sm uppercase tracking-widest text-gray-400">Radiographer Login</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <label htmlFor="username" className="ml-1 text-sm font-medium text-gray-300">
-            {t("username")}
+            Username
           </label>
           <input
             id="username"
@@ -74,7 +72,7 @@ export default function LoginForm() {
 
         <div className="space-y-2">
           <label htmlFor="password" className="ml-1 text-sm font-medium text-gray-300">
-            {t("password")}
+            Password
           </label>
           <div className="relative">
             <input
@@ -114,7 +112,7 @@ export default function LoginForm() {
           className={buttonStyles("primary", "lg")}
           aria-busy={isLoading}
         >
-          {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : t("submit")}
+          {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : "Sign In"}
         </button>
       </form>
 

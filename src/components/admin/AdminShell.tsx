@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { LayoutDashboard, Video, BarChart3, FileText, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTranslations } from "next-intl";
 
 interface NavItem {
   label: string;
@@ -16,13 +15,12 @@ interface NavItem {
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const t = useTranslations("admin.nav");
 
   const navigation: NavItem[] = [
-    { label: t("dashboard"), href: "/admin", icon: LayoutDashboard },
-    { label: t("videos"), href: "/admin/videos", icon: Video },
-    { label: t("analytics"), href: "/admin/analytics", icon: BarChart3 },
-    { label: t("notes"), href: "/admin/notes", icon: FileText },
+    { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+    { label: "Videos", href: "/admin/videos", icon: Video },
+    { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+    { label: "Patient Notes", href: "/admin/notes", icon: FileText },
   ];
 
   return (
@@ -70,7 +68,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             className="duration-fast flex w-full items-center gap-3 rounded-xl px-4 py-3 font-medium text-gray-400 transition-all hover:bg-medical-red/5 hover:text-medical-red"
           >
             <LogOut className="h-5 w-5" aria-hidden="true" />
-            {t("logout")}
+            Sign Out
           </button>
         </div>
       </aside>
@@ -106,7 +104,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           className="flex min-w-[64px] flex-col items-center gap-1 text-gray-400"
         >
           <LogOut className="h-6 w-6" />
-          <span className="text-[10px] font-medium uppercase tracking-wider">{t("logout")}</span>
+          <span className="text-[10px] font-medium uppercase tracking-wider">Sign Out</span>
         </button>
       </nav>
     </div>
