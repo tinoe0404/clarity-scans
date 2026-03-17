@@ -37,5 +37,5 @@ export default async function ScannerSoundPage({ params }: ScannerSoundPageProps
   unstable_setRequestLocale(locale);
 
   // Render the client component
-  return <ScannerSoundScreen />;
+  return <ScannerSoundScreen locale={locale} />;
 }

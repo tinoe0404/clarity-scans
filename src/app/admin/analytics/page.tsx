@@ -1,6 +1,5 @@
 import { getAdminSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import AdminShell from "@/components/admin/AdminShell";
 import AnalyticsScreen from "@/components/admin/AnalyticsScreen";
 import { headers } from "next/headers";
 import type { FeedbackSummary } from "@/lib/queries/feedback";
@@ -33,9 +32,5 @@ export default async function AdminAnalyticsPage() {
 
   const summary = await getSummary();
 
-  return (
-    <AdminShell>
-      <AnalyticsScreen initialSummary={summary} />
-    </AdminShell>
-  );
+  return <AnalyticsScreen initialSummary={summary} />;
 }
