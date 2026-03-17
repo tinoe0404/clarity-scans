@@ -38,7 +38,16 @@ export default function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", pathname);
 
-  // 3. i18n Middleware for other routes
+  // 3. Bypass i18n Middleware for admin routes
+  if (pathname.startsWith("/admin")) {
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+  }
+
+  // 4. i18n Middleware for other routes
   // The i18n middleware handles the rest of the application
   return i18nMiddleware(request);
 }
