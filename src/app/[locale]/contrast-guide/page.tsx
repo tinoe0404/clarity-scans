@@ -37,5 +37,5 @@ export default async function ContrastGuidePage({ params }: ContrastGuidePagePro
   unstable_setRequestLocale(locale);
 
   // Render the client component
-  return <ContrastGuideScreen locale={locale} />;
+  return <ContrastGuideScreen />;
 }
