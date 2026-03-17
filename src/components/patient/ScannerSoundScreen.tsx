@@ -1,37 +1,101 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Play, Square, Volume2 } from "lucide-react";
 import clsx from "clsx";
+
+/**
+ * Creates a realistic CT scanner sound using the Web Audio API.
+ * Combines a low-frequency hum, mid-frequency buzz, and periodic clicking
+ * to simulate the actual environment of a CT scanner room.
+ */
+function createScannerSound(audioCtx: AudioContext): GainNode {
+  const masterGain = audioCtx.createGain();
+  masterGain.gain.value = 0.35;
+
+  // 1. Low-frequency hum (the base motor drone)
+  const hum = audioCtx.createOscillator();
+  const humGain = audioCtx.createGain();
+  hum.type = "sawtooth";
+  hum.frequency.value = 60;
+  humGain.gain.value = 0.3;
+  hum.connect(humGain).connect(masterGain);
+  hum.start();
+
+  // 2. Mid-frequency whirring/buzzing (the gantry rotation)
+  const buzz = audioCtx.createOscillator();
+  const buzzGain = audioCtx.createGain();
+  buzz.type = "square";
+  buzz.frequency.value = 180;
+  buzzGain.gain.value = 0.15;
+  buzz.connect(buzzGain).connect(masterGain);
+  buzz.start();
+
+  // 3. Higher pitch whine (X-ray tube sound)
+  const whine = audioCtx.createOscillator();
+  const whineGain = audioCtx.createGain();
+  whine.type = "sine";
+  whine.frequency.value = 420;
+  whineGain.gain.value = 0.08;
+  whine.connect(whineGain).connect(masterGain);
+  whine.start();
+
+  // 4. Rhythmic clicking (mechanical relay clicks) using white noise bursts
+  const bufferSize = audioCtx.sampleRate * 2;
+  const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const output = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    output[i] = Math.random() * 2 - 1;
+  }
+
+  const noise = audioCtx.createBufferSource();
+  noise.buffer = noiseBuffer;
+  noise.loop = true;
+
+  // Shape the noise into rhythmic clicks using an LFO on its gain
+  const clickGain = audioCtx.createGain();
+  clickGain.gain.value = 0;
+
+  const clickLFO = audioCtx.createOscillator();
+  const lfoGain = audioCtx.createGain();
+  clickLFO.type = "square";
+  clickLFO.frequency.value = 3; // 3 clicks per second
+  lfoGain.gain.value = 0.12;
+  clickLFO.connect(lfoGain).connect(clickGain.gain);
+  clickLFO.start();
+
+  noise.connect(clickGain).connect(masterGain);
+  noise.start();
+
+  return masterGain;
+}
 
 export default function ScannerSoundScreen() {
   const t = useTranslations("scannerSound");
   const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
 
-  const toggleSound = () => {
-    if (!audioRef.current) return;
-
+  const toggleSound = useCallback(() => {
     if (isPlaying) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0; // Reset
+      // Stop: close the audio context
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close();
+        audioCtxRef.current = null;
+      }
+      setIsPlaying(false);
     } else {
-      audioRef.current.play().catch(err => console.error("Audio playback failed:", err));
+      // Start: create a new audio context and wire everything up
+      const ctx = new AudioContext();
+      audioCtxRef.current = ctx;
+      const masterNode = createScannerSound(ctx);
+      masterNode.connect(ctx.destination);
+      setIsPlaying(true);
     }
-    setIsPlaying(!isPlaying);
-  };
+  }, [isPlaying]);
 
   return (
     <div className="flex flex-col h-full bg-surface-base px-6 py-8 sm:px-12 md:px-20 lg:max-w-4xl lg:mx-auto">
-      {/* Hidden Audio Element */}
-      <audio
-        ref={audioRef}
-        src="/audio/ct-scanner-sound.mp3"
-        loop
-        onEnded={() => setIsPlaying(false)}
-      />
-
       <div className="flex items-center gap-4 mb-8">
         <div className="p-3 bg-brand-light/10 text-brand-dark rounded-xl">
           <Volume2 className="h-8 w-8" />
