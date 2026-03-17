@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useState, useRef, useCallback } from "react";
-import { Play, Square, Volume2 } from "lucide-react";
+import { Play, Square } from "lucide-react";
 import clsx from "clsx";
 import type { Locale } from "@/types";
 import { AppShell } from "@/components/shared";
