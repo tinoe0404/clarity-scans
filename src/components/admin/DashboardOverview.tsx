@@ -149,7 +149,7 @@ export default function DashboardOverview({ initialData }: DashboardOverviewProp
   const isDataStale = data?.dataAge && (new Date().getTime() - new Date(data.dataAge).getTime()) > 10 * 60 * 1000;
 
   return (
-    <div className="flex flex-col h-full bg-surface-base pb-10">
+    <div className="flex flex-col h-full bg-surface-base pb-28 md:pb-10">
       <AdminHeader 
         title="Dashboard" 
         lastUpdated={lastUpdated} 

@@ -103,9 +103,9 @@ export default function FeedbackTable({ dateRange }: FeedbackTableProps) {
 
   return (
     <div className="rounded-2xl border border-surface-border bg-surface-card no-print">
-      <div className="flex items-center justify-between border-b border-surface-border px-6 py-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-surface-border px-4 sm:px-6 py-4">
         <h3 className="text-sm font-medium text-slate-400">Raw Feedback</h3>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
             <input

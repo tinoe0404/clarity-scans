@@ -117,7 +117,7 @@ export default function NotesScreen({
   };
 
   return (
-    <div className="space-y-6 pb-24 md:pb-8">
+    <div className="space-y-6 pb-32 md:pb-8">
       {/* Top Section - Summary panel (always full width) */}
       <NotesSummaryPanel 
         summary={summary} 
@@ -211,7 +211,7 @@ export default function NotesScreen({
       {!isMobileFormOpen && (
         <button
           onClick={() => setIsMobileFormOpen(true)}
-          className="lg:hidden fixed bottom-6 right-6 z-40 bg-brand-500 text-white px-5 py-4 rounded-full shadow-[0_0_20px_rgba(var(--brand-500-rgb),0.4)] flex items-center gap-2 font-bold focus:outline-none focus:ring-4 focus:ring-brand-500/50 hover:bg-brand-400 transition-all border border-brand-400/50"
+          className="lg:hidden fixed bottom-24 right-6 z-40 bg-brand-500 text-white px-5 py-4 rounded-full shadow-[0_0_20px_rgba(var(--brand-500-rgb),0.4)] flex items-center gap-2 font-bold focus:outline-none focus:ring-4 focus:ring-brand-500/50 hover:bg-brand-400 transition-all border border-brand-400/50"
         >
           <Plus className="w-5 h-5 mx-auto" />
           <span>New Note</span>

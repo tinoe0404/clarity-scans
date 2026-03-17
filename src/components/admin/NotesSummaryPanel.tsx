@@ -74,7 +74,7 @@ export default function NotesSummaryPanel({ summary, isLoading, dateRange, onDat
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="scale-95 origin-top-left sm:scale-100 sm:origin-center w-full min-w-0">
+        <div className="w-full min-w-0">
           <StatCard
             title="Total Notes"
             value={summary?.totalNotes ?? 0}
@@ -126,7 +126,7 @@ export default function NotesSummaryPanel({ summary, isLoading, dateRange, onDat
           </div>
         </div>
 
-        <div className="scale-95 origin-top-left sm:scale-100 sm:origin-center w-full min-w-0">
+        <div className="w-full min-w-0">
           <StatCard
             title="Most Used Lang"
             value={mostUsedStr}

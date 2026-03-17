@@ -265,28 +265,28 @@ export default function NewNoteForm({ onNoteAdded }: NewNoteFormProps) {
       className="bg-surface-elevated rounded-2xl border border-surface-border p-5 flex flex-col h-full"
       onKeyDown={handleGlobalKeyDown}
     >
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
         <h2 className="text-xl font-bold text-white">New Note</h2>
         
-        <div className="flex bg-surface-base rounded-lg p-1 border border-surface-border/50">
+        <div className="flex bg-surface-base rounded-lg p-1 border border-surface-border/50 overflow-x-auto max-w-full">
           <button
             onClick={applyPreset1}
             disabled={isFormDisabled}
-            className="px-3 py-1.5 text-xs font-medium bg-transparent hover:bg-white/5 disabled:opacity-50 text-slate-300 rounded-md transition-colors"
+            className="px-3 py-1.5 text-xs font-medium bg-transparent hover:bg-white/5 disabled:opacity-50 text-slate-300 rounded-md transition-colors whitespace-nowrap"
           >
             ✅ All Good
           </button>
           <button
             onClick={applyPreset2}
             disabled={isFormDisabled}
-            className="px-3 py-1.5 text-xs font-medium bg-transparent hover:bg-white/5 disabled:opacity-50 text-slate-300 rounded-md transition-colors border-l border-white/5"
+            className="px-3 py-1.5 text-xs font-medium bg-transparent hover:bg-white/5 disabled:opacity-50 text-slate-300 rounded-md transition-colors border-l border-white/5 whitespace-nowrap"
           >
             🔄 Repeat Scan
           </button>
           <button
             onClick={applyPreset3}
             disabled={isFormDisabled}
-            className="px-3 py-1.5 text-xs font-medium bg-transparent hover:bg-white/5 disabled:opacity-50 text-slate-300 rounded-md transition-colors border-l border-white/5"
+            className="px-3 py-1.5 text-xs font-medium bg-transparent hover:bg-white/5 disabled:opacity-50 text-slate-300 rounded-md transition-colors border-l border-white/5 whitespace-nowrap"
           >
             ⚠️ Repeat Despite Instructions
           </button>

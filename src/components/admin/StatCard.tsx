@@ -44,7 +44,7 @@ export default function StatCard({
   const hasTrend = trendDirection && trendDirection !== "neutral" && trendPercentage !== null && trendPercentage !== undefined;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-surface-border bg-surface-elevated p-5 transition-all hover:bg-surface-elevated/80">
+    <div className="relative overflow-hidden rounded-2xl border border-surface-border bg-surface-elevated p-4 sm:p-5 transition-all hover:bg-surface-elevated/80">
       <div className="flex justify-between items-start mb-4">
         <div className={cn("p-2.5 rounded-xl text-white shadow-lg", accentColor)}>
           {icon}
@@ -73,7 +73,7 @@ export default function StatCard({
             <SkeletonBlock className="h-8 w-24 my-1 rounded-md bg-white/5" />
           ) : (
             <>
-              <span className="text-3xl font-bold tracking-tight text-white">
+              <span className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
                 {value === null || value === undefined ? "—" : value}
               </span>
               {unit && value !== null && value !== undefined && (
