@@ -7,7 +7,7 @@ interface ContrastGuideScreenProps {
   locale: string;
 }
 
-export default function ContrastGuideScreen({ locale }: ContrastGuideScreenProps) {
+export default function ContrastGuideScreen() {
   const t = useTranslations("contrastGuide");
 
   return (

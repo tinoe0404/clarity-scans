@@ -9,7 +9,7 @@ interface ScannerSoundScreenProps {
   locale: string;
 }
 
-export default function ScannerSoundScreen({ locale }: ScannerSoundScreenProps) {
+export default function ScannerSoundScreen() {
   const t = useTranslations("scannerSound");
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
