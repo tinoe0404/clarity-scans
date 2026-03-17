@@ -100,52 +100,105 @@ export default function AnalyticsScreen({ initialSummary }: AnalyticsScreenProps
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [dateRange, fetchSummary]);
 
-  /* ── CSV Export: Raw feedback ───────────────── */
-  const exportFeedbackCsv = useCallback(async () => {
+  /* ── PDF Export: Raw feedback ───────────────── */
+  const exportFeedbackPdf = useCallback(async () => {
     setExportOpen(false);
-    addToast("Preparing download...", "info");
+    addToast("Preparing PDF...", "info");
     try {
       const res = await adminFetch(`/api/feedback?format=csv&pageSize=10000`);
       if (!res.ok) throw new Error("Export failed");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
+      const text = await res.text();
+      const lines = text.trim().split("\n");
+      const headers = lines[0].split(",");
+      const rows = lines.slice(1).map((line) => line.split(","));
+
+      const { default: jsPDF } = await import("jspdf");
+      const { default: autoTable } = await import("jspdf-autotable");
+
+      const doc = new jsPDF({ orientation: "landscape" });
+
+      // Title
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.text("ClarityScans — Feedback Data", 14, 20);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(100);
+      doc.text(`Period: ${DATE_RANGE_LABELS[dateRange]}  |  Generated: ${new Date().toLocaleDateString("en-ZW", { timeZone: "Africa/Harare" })}`, 14, 28);
+      doc.text("Harare Institute of Technology — HIT 300", 14, 34);
+      doc.setTextColor(0);
+
+      autoTable(doc, {
+        head: [headers],
+        body: rows,
+        startY: 40,
+        styles: { fontSize: 7, cellPadding: 2 },
+        headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: "bold" },
+        alternateRowStyles: { fillColor: [241, 245, 249] },
+        margin: { left: 14, right: 14 },
+      });
+
       const date = new Date().toISOString().split("T")[0];
-      a.download = `clarityscans-feedback-${dateRange}-${date}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-      addToast("Download ready", "success");
+      doc.save(`clarityscans-feedback-${dateRange}-${date}.pdf`);
+      addToast("PDF downloaded", "success");
     } catch (error) {
-      handleClientError(error, "AnalyticsScreen - exportFeedbackCsv");
+      handleClientError(error, "AnalyticsScreen - exportFeedbackPdf");
       addToast("Export failed — please try again", "error");
     }
   }, [dateRange, addToast]);
 
-  /* ── CSV Export: Summary report ─────────────── */
-  const exportSummaryCsv = useCallback(() => {
+  /* ── PDF Export: Summary report ─────────────── */
+  const exportSummaryPdf = useCallback(async () => {
     setExportOpen(false);
     if (!summary) return;
-    addToast("Preparing download...", "info");
+    addToast("Preparing PDF...", "info");
+
+    const { default: jsPDF } = await import("jspdf");
+    const { default: autoTable } = await import("jspdf-autotable");
+
+    const doc = new jsPDF();
+
+    // Title
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text("ClarityScans", 14, 20);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.text("Analytics Summary Report", 14, 28);
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Period: ${DATE_RANGE_LABELS[dateRange]}  |  Generated: ${new Date().toLocaleDateString("en-ZW", { timeZone: "Africa/Harare" })}`, 14, 36);
+    doc.text("Harare Institute of Technology — HIT 300", 14, 42);
+    doc.setTextColor(0);
+
+    // Line separator
+    doc.setDrawColor(200);
+    doc.line(14, 46, 196, 46);
+
     const rows = [
-      ["Metric", "Value", "Period"],
-      ["Average Anxiety Before", summary.avgAnxietyBefore.toFixed(2), DATE_RANGE_LABELS[dateRange]],
-      ["Average Anxiety After", summary.avgAnxietyAfter.toFixed(2), DATE_RANGE_LABELS[dateRange]],
-      ["Average Reduction", summary.avgAnxietyReduction.toFixed(2), DATE_RANGE_LABELS[dateRange]],
-      ["App Helpful Rate", `${(summary.helpfulRate * 100).toFixed(1)}%`, DATE_RANGE_LABELS[dateRange]],
-      ["Understood Procedure Rate", `${(summary.understoodRate * 100).toFixed(1)}%`, DATE_RANGE_LABELS[dateRange]],
-      ["Total Feedback", String(summary.totalFeedback), DATE_RANGE_LABELS[dateRange]],
-      ["Total Sessions", String(summary.totalSessions), DATE_RANGE_LABELS[dateRange]],
+      ["Average Anxiety Before", summary.avgAnxietyBefore.toFixed(2)],
+      ["Average Anxiety After", summary.avgAnxietyAfter.toFixed(2)],
+      ["Average Reduction", summary.avgAnxietyReduction.toFixed(2)],
+      ["App Helpful Rate", `${(summary.helpfulRate * 100).toFixed(1)}%`],
+      ["Understood Procedure Rate", `${(summary.understoodRate * 100).toFixed(1)}%`],
+      ["Total Feedback Responses", String(summary.totalFeedback)],
+      ["Total Sessions", String(summary.totalSessions)],
     ];
-    const csv = rows.map((r) => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `clarityscans-summary-${dateRange}-${new Date().toISOString().split("T")[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    addToast("Download ready", "success");
+
+    autoTable(doc, {
+      head: [["Metric", "Value"]],
+      body: rows,
+      startY: 52,
+      styles: { fontSize: 11, cellPadding: 6 },
+      headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: "bold" },
+      columnStyles: { 0: { fontStyle: "bold", cellWidth: 120 } },
+      alternateRowStyles: { fillColor: [241, 245, 249] },
+      margin: { left: 14, right: 14 },
+    });
+
+    const date = new Date().toISOString().split("T")[0];
+    doc.save(`clarityscans-summary-${dateRange}-${date}.pdf`);
+    addToast("PDF downloaded", "success");
   }, [summary, dateRange, addToast]);
 
   /* ── Freshness color ───────────────────────── */
@@ -210,12 +263,12 @@ export default function AnalyticsScreen({ initialSummary }: AnalyticsScreenProps
                 <Download className="h-3.5 w-3.5" /> Export <ChevronDown className="h-3 w-3" />
               </button>
               {exportOpen && (
-                <div className="absolute right-0 top-full z-30 mt-1 w-48 rounded-xl border border-surface-border bg-surface-elevated p-1 shadow-xl">
-                  <button onClick={exportFeedbackCsv} className="w-full rounded-lg px-3 py-2 text-left text-xs text-slate-300 hover:bg-white/5">
-                    Export Feedback Data (CSV)
+                <div className="absolute right-0 top-full z-30 mt-1 w-52 rounded-xl border border-surface-border bg-surface-elevated p-1 shadow-xl">
+                  <button onClick={exportFeedbackPdf} className="w-full rounded-lg px-3 py-2 text-left text-xs text-slate-300 hover:bg-white/5">
+                    Export Feedback Data (PDF)
                   </button>
-                  <button onClick={exportSummaryCsv} className="w-full rounded-lg px-3 py-2 text-left text-xs text-slate-300 hover:bg-white/5">
-                    Export Summary Report
+                  <button onClick={exportSummaryPdf} className="w-full rounded-lg px-3 py-2 text-left text-xs text-slate-300 hover:bg-white/5">
+                    Export Summary Report (PDF)
                   </button>
                 </div>
               )}
