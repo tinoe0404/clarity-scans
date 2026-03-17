@@ -3,10 +3,6 @@
 import { useTranslations } from "next-intl";
 import { Info, Droplet, Activity, AlertTriangle } from "lucide-react";
 
-interface ContrastGuideScreenProps {
-  locale: string;
-}
-
 export default function ContrastGuideScreen() {
   const t = useTranslations("contrastGuide");
 

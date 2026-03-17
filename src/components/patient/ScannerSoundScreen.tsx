@@ -5,10 +5,6 @@ import { useState, useRef } from "react";
 import { Play, Square, Volume2 } from "lucide-react";
 import clsx from "clsx";
 
-interface ScannerSoundScreenProps {
-  locale: string;
-}
-
 export default function ScannerSoundScreen() {
   const t = useTranslations("scannerSound");
   const [isPlaying, setIsPlaying] = useState(false);
