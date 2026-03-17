@@ -3,11 +3,11 @@ import type { Locale } from "@/types";
 
 interface TabNavigationProps {
   locale: Locale;
-  activeTab: "modules" | "breathhold" | "visual" | "feedback";
+  activeTab: "modules" | "breathhold" | "visual" | "feedback" | "scanner" | "contrast";
 }
 
 interface TabDef {
-  key: "modules" | "breathhold" | "visual" | "feedback";
+  key: "modules" | "breathhold" | "visual" | "feedback" | "scanner" | "contrast";
   emoji: string;
   label: string;
   path: string;
@@ -18,11 +18,13 @@ export default function TabNavigation({ locale, activeTab }: TabNavigationProps)
     { key: "modules", emoji: "📋", label: "Videos", path: `/${locale}/modules` },
     { key: "breathhold", emoji: "🫁", label: "Breathe", path: `/${locale}/breathhold` },
     { key: "visual", emoji: "🤟", label: "Signals", path: `/${locale}/visual-guide` },
+    { key: "scanner", emoji: "🔊", label: "Sound", path: `/${locale}/scanner-sound` },
+    { key: "contrast", emoji: "💧", label: "Contrast", path: `/${locale}/contrast-guide` },
     { key: "feedback", emoji: "📝", label: "Feedback", path: `/${locale}/feedback` },
   ];
 
   return (
-    <nav className="mx-6 mb-5 flex rounded-xl bg-white/[0.04] p-1" role="tablist">
+    <nav className="mx-6 mb-5 flex rounded-xl bg-white/[0.04] p-1 overflow-x-auto custom-scrollbar" role="tablist">
       {tabs.map((tab) => {
         const isActive = tab.key === activeTab;
         return (
