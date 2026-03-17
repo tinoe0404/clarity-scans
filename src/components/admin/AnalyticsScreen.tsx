@@ -109,7 +109,9 @@ export default function AnalyticsScreen({ initialSummary }: AnalyticsScreenProps
       if (!res.ok) throw new Error("Export failed");
       const text = await res.text();
       const lines = text.trim().split("\n");
-      const headers = lines[0].split(",");
+      const firstLine = lines[0];
+      if (!firstLine) throw new Error("No feedback data available to export");
+      const headers = firstLine.split(",");
       const rows = lines.slice(1).map((line) => line.split(","));
 
       const { default: jsPDF } = await import("jspdf");
