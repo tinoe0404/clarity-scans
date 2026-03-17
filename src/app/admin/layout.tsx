@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/requireAdmin";
 import AdminShell from "@/components/admin/AdminShell";
 import { headers } from "next/headers";
+import { NextAuthProvider } from "@/components/admin/NextAuthProvider";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const headersList = headers();
@@ -14,7 +15,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="admin-root">
-      <AdminContentWrapper isLoginPage={isLoginPage}>{children}</AdminContentWrapper>
+      <NextAuthProvider>
+        <AdminContentWrapper isLoginPage={isLoginPage}>{children}</AdminContentWrapper>
+      </NextAuthProvider>
     </div>
   );
 }
