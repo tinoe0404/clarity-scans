@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import type { Locale } from "@/types";
 import { cn } from "@/lib/utils";
 import { buttonStyles } from "@/lib/styles";
@@ -10,7 +11,7 @@ interface BreathTrainerCTAProps {
 export default function BreathTrainerCTA({ locale }: BreathTrainerCTAProps) {
   return (
     <div className="mt-8 mb-4 px-6">
-      <a
+      <Link
         href={`/${locale}/breathhold`}
         className={cn(
           buttonStyles("primary", "lg"),
@@ -22,7 +23,7 @@ export default function BreathTrainerCTA({ locale }: BreathTrainerCTAProps) {
           Now practise the breath-hold →
         </span>
         <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-      </a>
+      </Link>
     </div>
   );
 }

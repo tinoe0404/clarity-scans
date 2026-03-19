@@ -107,7 +107,6 @@ const withPWA = withPWAInit({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
-    optimizeFonts: false,
     experimental: {
         serverActions: {
            bodySizeLimit: '20mb'
