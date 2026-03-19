@@ -41,12 +41,15 @@ export default function ModulesScreen({ locale, mergedModules }: ModulesScreenPr
   const [watchedModules, setWatchedModules] = useState<VideoSlug[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const mountTracked = useRef(false);
 
   // Sync to database
   useSessionSync(sessionId, watchedModules);
 
   // 1. Initial Mount: Verify Session & Hydrate Watched State
   useEffect(() => {
+    if (mountTracked.current) return;
+    
     const currentSession = getSessionId();
     if (!currentSession) {
       // Redirect to absolute root to ensure a clean session start if missing
@@ -74,6 +77,8 @@ export default function ModulesScreen({ locale, mergedModules }: ModulesScreenPr
     if (savedScroll && scrollRef.current) {
       scrollRef.current.scrollTop = parseInt(savedScroll, 10);
     }
+    
+    mountTracked.current = true;
   }, [locale, router, moveFocusTo, trackEvent]);
 
   // 2. Refresh watched state organically upon returning to the PWA tab externally
