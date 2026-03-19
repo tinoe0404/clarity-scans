@@ -33,7 +33,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       </a>
       
       {/* Desktop Sidebar */}
-      <aside className="fixed z-20 hidden h-full w-64 flex-col border-r border-surface-border bg-surface-card md:flex">
+      <aside className="fixed z-20 hidden h-full w-64 flex-col border-r border-surface-border bg-surface-card lg:flex">
         <div className="p-8">
           <h1 className="font-display text-2xl font-bold">
             Clarity<span className="text-brand-500">Scans</span>
@@ -74,14 +74,14 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       </aside>
 
       {/* Main Content Area */}
-      <main id="main-content" tabIndex={-1} className="flex-1 pb-24 md:ml-64 md:pb-0 outline-none">
-        <div className="animate-in fade-in duration-normal mx-auto max-w-7xl p-6 md:p-10">
+      <main id="main-content" tabIndex={-1} className="flex-1 pb-24 lg:ml-64 lg:pb-0 outline-none">
+        <div className="animate-in fade-in duration-normal mx-auto max-w-7xl p-6 lg:p-10">
           {children}
         </div>
       </main>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="safe-area-inset-bottom fixed bottom-0 left-0 right-0 z-20 flex h-20 items-center justify-around border-t border-surface-border bg-surface-card px-4 md:hidden">
+      <nav className="safe-area-inset-bottom fixed bottom-0 left-0 right-0 z-20 flex h-20 items-center justify-around border-t border-surface-border bg-surface-card px-4 lg:hidden">
         {navigation.map((item) => {
           const isActive =
             pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));

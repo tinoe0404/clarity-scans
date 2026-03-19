@@ -143,7 +143,7 @@ export default function FeedbackTable({ dateRange }: FeedbackTableProps) {
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block overflow-x-auto overscroll-x-contain">
+      <div className="hidden lg:block overflow-x-auto overscroll-x-contain">
         <table className="w-full min-w-[800px] text-xs">
           <thead>
             <tr className="border-b border-surface-border text-left text-slate-500">
@@ -261,7 +261,7 @@ export default function FeedbackTable({ dateRange }: FeedbackTableProps) {
       </div>
 
       {/* Mobile Card View */}
-      <div className="md:hidden divide-y divide-surface-border">
+      <div className="lg:hidden divide-y divide-surface-border">
         {loading ? (
           <div className="px-4 py-12 text-center text-slate-500 text-sm">Loading...</div>
         ) : filtered.length === 0 ? (

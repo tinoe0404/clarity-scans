@@ -4,7 +4,7 @@ import { SkeletonBlock } from "@/components/ui/Skeleton";
 export default function NotesLoading() {
   return (
     <AdminShell>
-      <div className="space-y-6 pb-24 md:pb-8 animate-pulse">
+      <div className="space-y-6 pb-24 lg:pb-8 animate-pulse">
         <div className="mb-6 mb-8 mt-2">
           <SkeletonBlock className="h-8 w-64 mb-2" />
           <SkeletonBlock className="h-5 w-96 max-w-full" />

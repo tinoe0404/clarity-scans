@@ -68,7 +68,7 @@ export default function VideoContentMatrix({
   return (
     <>
       {/* ─── Mobile Card Layout (< md) ─── */}
-      <div className="space-y-4 md:hidden">
+      <div className="space-y-4 lg:hidden">
         {VIDEO_MODULE_SLUGS.map((slug) => {
           const meta = MODULE_META[slug];
           const thumb = thumbnails[slug] || null;
@@ -161,7 +161,7 @@ export default function VideoContentMatrix({
       </div>
 
       {/* ─── Desktop Table Layout (md+) ─── */}
-      <div className="hidden overflow-x-auto overscroll-x-contain rounded-2xl border border-surface-border bg-surface-card md:block">
+      <div className="hidden overflow-x-auto overscroll-x-contain rounded-2xl border border-surface-border bg-surface-card lg:block">
         <table className="w-full min-w-[700px]">
           <thead>
             <tr className="border-b border-surface-border">

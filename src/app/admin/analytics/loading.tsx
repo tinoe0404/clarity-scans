@@ -16,7 +16,7 @@ export default function AnalyticsLoading() {
         </div>
 
         {/* Summary cards skeleton */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           {[0, 1, 2].map((i) => (
             <div key={i} className="rounded-2xl border border-surface-border bg-surface-card p-6">
               <div className="mb-2 h-4 w-32 rounded bg-white/10" />
@@ -35,7 +35,7 @@ export default function AnalyticsLoading() {
         <div className="h-[280px] rounded-2xl border border-surface-border bg-surface-card" />
 
         {/* Donuts skeleton */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="h-[260px] rounded-2xl border border-surface-border bg-surface-card" />
           <div className="h-[260px] rounded-2xl border border-surface-border bg-surface-card" />
         </div>

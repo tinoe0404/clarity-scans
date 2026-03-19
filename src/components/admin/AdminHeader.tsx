@@ -36,7 +36,7 @@ export default function AdminHeader({ title, lastUpdated, onRefresh, isRefreshin
 
       <div className="flex items-center gap-4">
         {session?.user?.name && (
-          <span className="hidden md:inline-block text-sm font-medium text-slate-400">
+          <span className="hidden lg:inline-block text-sm font-medium text-slate-400">
             {session.user.name}
           </span>
         )}
