@@ -1,5 +1,7 @@
 import { track } from "@vercel/analytics";
 
+import { useCallback } from "react";
+
 /**
  * Custom hook for sending telemetry to Vercel Analytics.
  * Wraps @vercel/analytics track to isolate its usage to this specific file,
@@ -8,7 +10,7 @@ import { track } from "@vercel/analytics";
  * It is completely non-blocking, operating async and silently catching errors.
  */
 export function useAnalytics() {
-  const trackEvent = (
+  const trackEvent = useCallback((
     eventName: string,
     properties?: Record<string, string | number | boolean | null>
   ) => {
@@ -22,7 +24,7 @@ export function useAnalytics() {
       // Silently swallow analytics failures avoiding breaking the UX
       console.warn("Analytics tracking failed:", err);
     }
-  };
+  }, []);
 
   return { trackEvent };
 }
