@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
@@ -43,6 +43,10 @@ export async function POST(request: NextRequest) {
 
     // 2. Purge Static Next.js Patient Layouts specifically
     revalidatePath("/[locale]/modules", "page");
+
+    // 3. Purge specific Data Cache tags used by withQueryCache
+    const SUPPORTED_LOCALES = ["en", "sn", "nd"];
+    SUPPORTED_LOCALES.forEach(loc => revalidateTag(`videos-${loc}`));
 
     return NextResponse.json({
       success: true,

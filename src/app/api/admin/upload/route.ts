@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
           await fetch(new URL("/api/revalidate", request.url).toString(), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ secret: process.env.REVALIDATION_SECRET }),
+            body: JSON.stringify({ token: process.env.REVALIDATION_SECRET }),
           });
         } catch (_e) {
           /* Non-fatal, admin sees completion */

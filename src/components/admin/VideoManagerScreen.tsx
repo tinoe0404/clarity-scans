@@ -132,7 +132,7 @@ export default function VideoManagerScreen({
   /* ── Refresh stats ───────────────────────────── */
   const refreshStats = useCallback(async () => {
     try {
-      const res = await adminFetch("/api/admin/videos?includeStats=true");
+      const res = await adminFetch(`/api/admin/videos?includeStats=true&t=${Date.now()}`);
       const json = await res.json();
       if (json.success) {
         setMatrix(buildMatrix(json.data.grouped));

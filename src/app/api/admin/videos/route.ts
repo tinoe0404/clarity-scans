@@ -7,6 +7,8 @@ import { upsertVideoSchema } from "@/lib/validations";
 import { storage } from "@/lib/blob";
 import type { VideoRecord, VideoSlug } from "@/types";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
   
