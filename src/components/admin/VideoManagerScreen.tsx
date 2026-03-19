@@ -150,7 +150,7 @@ export default function VideoManagerScreen({
       const formData = new FormData();
       formData.append("file", file);
       formData.append("slug", slug);
-      formData.append("language", locale);
+      formData.append("locale", locale);
       formData.append("title", title);
       formData.append("description", description);
 
