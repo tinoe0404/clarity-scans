@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { badgeStyles } from "@/lib/styles";
 import type { VideoSlug } from "@/types";
@@ -28,7 +29,7 @@ export default function ModuleCard({
   accentColor = "#0ea5e9",
 }: ModuleCardProps) {
   return (
-    <a
+    <Link
       href={href}
       className={cn(
         "relative flex items-center gap-4 rounded-2xl border p-4 transition-all duration-200 overflow-hidden",
@@ -80,7 +81,7 @@ export default function ModuleCard({
       <span className="shrink-0 text-lg" aria-hidden="true">
         {isWatched ? "✅" : "▶️"}
       </span>
-    </a>
+    </Link>
   );
 }
 

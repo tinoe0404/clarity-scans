@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import type { Locale } from "@/types";
@@ -25,6 +25,7 @@ const LANGUAGES: Array<{ locale: Locale; nativeName: string; englishName: string
 
 export default function LanguagePickerScreen({ suggestedLocale }: LanguagePickerScreenProps) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [selectedLocale, setSelectedLocale] = useState<Locale | null>(null);
   const { trackEvent } = useAnalytics();
 
@@ -81,7 +82,7 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
       }
 
       // 5. Navigate to patient education module index
-      window.location.href = `/${locale}/modules`;
+      router.push(`/${locale}/modules`);
     } catch (error) {
       handleClientError(error, "LanguagePickerScreen - handleLanguageSelect");
       // Recover navigation state on extreme block

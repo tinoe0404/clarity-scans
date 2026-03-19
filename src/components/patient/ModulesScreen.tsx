@@ -50,7 +50,7 @@ export default function ModulesScreen({ locale, mergedModules }: ModulesScreenPr
     const currentSession = getSessionId();
     if (!currentSession) {
       // Redirect to absolute root to ensure a clean session start if missing
-      window.location.href = "/";
+      router.replace("/");
       return;
     }
 

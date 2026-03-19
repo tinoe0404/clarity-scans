@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useTranslations } from "next-intl";
@@ -84,7 +85,7 @@ export default function VideoPlayerScreen({
   useEffect(() => {
     const sid = getSessionId();
     if (!sid) {
-      window.location.href = `/${locale}`;
+      router.replace(`/${locale}`);
       return;
     }
     setSessionId(sid);
@@ -94,9 +95,9 @@ export default function VideoPlayerScreen({
   const handleBack = () => {
     if (!isWatched) {
       toast.showToast("Don't forget to mark this as watched!", "info");
-      setTimeout(() => { window.location.href = `/${locale}/modules`; }, 1000);
+      setTimeout(() => { router.push(`/${locale}/modules`); }, 1000);
     } else {
-      window.location.href = `/${locale}/modules`;
+      router.push(`/${locale}/modules`);
     }
   };
 
@@ -148,9 +149,9 @@ export default function VideoPlayerScreen({
       setTimeout(() => {
         const nextTarget = getNextUnwatchedSlug(getWatchedModules());
         if (nextTarget) {
-          window.location.href = `/${locale}/watch/${nextTarget}`;
+          router.push(`/${locale}/watch/${nextTarget}`);
         } else {
-          window.location.href = `/${locale}/modules`;
+          router.push(`/${locale}/modules`);
         }
       }, 2000);
     }
@@ -262,15 +263,15 @@ export default function VideoPlayerScreen({
             </div>
 
             {nextSlugTarget ? (
-              <a
+              <Link
                 href={`/${locale}/watch/${nextSlugTarget}`}
                 className={cn(buttonStyles("primary", "lg"), "w-full inline-block text-center")}
               >
                 {t("video.nextModule")} →
-              </a>
+              </Link>
             ) : (
               <button
-                onClick={() => { window.location.href = `/${locale}/modules`; }}
+                onClick={() => { router.push(`/${locale}/modules`); }}
                 className={cn(buttonStyles("secondary", "lg"), "w-full")}
               >
                 {t("nav.back")} to Modules
@@ -298,7 +299,7 @@ export default function VideoPlayerScreen({
 
             <button
               disabled={isMarkingWatched}
-              onClick={() => { window.location.href = `/${locale}/modules`; }}
+              onClick={() => { router.push(`/${locale}/modules`); }}
               className={cn(buttonStyles("ghost", "md"), "w-full text-slate-400 hover:text-white")}
             >
               {t("nav.back")} to Modules
