@@ -143,7 +143,7 @@ export default function FeedbackTable({ dateRange }: FeedbackTableProps) {
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block overflow-x-auto">
+      <div className="hidden md:block overflow-x-auto overscroll-x-contain">
         <table className="w-full min-w-[800px] text-xs">
           <thead>
             <tr className="border-b border-surface-border text-left text-slate-500">

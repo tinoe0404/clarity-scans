@@ -66,7 +66,7 @@ export default function VideoContentMatrix({
   thumbnails,
 }: VideoContentMatrixProps) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-surface-border bg-surface-card">
+    <div className="overflow-x-auto overscroll-x-contain rounded-2xl border border-surface-border bg-surface-card">
       <table className="w-full min-w-[700px]">
         <thead>
           <tr className="border-b border-surface-border">
