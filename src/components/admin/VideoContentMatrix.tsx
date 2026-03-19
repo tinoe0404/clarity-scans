@@ -66,69 +66,56 @@ export default function VideoContentMatrix({
   thumbnails,
 }: VideoContentMatrixProps) {
   return (
-    <div className="overflow-x-auto overscroll-x-contain rounded-2xl border border-surface-border bg-surface-card">
-      <table className="w-full min-w-[700px]">
-        <thead>
-          <tr className="border-b border-surface-border">
-            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
-              Module
-            </th>
-            {SUPPORTED_LOCALES.map((loc) => (
-              <th
-                key={loc}
-                className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-slate-500"
-              >
-                {LOCALE_LABELS[loc]}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {VIDEO_MODULE_SLUGS.map((slug) => {
-            const meta = MODULE_META[slug];
-            const thumb = thumbnails[slug] || null;
+    <>
+      {/* ─── Mobile Card Layout (< md) ─── */}
+      <div className="space-y-4 md:hidden">
+        {VIDEO_MODULE_SLUGS.map((slug) => {
+          const meta = MODULE_META[slug];
+          const thumb = thumbnails[slug] || null;
 
-            return (
-              <tr key={slug} className="border-b border-surface-border last:border-0">
-                {/* Module label column */}
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">{meta.icon}</span>
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-medium text-white">{meta.label}</span>
-                        {meta.important && (
-                          <span className="rounded bg-medical-amber/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-medical-amber">
-                            Key
-                          </span>
-                        )}
-                      </div>
-                      {/* Thumbnail preview + upload */}
-                      <div className="mt-1 flex items-center gap-2">
-                        {thumb ? (
-                          <img
-                            src={thumb}
-                            alt={`${meta.label} thumbnail`}
-                            className="h-6 w-10 rounded object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-6 w-10 items-center justify-center rounded bg-white/5">
-                            <ImageIcon className="h-3 w-3 text-white/20" />
-                          </div>
-                        )}
-                        <button
-                          onClick={() => onThumbnailUpload(slug)}
-                          className="flex items-center gap-1 text-[10px] text-slate-500 hover:text-slate-300"
-                        >
-                          <Upload className="h-3 w-3" />
-                          {thumb ? "Change" : "Set"} Thumbnail
-                        </button>
-                      </div>
-                    </div>
+          return (
+            <div
+              key={slug}
+              className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden"
+            >
+              {/* Module Header */}
+              <div className="flex items-center gap-3 border-b border-surface-border px-4 py-3">
+                <span className="text-xl">{meta.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm font-medium text-white truncate">{meta.label}</span>
+                    {meta.important && (
+                      <span className="rounded bg-medical-amber/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-medical-amber">
+                        Key
+                      </span>
+                    )}
                   </div>
-                </td>
+                </div>
 
-                {/* Locale cells */}
+                {/* Thumbnail */}
+                <div className="flex items-center gap-2 shrink-0">
+                  {thumb ? (
+                    <img
+                      src={thumb}
+                      alt={`${meta.label} thumbnail`}
+                      className="h-6 w-10 rounded object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-6 w-10 items-center justify-center rounded bg-white/5">
+                      <ImageIcon className="h-3 w-3 text-white/20" />
+                    </div>
+                  )}
+                  <button
+                    onClick={() => onThumbnailUpload(slug)}
+                    className="flex items-center gap-1 text-[10px] text-slate-500 hover:text-slate-300"
+                  >
+                    <Upload className="h-3 w-3" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Language Cells */}
+              <div className="divide-y divide-surface-border">
                 {SUPPORTED_LOCALES.map((loc) => {
                   const cellKey = getCellKey(slug, loc);
                   const video = matrix[slug]?.[loc] || null;
@@ -136,7 +123,10 @@ export default function VideoContentMatrix({
                   const isEditing = editingCellKey === cellKey;
 
                   return (
-                    <td key={loc} className="px-3 py-3">
+                    <div key={loc} className="px-4 py-3">
+                      <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-slate-500">
+                        {LOCALE_LABELS[loc]}
+                      </p>
                       {isEditing && video ? (
                         <VideoMetadataEditor
                           videoId={video.id}
@@ -161,14 +151,120 @@ export default function VideoContentMatrix({
                           onBulkSelect={(sel) => onBulkSelect(cellKey, sel)}
                         />
                       )}
-                    </td>
+                    </div>
                   );
                 })}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ─── Desktop Table Layout (md+) ─── */}
+      <div className="hidden overflow-x-auto overscroll-x-contain rounded-2xl border border-surface-border bg-surface-card md:block">
+        <table className="w-full min-w-[700px]">
+          <thead>
+            <tr className="border-b border-surface-border">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
+                Module
+              </th>
+              {SUPPORTED_LOCALES.map((loc) => (
+                <th
+                  key={loc}
+                  className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-slate-500"
+                >
+                {LOCALE_LABELS[loc]}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {VIDEO_MODULE_SLUGS.map((slug) => {
+              const meta = MODULE_META[slug];
+              const thumb = thumbnails[slug] || null;
+
+              return (
+                <tr key={slug} className="border-b border-surface-border last:border-0">
+                  {/* Module label column */}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">{meta.icon}</span>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-medium text-white">{meta.label}</span>
+                          {meta.important && (
+                            <span className="rounded bg-medical-amber/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-medical-amber">
+                              Key
+                            </span>
+                          )}
+                        </div>
+                        {/* Thumbnail preview + upload */}
+                        <div className="mt-1 flex items-center gap-2">
+                          {thumb ? (
+                            <img
+                              src={thumb}
+                              alt={`${meta.label} thumbnail`}
+                              className="h-6 w-10 rounded object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-6 w-10 items-center justify-center rounded bg-white/5">
+                              <ImageIcon className="h-3 w-3 text-white/20" />
+                            </div>
+                          )}
+                          <button
+                            onClick={() => onThumbnailUpload(slug)}
+                            className="flex items-center gap-1 text-[10px] text-slate-500 hover:text-slate-300"
+                          >
+                            <Upload className="h-3 w-3" />
+                            {thumb ? "Change" : "Set"} Thumbnail
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* Locale cells */}
+                  {SUPPORTED_LOCALES.map((loc) => {
+                    const cellKey = getCellKey(slug, loc);
+                    const video = matrix[slug]?.[loc] || null;
+                    const progress = uploadProgress[cellKey] || null;
+                    const isEditing = editingCellKey === cellKey;
+
+                    return (
+                      <td key={loc} className="px-3 py-3">
+                        {isEditing && video ? (
+                          <VideoMetadataEditor
+                            videoId={video.id}
+                            initialTitle={video.title}
+                            initialDescription={video.description}
+                            updatedAt={new Date(video.updated_at).toISOString()}
+                            onSave={onSaveMetadata}
+                            onClose={onEditClose}
+                          />
+                        ) : (
+                          <VideoMatrixCell
+                            video={video}
+                            uploadProgress={progress?.progress ?? null}
+                            uploadFileName={progress?.fileName ?? null}
+                            isBulkMode={isBulkMode}
+                            isSelected={selectedCells.has(cellKey)}
+                            onUpload={() => onUploadClick(slug, loc)}
+                            onCancelUpload={() => onCancelUpload(slug, loc)}
+                            onEdit={() => onEditClick(cellKey)}
+                            onDelete={() => video && onDelete(video)}
+                            onToggleActive={(active) => video && onToggleActive(video, active)}
+                            onBulkSelect={(sel) => onBulkSelect(cellKey, sel)}
+                          />
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }

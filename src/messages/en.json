@@ -1,221 +1,239 @@
 {
-    "app": {
-        "name": "ClarityScans",
-        "tagline": "Your CT scan, explained clearly",
-        "loading": "Loading...",
-        "error": "Something went wrong",
-        "retry": "Try again",
-        "close": "Close",
-        "version": "v1.0"
+  "app": {
+    "name": "ClarityScans",
+    "tagline": "Your CT scan, explained clearly",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "close": "Close",
+    "version": "v1.0"
+  },
+  "language": {
+    "choose": "Choose Your Language",
+    "chooseSubtitle": "Tap your language to begin",
+    "en": "English",
+    "sn": "ChiShona",
+    "nd": "isiNdebele",
+    "enNative": "English",
+    "snNative": "ChiShona",
+    "ndNative": "isiNdebele",
+    "change": "Change language"
+  },
+  "nav": {
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "home": "Home",
+    "videos": "Videos",
+    "breathe": "Breathe",
+    "signals": "Signals",
+    "feedback": "Feedback"
+  },
+  "modules": {
+    "title": "Your Preparation",
+    "subtitle": "Watch these short videos before your scan",
+    "progress": "{watched} of {total} complete",
+    "watchNow": "Watch",
+    "watched": "Watched",
+    "important": "Important",
+    "duration": "{minutes} min",
+    "allDone": "You are ready for your scan",
+    "allDoneSubtitle": "Please let the radiographer know you have finished",
+    "slugs": {
+      "what-is-ct": {
+        "title": "What is a CT Scan?",
+        "description": "Learn what happens inside the machine"
+      },
+      "prepare": {
+        "title": "How to Prepare",
+        "description": "What to wear, remove, and expect"
+      },
+      "breathhold": {
+        "title": "Breath-Hold Instructions",
+        "description": "Critical — please watch this carefully"
+      },
+      "contrast": {
+        "title": "Contrast Injection",
+        "description": "The warm feeling explained"
+      },
+      "staying-still": {
+        "title": "Staying Still",
+        "description": "Why it matters for your scan quality"
+      }
+    }
+  },
+  "video": {
+    "placeholder": "Video coming soon",
+    "placeholderSub": "Ask the radiographer for assistance",
+    "keyPoints": "Key Points",
+    "markWatched": "I have watched this",
+    "nextModule": "Next Module",
+    "watchAgain": "Watch again",
+    "languageSwitch": "Watch in another language",
+    "noVideo": "This video is not yet available",
+    "keypoints": {
+      "what-is-ct": [
+        "Uses X-rays to create detailed cross-section images of your body",
+        "The table moves slowly through a large ring — you do not go into a tunnel",
+        "The machine makes buzzing and clicking sounds — this is completely normal",
+        "The whole scan takes only 5 to 15 minutes"
+      ],
+      "prepare": [
+        "Remove all metal items — jewellery, belts, hair clips, underwire bras",
+        "Wear loose, comfortable clothing — you may be given a hospital gown",
+        "Tell the radiographer if you are pregnant or think you might be",
+        "If you are having contrast dye — do not eat for 4 hours before your scan"
+      ],
+      "breathhold": [
+        "You will hear a recorded voice say: breathe in, hold your breath",
+        "Hold completely still for 5 to 10 seconds — do not breathe or swallow",
+        "Then you will hear: breathe normally — and you can relax",
+        "Practise this now using the breath trainer on the next screen"
+      ],
+      "contrast": [
+        "A clear dye is injected into a vein in your arm through a small needle",
+        "You will feel a warm spreading sensation through your body — this is normal",
+        "You may feel like you need to urinate — this feeling passes quickly",
+        "Tell the radiographer immediately if you feel itchy, short of breath, or sick"
+      ],
+      "staying-still": [
+        "Even the smallest movement blurs the images and ruins the scan",
+        "Blurry images mean the scan must be repeated — more time and more radiation",
+        "Rest your arms on your sides or on your stomach — whichever is more comfortable",
+        "Close your eyes, breathe slowly, and try to relax your whole body"
+      ]
+    }
+  },
+  "breathhold": {
+    "title": "Breath-Hold Practice",
+    "subtitle": "Practise before you enter the scanner room",
+    "instruction": "Follow the circle. Breathe with it.",
+    "inhale": "Breathe In",
+    "hold": "Hold",
+    "exhale": "Breathe Out",
+    "repOf": "Round {current} of {total}",
+    "practise": "Start Practice",
+    "tryAgain": "Practise Again",
+    "complete": "Well done! You are ready.",
+    "completeSub": "You can now follow the breath-hold command during your scan",
+    "tip": "During your real scan the radiographer will give you the same commands"
+  },
+  "visual": {
+    "title": "Communication Board",
+    "subtitle": "Tap a card to show the radiographer how you feel",
+    "showMode": "Show Radiographer",
+    "tapToShow": "Tap any card to make it full screen",
+    "signals": {
+      "ok": "I am okay",
+      "stop": "Stop — I need help",
+      "unwell": "I feel unwell",
+      "understand": "I understand",
+      "confused": "I am confused",
+      "anxious": "I am anxious"
+    }
+  },
+  "feedback": {
+    "title": "How Was Your Experience?",
+    "subtitle": "Your answers are anonymous and help us improve",
+    "anxietyBefore": "How anxious did you feel before watching the videos?",
+    "anxietyAfter": "How do you feel now after watching?",
+    "anxietyScale": {
+      "1": "Very calm",
+      "2": "Calm",
+      "3": "Neutral",
+      "4": "Anxious",
+      "5": "Very anxious"
     },
-    "language": {
-        "choose": "Choose Your Language",
-        "chooseSubtitle": "Tap your language to begin",
-        "en": "English",
-        "sn": "ChiShona",
-        "nd": "isiNdebele",
-        "enNative": "English",
-        "snNative": "ChiShona",
-        "ndNative": "isiNdebele",
-        "change": "Change language"
+    "understood": "Do you feel you understand what will happen during your CT scan?",
+    "helpful": "Was this app helpful to you?",
+    "yes": "Yes",
+    "no": "No",
+    "submit": "Submit",
+    "skip": "Skip feedback",
+    "thankyou": "Thank You",
+    "thankyouSub": "Your feedback helps us improve care for all patients at this hospital",
+    "newPatient": "New patient"
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "notFoundSub": "The page you are looking for does not exist",
+    "serverError": "Something went wrong",
+    "serverErrorSub": "Please ask the radiographer for help",
+    "noVideo": "This video is not yet available",
+    "offline": "You are offline",
+    "offlineSub": "Some content may still be available from the last time you used this app",
+    "goHome": "Go to home screen"
+  },
+  "admin": {
+    "login": {
+      "title": "Radiographer Login",
+      "username": "Username",
+      "password": "Password",
+      "submit": "Sign In",
+      "error": "Invalid username or password"
     },
     "nav": {
-        "back": "Back",
-        "next": "Next",
-        "skip": "Skip",
-        "home": "Home",
-        "videos": "Videos",
-        "breathe": "Breathe",
-        "signals": "Signals",
-        "feedback": "Feedback"
+      "dashboard": "Dashboard",
+      "videos": "Videos",
+      "analytics": "Analytics",
+      "notes": "Patient Notes",
+      "logout": "Sign Out"
     },
-    "modules": {
-        "title": "Your Preparation",
-        "subtitle": "Watch these short videos before your scan",
-        "progress": "{watched} of {total} complete",
-        "watchNow": "Watch",
-        "watched": "Watched",
-        "important": "Important",
-        "duration": "{minutes} min",
-        "allDone": "You are ready for your scan",
-        "allDoneSubtitle": "Please let the radiographer know you have finished",
-        "slugs": {
-            "what-is-ct": {
-                "title": "What is a CT Scan?",
-                "description": "Learn what happens inside the machine"
-            },
-            "prepare": {
-                "title": "How to Prepare",
-                "description": "What to wear, remove, and expect"
-            },
-            "breathhold": {
-                "title": "Breath-Hold Instructions",
-                "description": "Critical — please watch this carefully"
-            },
-            "contrast": {
-                "title": "Contrast Injection",
-                "description": "The warm feeling explained"
-            },
-            "staying-still": {
-                "title": "Staying Still",
-                "description": "Why it matters for your scan quality"
-            }
-        }
+    "dashboard": {
+      "title": "Dashboard",
+      "todaySessions": "Sessions Today",
+      "weekSessions": "This Week",
+      "avgAnxietyReduction": "Avg Anxiety Reduction",
+      "repeatScanRate": "Repeat Scan Rate",
+      "helpfulRate": "App Helpful Rate",
+      "breathholdRate": "Breath-Hold Compliance"
     },
-    "video": {
-        "placeholder": "Video coming soon",
-        "placeholderSub": "Ask the radiographer for assistance",
-        "keyPoints": "Key Points",
-        "markWatched": "I have watched this",
-        "nextModule": "Next Module",
-        "watchAgain": "Watch again",
-        "languageSwitch": "Watch in another language",
-        "noVideo": "This video is not yet available",
-        "keypoints": {
-            "what-is-ct": [
-                "Uses X-rays to create detailed cross-section images of your body",
-                "The table moves slowly through a large ring — you do not go into a tunnel",
-                "The machine makes buzzing and clicking sounds — this is completely normal",
-                "The whole scan takes only 5 to 15 minutes"
-            ],
-            "prepare": [
-                "Remove all metal items — jewellery, belts, hair clips, underwire bras",
-                "Wear loose, comfortable clothing — you may be given a hospital gown",
-                "Tell the radiographer if you are pregnant or think you might be",
-                "If you are having contrast dye — do not eat for 4 hours before your scan"
-            ],
-            "breathhold": [
-                "You will hear a recorded voice say: breathe in, hold your breath",
-                "Hold completely still for 5 to 10 seconds — do not breathe or swallow",
-                "Then you will hear: breathe normally — and you can relax",
-                "Practise this now using the breath trainer on the next screen"
-            ],
-            "contrast": [
-                "A clear dye is injected into a vein in your arm through a small needle",
-                "You will feel a warm spreading sensation through your body — this is normal",
-                "You may feel like you need to urinate — this feeling passes quickly",
-                "Tell the radiographer immediately if you feel itchy, short of breath, or sick"
-            ],
-            "staying-still": [
-                "Even the smallest movement blurs the images and ruins the scan",
-                "Blurry images mean the scan must be repeated — more time and more radiation",
-                "Rest your arms on your sides or on your stomach — whichever is more comfortable",
-                "Close your eyes, breathe slowly, and try to relax your whole body"
-            ]
-        }
+    "videos": {
+      "title": "Video Manager",
+      "upload": "Upload Video",
+      "uploadNew": "Upload New Video",
+      "selectModule": "Select Module",
+      "selectLanguage": "Select Language",
+      "dragDrop": "Drag and drop your video file here",
+      "orBrowse": "or click to browse",
+      "maxSize": "Maximum file size: 20MB",
+      "accepted": "Accepted formats: MP4, WebM",
+      "uploading": "Uploading...",
+      "uploadSuccess": "Video uploaded successfully",
+      "uploadError": "Upload failed — please try again",
+      "deleteConfirm": "Are you sure you want to delete this video?",
+      "activate": "Make Active",
+      "deactivate": "Deactivate",
+      "noVideos": "No videos uploaded yet"
     },
-    "breathhold": {
-        "title": "Breath-Hold Practice",
-        "subtitle": "Practise before you enter the scanner room",
-        "instruction": "Follow the circle. Breathe with it.",
-        "inhale": "Breathe In",
-        "hold": "Hold",
-        "exhale": "Breathe Out",
-        "repOf": "Round {current} of {total}",
-        "practise": "Start Practice",
-        "tryAgain": "Practise Again",
-        "complete": "Well done! You are ready.",
-        "completeSub": "You can now follow the breath-hold command during your scan",
-        "tip": "During your real scan the radiographer will give you the same commands"
-    },
-    "visual": {
-        "title": "Communication Board",
-        "subtitle": "Tap a card to show the radiographer how you feel",
-        "showMode": "Show Radiographer",
-        "tapToShow": "Tap any card to make it full screen",
-        "signals": {
-            "ok": "I am okay",
-            "stop": "Stop — I need help",
-            "unwell": "I feel unwell",
-            "understand": "I understand",
-            "confused": "I am confused",
-            "anxious": "I am anxious"
-        }
-    },
-    "feedback": {
-        "title": "How Was Your Experience?",
-        "subtitle": "Your answers are anonymous and help us improve",
-        "anxietyBefore": "How anxious did you feel before watching the videos?",
-        "anxietyAfter": "How do you feel now after watching?",
-        "anxietyScale": {
-            "1": "Very calm",
-            "2": "Calm",
-            "3": "Neutral",
-            "4": "Anxious",
-            "5": "Very anxious"
-        },
-        "understood": "Do you feel you understand what will happen during your CT scan?",
-        "helpful": "Was this app helpful to you?",
-        "yes": "Yes",
-        "no": "No",
-        "submit": "Submit",
-        "skip": "Skip feedback",
-        "thankyou": "Thank You",
-        "thankyouSub": "Your feedback helps us improve care for all patients at this hospital",
-        "newPatient": "New patient"
-    },
-    "errors": {
-        "notFound": "Page not found",
-        "notFoundSub": "The page you are looking for does not exist",
-        "serverError": "Something went wrong",
-        "serverErrorSub": "Please ask the radiographer for help",
-        "noVideo": "This video is not yet available",
-        "offline": "You are offline",
-        "offlineSub": "Some content may still be available from the last time you used this app",
-        "goHome": "Go to home screen"
-    },
-    "admin": {
-        "login": {
-            "title": "Radiographer Login",
-            "username": "Username",
-            "password": "Password",
-            "submit": "Sign In",
-            "error": "Invalid username or password"
-        },
-        "nav": {
-            "dashboard": "Dashboard",
-            "videos": "Videos",
-            "analytics": "Analytics",
-            "notes": "Patient Notes",
-            "logout": "Sign Out"
-        },
-        "dashboard": {
-            "title": "Dashboard",
-            "todaySessions": "Sessions Today",
-            "weekSessions": "This Week",
-            "avgAnxietyReduction": "Avg Anxiety Reduction",
-            "repeatScanRate": "Repeat Scan Rate",
-            "helpfulRate": "App Helpful Rate",
-            "breathholdRate": "Breath-Hold Compliance"
-        },
-        "videos": {
-            "title": "Video Manager",
-            "upload": "Upload Video",
-            "uploadNew": "Upload New Video",
-            "selectModule": "Select Module",
-            "selectLanguage": "Select Language",
-            "dragDrop": "Drag and drop your video file here",
-            "orBrowse": "or click to browse",
-            "maxSize": "Maximum file size: 20MB",
-            "accepted": "Accepted formats: MP4, WebM",
-            "uploading": "Uploading...",
-            "uploadSuccess": "Video uploaded successfully",
-            "uploadError": "Upload failed — please try again",
-            "deleteConfirm": "Are you sure you want to delete this video?",
-            "activate": "Make Active",
-            "deactivate": "Deactivate",
-            "noVideos": "No videos uploaded yet"
-        },
-        "notes": {
-            "title": "Scan Notes",
-            "new": "New Note",
-            "followedBreathhold": "Patient followed breath-hold instructions",
-            "repeatScan": "Repeat scan was required",
-            "languageUsed": "Language used",
-            "comments": "Additional comments",
-            "commentsPlaceholder": "Optional — any observations about this scan",
-            "save": "Save Note",
-            "saved": "Note saved"
-        }
+    "notes": {
+      "title": "Scan Notes",
+      "new": "New Note",
+      "followedBreathhold": "Patient followed breath-hold instructions",
+      "repeatScan": "Repeat scan was required",
+      "languageUsed": "Language used",
+      "comments": "Additional comments",
+      "commentsPlaceholder": "Optional — any observations about this scan",
+      "save": "Save Note"
     }
+  },
+  "scannerSound": {
+    "title": "Scanner Sound Preview",
+    "subtitle": "Listen to the sounds the CT scanner makes",
+    "description": "The CT scanner can be noisy. It makes buzzing, clicking, and whirring sounds while it takes pictures. Listening to these sounds now can help you feel more comfortable in the scanning room.",
+    "play": "Play Scanner Sound",
+    "stop": "Stop Sound",
+    "playing": "Playing..."
+  },
+  "contrastGuide": {
+    "title": "Contrast Dye",
+    "subtitle": "What to expect if you are having contrast",
+    "intro": "Some CT scans use a clear liquid called contrast dye to help certain organs show up more clearly on the images.",
+    "how": "How is it given?",
+    "howText": "It is injected into a vein in your arm through a small needle by the radiographer.",
+    "feels": "What will I feel?",
+    "feelsText": "You may feel a warm flush spreading through your body, and a metallic taste in your mouth. You might also feel like you need to urinate. This is completely normal and passes very quickly.",
+    "important": "Important",
+    "importantText": "Always tell the radiographer if you feel itchy, short of breath, or unwell after the injection."
+  }
 }

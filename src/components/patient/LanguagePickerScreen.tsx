@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import type { Locale } from "@/types";
 import { AppShell } from "@/components/shared";
@@ -10,8 +11,6 @@ import LanguageButton from "./LanguageButton";
 import { clearPatientSession, setSessionId } from "@/lib/session";
 import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import { handleClientError } from "@/lib/globalErrorHandler";
-import { useHoldToNavigate } from "@/hooks/useHoldToNavigate";
-import { cn } from "@/lib/utils";
 
 interface LanguagePickerScreenProps {
   suggestedLocale: Locale | null;
@@ -28,8 +27,6 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
   const searchParams = useSearchParams();
   const [selectedLocale, setSelectedLocale] = useState<Locale | null>(null);
   const { trackEvent } = useAnalytics();
-
-  const { handlers: holdHandlers, progress, isHolding } = useHoldToNavigate("/admin/login", 3000);
 
   // Reset any previous patient's session whenever this picker mounts.
   useEffect(() => {
@@ -132,38 +129,14 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
         className="mt-12 flex animate-fadeIn flex-col items-center justify-end space-y-4"
         style={{ animationDelay: "1500ms" }}
       >
-        {/* Discreet Radiographer Admin Block */}
-        <div className="relative flex items-center justify-center">
-          <button
-            {...holdHandlers}
-            className="group relative flex touch-none select-none items-center gap-2 p-4 outline-none"
-            aria-label="Staff access area"
-          >
-            <span className="font-mono text-[11px] font-medium text-slate-700 transition-colors group-hover:text-slate-500 group-active:text-slate-500">
-              Staff access
-            </span>
-
-            {/* Circular progress overlay representing the 3-second hold */}
-            <div
-              className={cn(
-                "absolute inset-0 flex items-center justify-center rounded-xl bg-white/5 opacity-0 transition-opacity duration-300",
-                isHolding && "opacity-100"
-              )}
-            >
-              <div
-                className="absolute bottom-0 left-0 h-1 rounded-full bg-brand-500/50 transition-all duration-75"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </button>
-
-          {/* Tooltip hint on immediate press */}
-          {isHolding && progress < 100 && (
-            <span className="pointer-events-none absolute -top-8 animate-slideUp whitespace-nowrap rounded-lg border border-surface-border bg-surface-elevated px-3 py-1.5 text-[10px] text-white shadow-xl">
-              Hold to access staff area
-            </span>
-          )}
-        </div>
+        {/* Visible Staff Login Link */}
+        <Link
+          href="/admin/login"
+          className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.03] px-5 py-2.5 font-mono text-[11px] font-medium text-slate-500 transition-all hover:border-brand-500/20 hover:bg-brand-500/5 hover:text-slate-300"
+        >
+          <span aria-hidden="true">🔐</span>
+          Staff Login
+        </Link>
 
         <p className="font-mono text-[9px] text-slate-800">
           v0.1.0 — {new Date().getFullYear()} ClarityScans

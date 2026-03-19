@@ -1,5 +1,4 @@
 import { getAdminSession } from "@/lib/auth";
-import AdminShell from "@/components/admin/AdminShell";
 import DashboardOverview from "@/components/admin/DashboardOverview";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -36,9 +35,5 @@ export default async function AdminPage() {
   
   const analyticsData = await getAnalyticsData();
 
-  return (
-    <AdminShell>
-      <DashboardOverview initialData={analyticsData} />
-    </AdminShell>
-  );
+  return <DashboardOverview initialData={analyticsData} />;
 }

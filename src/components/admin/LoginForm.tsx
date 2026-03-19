@@ -118,12 +118,21 @@ export default function LoginForm() {
 
       <div className="pt-4 text-center space-y-2">
         <p className="text-xs text-gray-500">Patient-facing app does not require login</p>
-        <Link
-          href="/accessibility"
-          className="text-xs text-gray-500 underline underline-offset-4 hover:text-gray-400"
-        >
-          Accessibility Statement
-        </Link>
+        <div className="flex items-center justify-center gap-3">
+          <Link
+            href="/accessibility"
+            className="text-xs text-gray-500 underline underline-offset-4 hover:text-gray-400"
+          >
+            Accessibility Statement
+          </Link>
+          <span className="text-gray-700">·</span>
+          <Link
+            href="/"
+            className="text-xs text-gray-500 underline underline-offset-4 hover:text-gray-400"
+          >
+            ← Patient View
+          </Link>
+        </div>
       </div>
     </div>
   );

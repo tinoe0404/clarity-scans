@@ -1,6 +1,5 @@
 import { getAdminSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import AdminShell from "@/components/admin/AdminShell";
 import VideoManagerScreen from "@/components/admin/VideoManagerScreen";
 import { headers } from "next/headers";
 import type { VideoRecord, StorageStats } from "@/types";
@@ -45,9 +44,5 @@ export default async function AdminVideosPage() {
 
   const { grouped, stats } = await getVideoData();
 
-  return (
-    <AdminShell>
-      <VideoManagerScreen initialGrouped={grouped} initialStats={stats} />
-    </AdminShell>
-  );
+  return <VideoManagerScreen initialGrouped={grouped} initialStats={stats} />;
 }

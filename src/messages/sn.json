@@ -1,221 +1,239 @@
 {
-    "app": {
-        "name": "ClarityScans",
-        "tagline": "CT scan yako, inotsanangurwa zvakajeka",
-        "loading": "Tiri kutsvaga...",
-        "error": "Pane zvakanganisika",
-        "retry": "Edza zvakare",
-        "close": "Vhara",
-        "version": "v1.0"
+  "app": {
+    "name": "ClarityScans",
+    "tagline": "CT scan yako, inotsanangurwa zvakajeka",
+    "loading": "Tiri kutsvaga...",
+    "error": "Pane zvakanganisika",
+    "retry": "Edza zvakare",
+    "close": "Vhara",
+    "version": "v1.0"
+  },
+  "language": {
+    "choose": "Sarudza Mutauro Wako",
+    "chooseSubtitle": "Bata mutauro wako kuti utange",
+    "en": "English",
+    "sn": "ChiShona",
+    "nd": "isiNdebele",
+    "enNative": "English",
+    "snNative": "ChiShona",
+    "ndNative": "isiNdebele",
+    "change": "Chinja mutauro"
+  },
+  "nav": {
+    "back": "Dzokera shure",
+    "next": "Zvinotevera",
+    "skip": "Pfuura",
+    "home": "Kutanga",
+    "videos": "Vhidhiyo",
+    "breathe": "Fema",
+    "signals": "Zviratidzo",
+    "feedback": "Kupa pfungwa"
+  },
+  "modules": {
+    "title": "Kugadzirira Kwako",
+    "subtitle": "Tarisa mavhidhiyo mapfupi aya usati wapinda",
+    "progress": "Mavhidhiyo {watched} e {total} aonekwa",
+    "watchNow": "Tarisa",
+    "watched": "Yatoonekwa",
+    "important": "Zvakakosha",
+    "duration": "{minutes} min",
+    "allDone": "Wagadzirira kutariswa",
+    "allDoneSubtitle": "Ndapota hudzai vana chiremba kuti mapedza",
+    "slugs": {
+      "what-is-ct": {
+        "title": "CT Scan Chii?",
+        "description": "Ziva zvinoitika mukati memushini"
+      },
+      "prepare": {
+        "title": "Kugadzirira Sei",
+        "description": "Zvekupfeka, kubvisa, uye zvakatarisirwa"
+      },
+      "breathhold": {
+        "title": "Mirayiridzo Yekubata Mweya",
+        "description": "Zvakakosha — ndapota tarisai izvi zvakanaka"
+      },
+      "contrast": {
+        "title": "Kuiswa Kwe Contrast",
+        "description": "Kudziya kwekuti kuchatsanangurwa"
+      },
+      "staying-still": {
+        "title": "Kugara Wakadzikama",
+        "description": "Nei zvakakosha pakunaka kwe scan yako"
+      }
+    }
+  },
+  "video": {
+    "placeholder": "Vhidhiyo iri kuuya",
+    "placeholderSub": "Kumbira rubatsiro kuna chiremba",
+    "keyPoints": "Pfungwa Dzakakosha",
+    "markWatched": "Ndapedza kutarisa",
+    "nextModule": "Vhidhiyo Inotevera",
+    "watchAgain": "Tarisa zvakare",
+    "languageSwitch": "Tarisa mumwe mutauro",
+    "noVideo": "Vhidhiyo iyi haisati yavapo pari zvino",
+    "keypoints": {
+      "what-is-ct": [
+        "Inoshandisa X-ray kuti iburitse mifananidzo yemukati memuviri wako",
+        "Litaibula rinofamba zvishoma nezvishoma muringi yakakura — haupindi mumugero",
+        "Mushini unoita ruzha rwekurira uye kudzvanya — izvi zvakajairika",
+        "Scan yose inongotora maminitsi 5 kusvika 15"
+      ],
+      "prepare": [
+        "Bvisa zvese zvesimbi — zvishongo, mabhande, mapini ebvudzi, zvipfeko zvemukati zvinesimbi",
+        "Pfeka hembe dzakasununguka, dzakajeka — unogona kupihwa nguo yechipatara",
+        "Udza chiremba kana uri pamuviri kana uchifunga kuti unahwo",
+        "Kana uchifanira kuwana contrast dye — usadye kwemaawa 4 usati wascan"
+      ],
+      "breathhold": [
+        "Uchanzwa inzwi rakarekodhwa richiti: fema unopinza mweya, bata mweya wako",
+        "Gara wakadzikama kwemasekonzi mashanu kusvika 10 — usafeme kana kumedza",
+        "Zvino uchanzwa: fema zvakasununguka — uye unogona kuzorora",
+        "Dzidzira izvi zvino pa fomu rekudzidzisa pane inotevera screen"
+      ],
+      "contrast": [
+        "Mujovo wemvura inojekesa uchaiswa mutsinga yako nepakati petsono diki",
+        "Uchanzwa kupisa kuchiwedzera mumuviri wako wese — izvi zvakajairika",
+        "Unogona kunzwa kuda kuenda kuchimbuzi — manzwiro aya anopera nekukurumidza",
+        "Udza chiremba nekukurumidza kana ukanzwa kuvaviwa, kupedzerwa mweya wakaderera, kana kurwara"
+      ],
+      "staying-still": [
+        "Kufamba kudikitiki kunokanganisa mifananidzo uye kudzima scan",
+        "Mifananidzo ine mhute inoreva kuti scan inofanira kudzokororwa — imwe nguva uye imwe radiation",
+        "Isa maoko ako panhivi dzako kana padumbu pako — chero zvakanyanya kureruka",
+        "Vhara maziso ako, fema zvishoma nezvishoma, uye edza kuzorodza muviri wako wese"
+      ]
+    }
+  },
+  "breathhold": {
+    "title": "Kudzidzira Kubata Mweya",
+    "subtitle": "Dzidzira usati wapinda mumba me scanner",
+    "instruction": "Tevera denderedzwa. Fema naro.",
+    "inhale": "Fema Mweya",
+    "hold": "Bata Mweya",
+    "exhale": "Buritsa Mweya",
+    "repOf": "Chikamu {current} che {total}",
+    "practise": "Tanga Kudzidzira",
+    "tryAgain": "Dzidzira Zvakare",
+    "complete": "Wagona! Wagadzirira sekungodaro.",
+    "completeSub": "Iye zvino unogona kutevera murairo wokubata mweya panguva yescan yako",
+    "tip": "Panguva yescan chaiyo, chiremba achakupa iwo mirau imwe chete"
+  },
+  "visual": {
+    "title": "Purangwe Rwekutaurirana",
+    "subtitle": "Bata kadhi kuratidza chiremba manzwiro aunoita",
+    "showMode": "Ratidza Kuna Chiremba",
+    "tapToShow": "Bata kana kadhi ripi kugadzira kuti rive kubwa pascreen ese",
+    "signals": {
+      "ok": "Ndiri mushe",
+      "stop": "Mira — ndoda rubatsiro",
+      "unwell": "Ndiri kurwara",
+      "understand": "Ndiri kunzwisisa",
+      "confused": "Handisi kunzvisisa",
+      "anxious": "Ndine kutya"
+    }
+  },
+  "feedback": {
+    "title": "Wakanzwa Sei Nechiitiko Chako?",
+    "subtitle": "Mhinduro dzako dzakavanzika uye dzinotibatsira kuvandudza",
+    "anxietyBefore": "Wakanzwa kutya kwakadii usati watarisa mavhidhiyo?",
+    "anxietyAfter": "Iye zvino inonzwa sei mushure mekutarisa?",
+    "anxietyScale": {
+      "1": "Ndakadekara zvikuru",
+      "2": "Ndakadekara",
+      "3": "Hapana dambudziko",
+      "4": "Ndiri kutya",
+      "5": "Ndiri kutya zvikuru"
     },
-    "language": {
-        "choose": "Sarudza Mutauro Wako",
-        "chooseSubtitle": "Bata mutauro wako kuti utange",
-        "en": "English",
-        "sn": "ChiShona",
-        "nd": "isiNdebele",
-        "enNative": "English",
-        "snNative": "ChiShona",
-        "ndNative": "isiNdebele",
-        "change": "Chinja mutauro"
+    "understood": "Unonzwa sokuti unonzwisisa zvinoitika panguva ye CT scan yako here?",
+    "helpful": "App iyi yakakubatsira here?",
+    "yes": "Hongu",
+    "no": "Kwete",
+    "submit": "Dzvanya kuti uendese",
+    "skip": "Pfuura kubva pano",
+    "thankyou": "Tinotenda",
+    "thankyouSub": "Mhinduro dzako dzinotibatsira kuvandudza hutarisiro hwevarwere vese pachipatara chino",
+    "newPatient": "Murwere Mutsva"
+  },
+  "errors": {
+    "notFound": "Peji haina kuwanikwa",
+    "notFoundSub": "Peji yaunotsvaga haipo",
+    "serverError": "Pane chakakanganisika",
+    "serverErrorSub": "Ndapota kumbira rubatsiro kuna chiremba",
+    "noVideo": "Vhidhiyo iyi haisati yavapo pari zvino",
+    "offline": "Hausi padandemutande",
+    "offlineSub": "Zvimwe zvinhu zvinogona kuwanikwa kubva pawakapedzisira kushandisa app iyi",
+    "goHome": "Enda papeji rekutanga"
+  },
+  "admin": {
+    "login": {
+      "title": "Kupinda Kuna Chiremba",
+      "username": "Zita Rekushandisa",
+      "password": "Mabishiso echivande",
+      "submit": "Pinda",
+      "error": "Zita rekushandisa kana mabishiso echivande asiri iwo"
     },
     "nav": {
-        "back": "Dzokera shure",
-        "next": "Zvinotevera",
-        "skip": "Pfuura",
-        "home": "Kutanga",
-        "videos": "Vhidhiyo",
-        "breathe": "Fema",
-        "signals": "Zviratidzo",
-        "feedback": "Kupa pfungwa"
+      "dashboard": "Dashibhodhi",
+      "videos": "Mavhidhiyo",
+      "analytics": "Tsanangudzo",
+      "notes": "Nhau Dzevarwere",
+      "logout": "Buda"
     },
-    "modules": {
-        "title": "Kugadzirira Kwako",
-        "subtitle": "Tarisa mavhidhiyo mapfupi aya usati wapinda",
-        "progress": "Mavhidhiyo {watched} e {total} aonekwa",
-        "watchNow": "Tarisa",
-        "watched": "Yatoonekwa",
-        "important": "Zvakakosha",
-        "duration": "{minutes} min",
-        "allDone": "Wagadzirira kutariswa",
-        "allDoneSubtitle": "Ndapota hudzai vana chiremba kuti mapedza",
-        "slugs": {
-            "what-is-ct": {
-                "title": "CT Scan Chii?",
-                "description": "Ziva zvinoitika mukati memushini"
-            },
-            "prepare": {
-                "title": "Kugadzirira Sei",
-                "description": "Zvekupfeka, kubvisa, uye zvakatarisirwa"
-            },
-            "breathhold": {
-                "title": "Mirayiridzo Yekubata Mweya",
-                "description": "Zvakakosha — ndapota tarisai izvi zvakanaka"
-            },
-            "contrast": {
-                "title": "Kuiswa Kwe Contrast",
-                "description": "Kudziya kwekuti kuchatsanangurwa"
-            },
-            "staying-still": {
-                "title": "Kugara Wakadzikama",
-                "description": "Nei zvakakosha pakunaka kwe scan yako"
-            }
-        }
+    "dashboard": {
+      "title": "Dashibhodhi",
+      "todaySessions": "Zvirongwa Nhasi",
+      "weekSessions": "Svondo Rino",
+      "avgAnxietyReduction": "Kudzikiswa Kwekutya Kwepakati",
+      "repeatScanRate": "Nhamba Yokudzokorodza Macan",
+      "helpfulRate": "Rubatsiro RweApp",
+      "breathholdRate": "kuteerera Zvekubata Mweya"
     },
-    "video": {
-        "placeholder": "Vhidhiyo iri kuuya",
-        "placeholderSub": "Kumbira rubatsiro kuna chiremba",
-        "keyPoints": "Pfungwa Dzakakosha",
-        "markWatched": "Ndapedza kutarisa",
-        "nextModule": "Vhidhiyo Inotevera",
-        "watchAgain": "Tarisa zvakare",
-        "languageSwitch": "Tarisa mumwe mutauro",
-        "noVideo": "Vhidhiyo iyi haisati yavapo pari zvino",
-        "keypoints": {
-            "what-is-ct": [
-                "Inoshandisa X-ray kuti iburitse mifananidzo yemukati memuviri wako",
-                "Litaibula rinofamba zvishoma nezvishoma muringi yakakura — haupindi mumugero",
-                "Mushini unoita ruzha rwekurira uye kudzvanya — izvi zvakajairika",
-                "Scan yose inongotora maminitsi 5 kusvika 15"
-            ],
-            "prepare": [
-                "Bvisa zvese zvesimbi — zvishongo, mabhande, mapini ebvudzi, zvipfeko zvemukati zvinesimbi",
-                "Pfeka hembe dzakasununguka, dzakajeka — unogona kupihwa nguo yechipatara",
-                "Udza chiremba kana uri pamuviri kana uchifunga kuti unahwo",
-                "Kana uchifanira kuwana contrast dye — usadye kwemaawa 4 usati wascan"
-            ],
-            "breathhold": [
-                "Uchanzwa inzwi rakarekodhwa richiti: fema unopinza mweya, bata mweya wako",
-                "Gara wakadzikama kwemasekonzi mashanu kusvika 10 — usafeme kana kumedza",
-                "Zvino uchanzwa: fema zvakasununguka — uye unogona kuzorora",
-                "Dzidzira izvi zvino pa fomu rekudzidzisa pane inotevera screen"
-            ],
-            "contrast": [
-                "Mujovo wemvura inojekesa uchaiswa mutsinga yako nepakati petsono diki",
-                "Uchanzwa kupisa kuchiwedzera mumuviri wako wese — izvi zvakajairika",
-                "Unogona kunzwa kuda kuenda kuchimbuzi — manzwiro aya anopera nekukurumidza",
-                "Udza chiremba nekukurumidza kana ukanzwa kuvaviwa, kupedzerwa mweya wakaderera, kana kurwara"
-            ],
-            "staying-still": [
-                "Kufamba kudikitiki kunokanganisa mifananidzo uye kudzima scan",
-                "Mifananidzo ine mhute inoreva kuti scan inofanira kudzokororwa — imwe nguva uye imwe radiation",
-                "Isa maoko ako panhivi dzako kana padumbu pako — chero zvakanyanya kureruka",
-                "Vhara maziso ako, fema zvishoma nezvishoma, uye edza kuzorodza muviri wako wese"
-            ]
-        }
+    "videos": {
+      "title": "Kugadzirisa Vhidhiyo",
+      "upload": "Isa Vhidhiyo",
+      "uploadNew": "Isa Vhidhiyo Itsva",
+      "selectModule": "Sarudza Chikamu",
+      "selectLanguage": "Sarudza Mutauro",
+      "dragDrop": "Kweva wonamatira faira yako ye vhidhiyo pano",
+      "orBrowse": "kana kudzvanya kuti utsvage",
+      "maxSize": "Ukuru hwefaira hwekupedzisira: 20MB",
+      "accepted": "Maformat anogamuchirwa: MP4, WebM",
+      "uploading": "Kuisa...",
+      "uploadSuccess": "Vhidhiyo yaiswa mushe",
+      "uploadError": "Kuisa kwakanonoka — ndapota edza zvakare",
+      "deleteConfirm": "Une chokwadi chokuti unoda kudzima vhidhiyo iyi here?",
+      "activate": "Ita Yakanaka",
+      "deactivate": "Zvidzime",
+      "noVideos": "Hapana mavhidhiyo akaiswa pari zvino"
     },
-    "breathhold": {
-        "title": "Kudzidzira Kubata Mweya",
-        "subtitle": "Dzidzira usati wapinda mumba me scanner",
-        "instruction": "Tevera denderedzwa. Fema naro.",
-        "inhale": "Fema Mweya",
-        "hold": "Bata Mweya",
-        "exhale": "Buritsa Mweya",
-        "repOf": "Chikamu {current} che {total}",
-        "practise": "Tanga Kudzidzira",
-        "tryAgain": "Dzidzira Zvakare",
-        "complete": "Wagona! Wagadzirira sekungodaro.",
-        "completeSub": "Iye zvino unogona kutevera murairo wokubata mweya panguva yescan yako",
-        "tip": "Panguva yescan chaiyo, chiremba achakupa iwo mirau imwe chete"
-    },
-    "visual": {
-        "title": "Purangwe Rwekutaurirana",
-        "subtitle": "Bata kadhi kuratidza chiremba manzwiro aunoita",
-        "showMode": "Ratidza Kuna Chiremba",
-        "tapToShow": "Bata kana kadhi ripi kugadzira kuti rive kubwa pascreen ese",
-        "signals": {
-            "ok": "Ndiri mushe",
-            "stop": "Mira — ndoda rubatsiro",
-            "unwell": "Ndiri kurwara",
-            "understand": "Ndiri kunzwisisa",
-            "confused": "Handisi kunzvisisa",
-            "anxious": "Ndine kutya"
-        }
-    },
-    "feedback": {
-        "title": "Wakanzwa Sei Nechiitiko Chako?",
-        "subtitle": "Mhinduro dzako dzakavanzika uye dzinotibatsira kuvandudza",
-        "anxietyBefore": "Wakanzwa kutya kwakadii usati watarisa mavhidhiyo?",
-        "anxietyAfter": "Iye zvino inonzwa sei mushure mekutarisa?",
-        "anxietyScale": {
-            "1": "Ndakadekara zvikuru",
-            "2": "Ndakadekara",
-            "3": "Hapana dambudziko",
-            "4": "Ndiri kutya",
-            "5": "Ndiri kutya zvikuru"
-        },
-        "understood": "Unonzwa sokuti unonzwisisa zvinoitika panguva ye CT scan yako here?",
-        "helpful": "App iyi yakakubatsira here?",
-        "yes": "Hongu",
-        "no": "Kwete",
-        "submit": "Dzvanya kuti uendese",
-        "skip": "Pfuura kubva pano",
-        "thankyou": "Tinotenda",
-        "thankyouSub": "Mhinduro dzako dzinotibatsira kuvandudza hutarisiro hwevarwere vese pachipatara chino",
-        "newPatient": "Murwere Mutsva"
-    },
-    "errors": {
-        "notFound": "Peji haina kuwanikwa",
-        "notFoundSub": "Peji yaunotsvaga haipo",
-        "serverError": "Pane chakakanganisika",
-        "serverErrorSub": "Ndapota kumbira rubatsiro kuna chiremba",
-        "noVideo": "Vhidhiyo iyi haisati yavapo pari zvino",
-        "offline": "Hausi padandemutande",
-        "offlineSub": "Zvimwe zvinhu zvinogona kuwanikwa kubva pawakapedzisira kushandisa app iyi",
-        "goHome": "Enda papeji rekutanga"
-    },
-    "admin": {
-        "login": {
-            "title": "Kupinda Kuna Chiremba",
-            "username": "Zita Rekushandisa",
-            "password": "Mabishiso echivande",
-            "submit": "Pinda",
-            "error": "Zita rekushandisa kana mabishiso echivande asiri iwo"
-        },
-        "nav": {
-            "dashboard": "Dashibhodhi",
-            "videos": "Mavhidhiyo",
-            "analytics": "Tsanangudzo",
-            "notes": "Nhau Dzevarwere",
-            "logout": "Buda"
-        },
-        "dashboard": {
-            "title": "Dashibhodhi",
-            "todaySessions": "Zvirongwa Nhasi",
-            "weekSessions": "Svondo Rino",
-            "avgAnxietyReduction": "Kudzikiswa Kwekutya Kwepakati",
-            "repeatScanRate": "Nhamba Yokudzokorodza Macan",
-            "helpfulRate": "Rubatsiro RweApp",
-            "breathholdRate": "kuteerera Zvekubata Mweya"
-        },
-        "videos": {
-            "title": "Kugadzirisa Vhidhiyo",
-            "upload": "Isa Vhidhiyo",
-            "uploadNew": "Isa Vhidhiyo Itsva",
-            "selectModule": "Sarudza Chikamu",
-            "selectLanguage": "Sarudza Mutauro",
-            "dragDrop": "Kweva wonamatira faira yako ye vhidhiyo pano",
-            "orBrowse": "kana kudzvanya kuti utsvage",
-            "maxSize": "Ukuru hwefaira hwekupedzisira: 20MB",
-            "accepted": "Maformat anogamuchirwa: MP4, WebM",
-            "uploading": "Kuisa...",
-            "uploadSuccess": "Vhidhiyo yaiswa mushe",
-            "uploadError": "Kuisa kwakanonoka — ndapota edza zvakare",
-            "deleteConfirm": "Une chokwadi chokuti unoda kudzima vhidhiyo iyi here?",
-            "activate": "Ita Yakanaka",
-            "deactivate": "Zvidzime",
-            "noVideos": "Hapana mavhidhiyo akaiswa pari zvino"
-        },
-        "notes": {
-            "title": "Nhau DzeScan",
-            "new": "Nova Chinyorwa",
-            "followedBreathhold": "Murwere akatevera mirairo yebata mweya",
-            "repeatScan": "Scan inodzokororwa yaidikanwa",
-            "languageUsed": "Mutauro unoshandiswa",
-            "comments": "Zvimwe zvinyorwa zvako",
-            "commentsPlaceholder": "Zvingasarudzwa — chero zvaunocherechedza pamusoro pe scan iyi",
-            "save": "Sevha Chinyorwa",
-            "saved": "Chinyorwa chasevhiwa"
-        }
+    "notes": {
+      "title": "Nhau DzeScan",
+      "new": "Nova Chinyorwa",
+      "followedBreathhold": "Murwere akatevera mirairo yebata mweya",
+      "repeatScan": "Scan inodzokororwa yaidikanwa",
+      "languageUsed": "Mutauro unoshandiswa",
+      "comments": "Zvimwe zvinyorwa zvako",
+      "commentsPlaceholder": "Zvingasarudzwa — chero zvaunocherechedza pamusoro pe scan iyi",
+      "save": "Sevha Chinyorwa"
     }
+  },
+  "scannerSound": {
+    "title": "Ongatarisira Kunzwa Nema Scanner",
+    "subtitle": "Teerera mazwi anoitwa neCT scanner",
+    "description": "Michina yeCT inogona kuita ruzha zvikuru. Inogadzira zvirira, zvigadziriso, nezvirira apo iri kutora mapikicha. Kuteerera kumitsinhi iyi zvino kunogona kukubatsira kuti uchinzwa sununguka nekusanzwisisa murumba rekuongorora.",
+    "play": "Ridza Inzwi ne scanner",
+    "stop": "Mira Inzwi",
+    "playing": "Kutamba..."
+  },
+  "contrastGuide": {
+    "title": "Mvura Yekujekesa",
+    "subtitle": "Zvaungangotarisira kana uchiwana uchienda contrast",
+    "intro": "Mamwe mascan e-CT anoshandisa mvura inojeka inonzi contrast dye kubatsira zvimwe zvikamu zvemukati memuviri wako zviratidzike zvirinani pamifananidzo.",
+    "how": "Kuwana zvakaita sei?",
+    "howText": "Iyi mvura inobatwa mutsinga iri pamaoko ako pasi petsongwana neduku.",
+    "feels": "Ndichaona seyi?",
+    "feelsText": "Unokwanisa kunzwa kuvirirwa kunofamba nemuviri wekusvikepi, uye nekuravira kwesimbi mumuromo mako. Rangarira kuti panogona kuita zvakaita sokunzwa kwaunosangana nechiitiko chekuda kuenda kuchimbuzi. Zvinoshamisa kuti zvinoitika nguva dzese nezvakanaka, dzinopfuera karenda kupindura zvirinani zvaungava nzira.",
+    "important": "Akakosha",
+    "importantText": "Kudzorera nokukurumidza achiratidza radiographer kana ukawana kuzvimba, kupedzerwa kwemhepo yakaderera muviri, kana kusanzwa zvakanaka mushure."
+  }
 }
