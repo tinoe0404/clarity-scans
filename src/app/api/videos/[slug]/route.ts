@@ -5,7 +5,7 @@ import { handleApiError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 const slugSchema = z.enum(["what-is-ct", "prepare", "breathhold", "contrast", "staying-still"]);
 

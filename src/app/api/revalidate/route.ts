@@ -44,8 +44,16 @@ export async function POST(request: NextRequest) {
     // 2. Purge Static Next.js Patient Layouts specifically
     revalidatePath("/[locale]/modules", "page");
 
-    // 3. Purge specific Data Cache tags used by withQueryCache
+    // 3. Purge Watch pages for every locale+slug combination
     const SUPPORTED_LOCALES = ["en", "sn", "nd"];
+    const VIDEO_SLUGS = ["what-is-ct", "prepare", "breathhold", "contrast", "staying-still"];
+    for (const loc of SUPPORTED_LOCALES) {
+      for (const slug of VIDEO_SLUGS) {
+        revalidatePath(`/${loc}/watch/${slug}`, "page");
+      }
+    }
+
+    // 4. Purge specific Data Cache tags used by withQueryCache
     SUPPORTED_LOCALES.forEach(loc => revalidateTag(`videos-${loc}`));
 
     return NextResponse.json({
