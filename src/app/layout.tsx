@@ -54,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${jakarta.variable} ${space.variable}`}>
       <body className="bg-surface-base text-white antialiased">
-        <div className="app-shell relative mx-auto min-h-screen max-w-[480px] overflow-x-hidden bg-surface-card shadow-2xl">
+        <div className="app-shell relative mx-auto min-h-screen w-full md:max-w-2xl lg:max-w-4xl xl:max-w-5xl overflow-x-hidden bg-surface-card shadow-2xl">
           {children}
           <InstallPromptBanner />
         </div>

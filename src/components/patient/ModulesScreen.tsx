@@ -134,7 +134,7 @@ export default function ModulesScreen({ locale, mergedModules }: ModulesScreenPr
           <AllDoneCard locale={locale} />
         )}
 
-        <div className="space-y-3 px-6 pb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-6 pb-6 mt-2">
           {!isLoaded ? (
             Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)
           ) : (

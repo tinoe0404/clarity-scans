@@ -20,7 +20,7 @@ export default function AppShell({ children, locale, className }: AppShellProps)
   return (
     <div
       className={cn(
-        "relative mx-auto flex min-h-screen max-w-[480px] flex-col overflow-x-hidden bg-surface-card",
+        "relative mx-auto flex min-h-screen w-full md:max-w-2xl lg:max-w-4xl xl:max-w-5xl flex-col overflow-x-hidden bg-surface-card",
         className
       )}
     >
