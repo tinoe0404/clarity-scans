@@ -67,8 +67,8 @@ export default function VideoContentMatrix({
 }: VideoContentMatrixProps) {
   return (
     <>
-      {/* ─── Mobile Card Layout (< md) ─── */}
-      <div className="space-y-4 lg:hidden">
+      {/* ─── Mobile Card Layout (< xl) ─── */}
+      <div className="space-y-4 xl:hidden">
         {VIDEO_MODULE_SLUGS.map((slug) => {
           const meta = MODULE_META[slug];
           const thumb = thumbnails[slug] || null;
@@ -115,7 +115,7 @@ export default function VideoContentMatrix({
               </div>
 
               {/* Language Cells */}
-              <div className="divide-y divide-surface-border">
+              <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3">
                 {SUPPORTED_LOCALES.map((loc) => {
                   const cellKey = getCellKey(slug, loc);
                   const video = matrix[slug]?.[loc] || null;
@@ -123,7 +123,7 @@ export default function VideoContentMatrix({
                   const isEditing = editingCellKey === cellKey;
 
                   return (
-                    <div key={loc} className="px-4 py-3">
+                    <div key={loc} className="flex flex-col">
                       <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-slate-500">
                         {LOCALE_LABELS[loc]}
                       </p>
@@ -137,19 +137,21 @@ export default function VideoContentMatrix({
                           onClose={onEditClose}
                         />
                       ) : (
-                        <VideoMatrixCell
-                          video={video}
-                          uploadProgress={progress?.progress ?? null}
-                          uploadFileName={progress?.fileName ?? null}
-                          isBulkMode={isBulkMode}
-                          isSelected={selectedCells.has(cellKey)}
-                          onUpload={() => onUploadClick(slug, loc)}
-                          onCancelUpload={() => onCancelUpload(slug, loc)}
-                          onEdit={() => onEditClick(cellKey)}
-                          onDelete={() => video && onDelete(video)}
-                          onToggleActive={(active) => video && onToggleActive(video, active)}
-                          onBulkSelect={(sel) => onBulkSelect(cellKey, sel)}
-                        />
+                        <div className="flex-1 flex flex-col">
+                          <VideoMatrixCell
+                            video={video}
+                            uploadProgress={progress?.progress ?? null}
+                            uploadFileName={progress?.fileName ?? null}
+                            isBulkMode={isBulkMode}
+                            isSelected={selectedCells.has(cellKey)}
+                            onUpload={() => onUploadClick(slug, loc)}
+                            onCancelUpload={() => onCancelUpload(slug, loc)}
+                            onEdit={() => onEditClick(cellKey)}
+                            onDelete={() => video && onDelete(video)}
+                            onToggleActive={(active) => video && onToggleActive(video, active)}
+                            onBulkSelect={(sel) => onBulkSelect(cellKey, sel)}
+                          />
+                        </div>
                       )}
                     </div>
                   );
@@ -160,9 +162,9 @@ export default function VideoContentMatrix({
         })}
       </div>
 
-      {/* ─── Desktop Table Layout (md+) ─── */}
-      <div className="hidden overflow-x-auto overscroll-x-contain rounded-2xl border border-surface-border bg-surface-card lg:block">
-        <table className="w-full min-w-[700px]">
+      {/* ─── Desktop Table Layout (xl+) ─── */}
+      <div className="hidden overflow-x-auto overscroll-x-contain rounded-2xl border border-surface-border bg-surface-card xl:block">
+        <table className="w-full min-w-[900px]">
           <thead>
             <tr className="border-b border-surface-border">
               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
