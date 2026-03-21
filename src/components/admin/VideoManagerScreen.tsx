@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { buttonStyles } from "@/lib/styles";
 import { SUPPORTED_LOCALES, VIDEO_MODULE_SLUGS } from "@/lib/constants";
 import dynamic from "next/dynamic";
+import { upload } from "@vercel/blob/client";
 
 import { adminFetch } from "@/lib/adminFetch";
 import { handleClientError } from "@/lib/globalErrorHandler";
@@ -37,6 +38,7 @@ interface UploadProgressEntry {
   progress: number;
   fileName: string;
   xhr?: XMLHttpRequest;
+  abortController?: AbortController;
 }
 
 interface ToastItem {
@@ -45,8 +47,7 @@ interface ToastItem {
   type: "success" | "error" | "warning";
 }
 
-/* ── Threshold for XHR vs client upload ─────────────── */
-const SERVER_UPLOAD_LIMIT = 4 * 1024 * 1024; // 4MB
+/* ── Upload threshold removed as Vercel Blob handles multipart automatically ── */
 
 /* ── Props ──────────────────────────────────────────── */
 interface VideoManagerScreenProps {
@@ -143,161 +144,55 @@ export default function VideoManagerScreen({
     }
   }, [buildMatrix]);
 
-  /* ── Upload: XHR (< 4 MB) ───────────────────── */
-  const uploadViaXhr = useCallback(
-    (slug: VideoSlug, locale: Locale, file: File, title: string, description: string) => {
+  /* ── Upload via Vercel Blob Client ────────────── */
+  const handleUpload = useCallback(
+    async (file: File, title: string, description: string) => {
+      if (!uploadPanel) return;
+      const { slug, locale } = uploadPanel;
       const cellKey = getCellKey(slug, locale);
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("slug", slug);
-      formData.append("locale", locale);
-      formData.append("title", title);
-      formData.append("description", description);
+      const abortController = new AbortController();
 
-      const xhr = new XMLHttpRequest();
       setUploadProgress((prev) => ({
         ...prev,
-        [cellKey]: { progress: 0, fileName: file.name, xhr },
-      }));
-
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          const pct = Math.round((e.loaded / e.total) * 100);
-          setUploadProgress((prev) => ({
-            ...prev,
-            [cellKey]: prev[cellKey]
-              ? { ...(prev[cellKey] as UploadProgressEntry), progress: pct }
-              : null,
-          }));
-        }
-      };
-
-      xhr.onload = () => {
-        setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
-        if (xhr.status >= 200 && xhr.status < 300) {
-          addToast("Video uploaded successfully", "success");
-          refreshStats();
-        } else {
-          addToast("Upload failed — please try again", "error");
-        }
-      };
-
-      xhr.onerror = () => {
-        setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
-        addToast("Upload failed — network error", "error");
-      };
-
-      xhr.open("POST", "/api/admin/upload");
-      xhr.send(formData);
-    },
-    [addToast, refreshStats]
-  );
-
-  /* ── Upload: R2 presigned URL (4–20 MB) ────────── */
-  const uploadViaPresignedUrl = useCallback(
-    async (slug: VideoSlug, locale: Locale, file: File, title: string, description: string) => {
-      const cellKey = getCellKey(slug, locale);
-      setUploadProgress((prev) => ({
-        ...prev,
-        [cellKey]: { progress: 0, fileName: file.name },
+        [cellKey]: { progress: 0, fileName: file.name, abortController },
       }));
 
       try {
-        // 1. Get presigned URL from our API
-        const tokenRes = await adminFetch("/api/admin/upload/token", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            filename: file.name,
-            contentType: file.type,
-            slug,
-            locale,
-            title,
-            description,
-          }),
-        });
-        const tokenJson = await tokenRes.json();
-        if (!tokenJson.success) throw new Error(tokenJson.error || "Failed to get upload URL");
-
-        const { presignedUrl, key } = tokenJson.data;
-
-        // 2. Upload directly to R2 via XHR for progress tracking
-        await new Promise<void>((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-
-          xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) {
-              const pct = Math.round((e.loaded / e.total) * 100);
-              setUploadProgress((prev) => ({
-                ...prev,
-                [cellKey]: prev[cellKey]
-                  ? { ...(prev[cellKey] as UploadProgressEntry), progress: pct, xhr }
-                  : null,
-              }));
-            }
-          };
-
-          xhr.onload = () => {
-            if (xhr.status >= 200 && xhr.status < 300) {
-              resolve();
-            } else {
-              reject(new Error(`R2 upload failed with status ${xhr.status}`));
-            }
-          };
-          xhr.onerror = () => reject(new Error("R2 upload network error"));
-
-          xhr.open("PUT", presignedUrl);
-          xhr.setRequestHeader("Content-Type", file.type);
-          xhr.send(file);
+        const clientPayload = JSON.stringify({ slug, locale, title, description });
+        
+        await upload(file.name, file, {
+          access: 'public',
+          handleUploadUrl: '/api/admin/upload/token',
+          clientPayload,
+          multipart: true,
+          abortSignal: abortController.signal,
+          onUploadProgress: (progressEvent) => {
+            const total = file.size;
+            const pct = Math.round((progressEvent.loaded / total) * 100);
+            setUploadProgress((prev) => ({
+              ...prev,
+              [cellKey]: prev[cellKey]
+                ? { ...(prev[cellKey] as UploadProgressEntry), progress: Math.min(pct, 99) }
+                : null,
+            }));
+          },
         });
 
-        // 3. Register the upload in the database
-        const completeRes = await adminFetch("/api/admin/upload/complete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            key,
-            slug,
-            locale,
-            title,
-            description,
-            fileSize: file.size,
-          }),
-        });
-        const completeJson = await completeRes.json();
-
+        // The exact moment upload() resolves, the Vercel backend might still be inserting into DB. 
         setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
-
-        if (completeJson.success) {
-          addToast("Video uploaded successfully", "success");
-          refreshStats();
+        addToast("Video uploaded successfully", "success");
+        setTimeout(refreshStats, 1000);
+      } catch (error: any) {
+        if (error.name === 'AbortError') {
+          addToast("Upload cancelled", "warning");
         } else {
-          addToast(
-            "Upload completed but DB record failed — refresh the page to verify",
-            "warning"
-          );
+          handleClientError(error, "VideoManagerScreen - handleUpload");
+          addToast("Upload failed — please try again", "error");
         }
-      } catch (error) {
-        handleClientError(error, "VideoManagerScreen - uploadViaPresignedUrl");
         setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
-        addToast("Direct upload failed — please try again", "error");
       }
     },
-    [addToast, refreshStats]
-  );
-
-  /* ── Upload router ───────────────────────────── */
-  const handleUpload = useCallback(
-    (file: File, title: string, description: string) => {
-      if (!uploadPanel) return;
-      const { slug, locale } = uploadPanel;
-      if (file.size < SERVER_UPLOAD_LIMIT) {
-        uploadViaXhr(slug, locale, file, title, description);
-      } else {
-        uploadViaPresignedUrl(slug, locale, file, title, description);
-      }
-    },
-    [uploadPanel, uploadViaXhr, uploadViaPresignedUrl]
+    [uploadPanel, addToast, refreshStats]
   );
 
   /* ── Cancel upload ───────────────────────────── */
@@ -306,6 +201,7 @@ export default function VideoManagerScreen({
       const cellKey = getCellKey(slug, locale);
       const entry = uploadProgress[cellKey];
       if (entry?.xhr) entry.xhr.abort();
+      if (entry?.abortController) entry.abortController.abort();
       setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
     },
     [uploadProgress]

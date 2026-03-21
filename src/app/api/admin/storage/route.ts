@@ -129,13 +129,13 @@ export async function DELETE(request: NextRequest) {
           success: true,
         });
       } catch (e) {
-        failed.push(`${url} (R2 API Failure)`);
+        failed.push(`${url} (Vercel Blob API Failure)`);
         await logUploadAction({
           action: "delete_blob",
           blob_url: url,
           success: false,
           error_message:
-            e instanceof Error ? e.message : "R2 delete operation failed",
+            e instanceof Error ? e.message : "Blob delete operation failed",
         });
       }
     }
