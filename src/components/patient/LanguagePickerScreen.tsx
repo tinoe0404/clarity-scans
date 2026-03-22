@@ -91,7 +91,12 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
   };
 
   return (
-    <AppShell locale={suggestedLocale || "en"} className="justify-between px-6 pb-8">
+    <AppShell 
+      locale={suggestedLocale || "en"} 
+      className="justify-between px-6 pb-8"
+      showNav={false}
+      showBottomNav={false}
+    >
       <div className="flex flex-1 flex-col justify-center">
         <BrandHeader />
 

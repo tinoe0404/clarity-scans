@@ -11,7 +11,6 @@ import { AppShell } from "@/components/shared";
 import { LazyWrapper } from "@/components/shared/LazyWrapper";
 import { SkeletonCard } from "@/components/ui/Skeleton";
 import PatientHeader from "@/components/patient/PatientHeader";
-import TabNavigation from "@/components/patient/TabNavigation";
 import ModuleCard from "@/components/patient/ModuleCard";
 import NoVideosNotice from "./NoVideosNotice";
 import AllDoneCard from "./AllDoneCard";
@@ -117,18 +116,13 @@ export default function ModulesScreen({ locale, mergedModules }: ModulesScreenPr
           totalCount={5}
           isAllDone={isAllDone}
         />
-        
-        {/* Sticky Tab Barrier attached seamlessly below header shadow */}
-        <div className="bg-gradient-to-b from-surface-elevated to-surface-card pt-0 pb-2 shadow-[0_8px_16px_rgba(0,0,0,0.4)]">
-          <TabNavigation locale={locale} activeTab="modules" />
-        </div>
       </div>
 
       {/* Primary Scrollable Content Body */}
       <div 
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto w-full pb-12 pt-6 custom-scrollbar"
+        className="flex-1 overflow-y-auto w-full pb-32 pt-6 custom-scrollbar"
       >
         {isLoaded && isAllDone && (
           <AllDoneCard locale={locale} />
