@@ -235,7 +235,7 @@ export default function VideoPlayer({
         ref={videoRef}
         src={blobUrl}
         playsInline
-        preload="metadata"
+        preload="auto"
         className="h-full w-full object-cover"
         onClick={togglePlay}
         onLoadedMetadata={() => {
