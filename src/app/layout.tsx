@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Space_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import dynamic from "next/dynamic";
 import { InstallPromptBanner } from "@/components/shared/InstallPromptBanner";
+import NextTopLoader from 'nextjs-toploader';
 import "./globals.css";
 
 const DynamicWebVitals = dynamic(
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${jakarta.variable} ${space.variable}`}>
       <body className="bg-surface-base text-white antialiased">
+        <NextTopLoader color="#ff6b00" showSpinner={false} />
         <div className="app-shell relative mx-auto min-h-screen w-full md:max-w-2xl lg:max-w-4xl xl:max-w-5xl overflow-x-hidden bg-surface-card shadow-2xl">
           {children}
           <InstallPromptBanner />
