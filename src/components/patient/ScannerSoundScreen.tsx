@@ -112,9 +112,9 @@ export default function ScannerSoundScreen({ locale }: ScannerSoundScreenProps) 
         backHref={`/${locale}/modules`}
       />
 
-      <TabNavigation locale={locale} activeTab="scanner" />
 
-      <div className="custom-scrollbar flex flex-1 flex-col overflow-y-auto">
+
+      <div className="custom-scrollbar flex flex-1 flex-col overflow-y-auto pb-safe-bottom scroll-smooth-container">
         <div className="flex flex-col h-full px-6 py-8 sm:px-12 md:px-20 lg:max-w-4xl lg:mx-auto">
           <div className="bg-surface-elevated rounded-3xl p-6 sm:p-10 border border-slate-700/50 shadow-xl mb-12">
             <p className="text-slate-300 text-lg sm:text-xl leading-relaxed">
@@ -168,6 +168,8 @@ export default function ScannerSoundScreen({ locale }: ScannerSoundScreenProps) 
           </div>
         </div>
       </div>
+
+      <TabNavigation locale={locale} activeTab="scanner" />
     </AppShell>
   );
 }

@@ -24,9 +24,9 @@ export default function ContrastGuideScreen({ locale }: ContrastGuideScreenProps
         backHref={`/${locale}/modules`}
       />
 
-      <TabNavigation locale={locale} activeTab="contrast" />
 
-      <div className="custom-scrollbar flex flex-1 flex-col overflow-y-auto">
+
+      <div className="custom-scrollbar flex flex-1 flex-col overflow-y-auto pb-safe-bottom scroll-smooth-container">
         <div className="flex flex-col h-full px-6 py-8 sm:px-12 md:px-20 lg:max-w-4xl lg:mx-auto">
           <div className="bg-surface-elevated rounded-2xl p-6 sm:p-8 border border-slate-700/50 shadow-xl mb-8 flex gap-4">
             <Info className="h-6 w-6 text-brand-base shrink-0 mt-1" />
@@ -75,6 +75,8 @@ export default function ContrastGuideScreen({ locale }: ContrastGuideScreenProps
           </div>
         </div>
       </div>
+
+      <TabNavigation locale={locale} activeTab="contrast" />
     </AppShell>
   );
 }

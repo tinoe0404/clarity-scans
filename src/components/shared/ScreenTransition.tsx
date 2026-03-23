@@ -48,7 +48,7 @@ export default function ScreenTransition({
   const animations = {
     fade: "animate-fadeIn",
     slideUp: "animate-slideUp",
-    slideLeft: "animate-fadeIn", // We don't have slideLeft in config, fallback to fadeIn
+    slideLeft: "animate-slideLeft",
   };
 
   return (

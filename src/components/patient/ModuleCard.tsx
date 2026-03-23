@@ -34,9 +34,11 @@ export default function ModuleCard({
       className={cn(
         "relative flex items-center gap-4 rounded-2xl border p-4 transition-all duration-200 overflow-hidden",
         "border-surface-border bg-surface-card",
-        "hover:border-brand-500/25 hover:bg-white/[0.06]",
+        "hover:border-brand-500/30 hover:bg-white/[0.06] hover:shadow-glow-sm",
+        "active:scale-[0.98] active:transition-none",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50",
-        isWatched && "opacity-60"
+        isWatched && "opacity-60",
+        isNextUp && "border-brand-500/20 shadow-glow-sm"
       )}
       role="article"
       aria-label={`${title} — ${duration}`}

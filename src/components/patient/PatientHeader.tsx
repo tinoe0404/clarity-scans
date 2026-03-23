@@ -37,7 +37,7 @@ export default function PatientHeader({
   const progressPercent = totalCount > 0 ? Math.round((watchedCount / totalCount) * 100) : 0;
 
   return (
-    <header className="bg-gradient-to-b from-surface-elevated to-surface-card px-6 pb-6 pt-8">
+    <header className="animate-fadeIn bg-gradient-to-b from-surface-elevated to-surface-card px-6 pb-6 pt-8">
       <div className="flex items-start gap-3">
         {showBack && (
           <>

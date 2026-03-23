@@ -35,10 +35,14 @@
   /* Force dark mode */
   html {
     color-scheme: dark;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
     @apply bg-surface-base text-gray-100;
+    overflow-x: hidden;
   }
 
   /* Kiosk resets */
@@ -47,6 +51,20 @@
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
+  }
+
+  /* Enhanced button/link press feedback */
+  button,
+  a[role="tab"],
+  [role="article"] {
+    transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+    will-change: transform;
+  }
+
+  button:active,
+  a[role="tab"]:active,
+  [role="article"]:active {
+    transform: scale(0.97);
   }
 
   /* Allow text selection where reading is important */
@@ -104,6 +122,17 @@
 
   .text-shadow {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Bottom nav safe spacing */
+  .pb-safe-bottom {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Smooth scroll container */
+  .scroll-smooth-container {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
   }
 }
 

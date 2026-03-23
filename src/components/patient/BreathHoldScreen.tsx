@@ -134,10 +134,10 @@ export default function BreathHoldScreen({ locale }: BreathHoldScreenProps) {
         }
       />
 
-      <TabNavigation locale={locale} activeTab="breathhold" />
+
 
       {/* Primary Orchestration Bounds strictly constraining jumping */}
-      <div className="custom-scrollbar flex h-full min-h-[360px] w-full flex-1 flex-col overflow-y-auto px-4 pb-24 pt-4">
+      <div className="custom-scrollbar flex h-full min-h-[360px] w-full flex-1 flex-col overflow-y-auto px-4 pb-safe-bottom pt-4 scroll-smooth-container">
         {trainer.state === "intro" && (
           <BreathHoldIntroCard
             locale={locale}
@@ -209,6 +209,8 @@ export default function BreathHoldScreen({ locale }: BreathHoldScreenProps) {
           />
         )}
       </div>
+
+      <TabNavigation locale={locale} activeTab="breathhold" />
     </AppShell>
   );
 }

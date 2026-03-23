@@ -78,10 +78,31 @@ const config: Config = {
             boxShadow: "0 0 40px rgba(14,165,233,0.4)",
           },
         },
+        scaleIn: {
+          "0%": { transform: "translateX(-50%) scaleX(0)", opacity: "0" },
+          "100%": { transform: "translateX(-50%) scaleX(1)", opacity: "1" },
+        },
+        slideLeft: {
+          "0%": { opacity: "0", transform: "translateX(20px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
+        },
+        slideRight: {
+          "0%": { opacity: "0", transform: "translateX(-20px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
+        },
+        bounceScale: {
+          "0%": { transform: "scale(1)" },
+          "50%": { transform: "scale(0.95)" },
+          "100%": { transform: "scale(1)" },
+        },
       },
       animation: {
         fadeIn: "fadeIn 0.5s ease-out forwards",
         slideUp: "slideUp 0.5s ease-out forwards",
+        slideLeft: "slideLeft 0.4s ease-out forwards",
+        slideRight: "slideRight 0.4s ease-out forwards",
+        scaleIn: "scaleIn 0.3s ease-out forwards",
+        bounceScale: "bounceScale 0.2s ease-out",
         breatheIn: "breatheIn 4s ease-in-out forwards",
         breatheOut: "breatheOut 4s ease-in-out forwards",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",

@@ -145,9 +145,9 @@ export default function VisualGuideScreen({ locale, signals, title, subtitle }: 
         showProgress={false}
       />
 
-      <TabNavigation locale={locale} activeTab="visual" />
 
-      <div className="custom-scrollbar flex w-full flex-1 flex-col overflow-y-auto pt-4">
+
+      <div className="custom-scrollbar flex w-full flex-1 flex-col overflow-y-auto pt-4 pb-safe-bottom scroll-smooth-container">
         <VisualInstructionBanner />
 
         <div
@@ -211,6 +211,7 @@ export default function VisualGuideScreen({ locale, signals, title, subtitle }: 
           onClose={handleCloseOverlay}
         />
       )}
+      <TabNavigation locale={locale} activeTab="visual" />
     </AppShell>
   );
 }
