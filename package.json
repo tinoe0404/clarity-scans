@@ -43,6 +43,7 @@
     "@typescript-eslint/parser": "^8.56.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.35",
+    "jimp": "^0.22.10",
     "postcss": "^8",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^3.4.1",
