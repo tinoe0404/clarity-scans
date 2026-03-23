@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { Route } from "next";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonStyles } from "@/lib/styles";
 import type { Locale } from "@/types";
@@ -72,7 +72,17 @@ export default function PatientHeader({
             {subtitle && <p className="mt-1 text-sm text-slate-400">{subtitle}</p>}
           </div>
         )}
-        {rightAction && <div className="ml-auto flex items-center">{rightAction}</div>}
+        <div className="ml-auto flex items-center gap-2">
+          <Link
+            href="/"
+            className={cn(buttonStyles("ghost", "sm"), "-mr-2 p-2 text-slate-400 hover:text-white")}
+            aria-label="Change language"
+            title="Change language"
+          >
+            <Globe className="h-5 w-5" />
+          </Link>
+          {rightAction}
+        </div>
       </div>
 
       {showProgress && totalCount > 0 && (
