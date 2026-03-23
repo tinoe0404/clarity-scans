@@ -171,11 +171,7 @@ export default function VideoPlayerScreen({
   const keyPoints = serverKeyPoints;
 
   return (
-    <AppShell 
-      locale={locale} 
-      className="flex h-screen flex-col overflow-hidden bg-surface-base"
-      showBottomNav={false}
-    >
+    <AppShell locale={locale} className="flex h-screen flex-col overflow-hidden bg-surface-base">
       {/* Upper Media Block */}
       <div className="relative z-20 shrink-0">
         <div className="absolute left-4 top-4 z-40">

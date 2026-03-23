@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/types";
 
@@ -29,13 +28,14 @@ export default function TabNavigation({ locale, activeTab }: TabNavigationProps)
       {tabs.map((tab) => {
         const isActive = tab.key === activeTab;
         return (
-          <Link
+          <a
             key={tab.key}
             href={tab.path}
             role="tab"
+            aria-current={isActive ? "page" : undefined}
             aria-selected={isActive}
             className={cn(
-              "flex flex-1 flex-col items-center gap-1 rounded-lg py-2 text-[11px] font-semibold transition-colors min-w-[70px]",
+              "flex flex-1 flex-col items-center gap-1 rounded-lg py-2 text-[11px] font-semibold transition-colors",
               isActive ? "bg-brand-500/15 text-brand-400" : "text-slate-500 hover:text-slate-300"
             )}
           >
@@ -43,7 +43,7 @@ export default function TabNavigation({ locale, activeTab }: TabNavigationProps)
               {tab.emoji}
             </span>
             <span>{tab.label}</span>
-          </Link>
+          </a>
         );
       })}
     </nav>
