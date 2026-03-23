@@ -71,8 +71,18 @@ export default async function WatchPage({ params }: WatchPageProps) {
   }
 
   const t = await getTranslations({ locale });
-  const title = videoRecord?.title || (t as any).raw(`modules.slugs.${slugTarget}.title`);
-  const description = videoRecord?.description || (t as any).raw(`modules.slugs.${slugTarget}.description`);
+  
+  let title = videoRecord?.title;
+  try {
+    const tTitle = (t as any).raw(`modules.slugs.${slugTarget}.title`);
+    if (tTitle) title = tTitle;
+  } catch {}
+
+  let description = videoRecord?.description;
+  try {
+    const tDesc = (t as any).raw(`modules.slugs.${slugTarget}.description`);
+    if (tDesc) description = tDesc;
+  } catch {}
   
   // Extract keypoints array
   let keyPoints: string[] = [];
@@ -87,8 +97,8 @@ export default async function WatchPage({ params }: WatchPageProps) {
       slug={slugTarget}
       videoRecord={videoRecord}
       registryEntry={registryEntry}
-      serverTitle={title}
-      serverDescription={description}
+      serverTitle={title || ""}
+      serverDescription={description || ""}
       serverKeyPoints={keyPoints}
     />
   );

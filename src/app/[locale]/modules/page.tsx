@@ -39,11 +39,27 @@ export default async function ModulesPage({
   const t = await getTranslations({ locale, namespace: "modules" });
   let mergedModules = mergeModuleData(MODULE_REGISTRY, videos, locale);
   // Inject translations on the server side to shrink client bundle
-  mergedModules = mergedModules.map((mod) => ({
-    ...mod,
-    title: mod.title || t(`slugs.${mod.slug}.title`),
-    description: mod.description || t(`slugs.${mod.slug}.description`),
-  }));
+  mergedModules = mergedModules.map((mod) => {
+    // Attempt to get the translation. If it returns the dot-notation key or throws, fallback to DB.
+    let localTitle = mod.title;
+    let localDesc = mod.description;
+    
+    try {
+      const tTitle = t(`slugs.${mod.slug}.title`);
+      if (tTitle && tTitle !== `slugs.${mod.slug}.title`) localTitle = tTitle;
+      
+      const tDesc = t(`slugs.${mod.slug}.description`);
+      if (tDesc && tDesc !== `slugs.${mod.slug}.description`) localDesc = tDesc;
+    } catch {
+      // Ignore missing translation errors
+    }
+
+    return {
+      ...mod,
+      title: localTitle || "",
+      description: localDesc || "",
+    };
+  });
 
   return <ModulesScreen locale={locale} mergedModules={mergedModules} />;
 }
