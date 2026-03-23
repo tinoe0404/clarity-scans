@@ -27,11 +27,18 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
   const searchParams = useSearchParams();
   const router = useRouter();
   const [selectedLocale, setSelectedLocale] = useState<Locale | null>(null);
+  const [actualSuggested, setActualSuggested] = useState<Locale | null>(null);
   const { trackEvent } = useAnalytics();
 
   // Reset any previous patient's session whenever this picker mounts.
   useEffect(() => {
     clearPatientSession();
+
+    // Check for "Last used" locale in the browser cookie
+    const match = document.cookie.match(/(?:^|;\s*)NEXT_LOCALE=([^;]+)/);
+    if (match && match[1] && ["en", "sn", "nd"].includes(match[1] as string)) {
+      setActualSuggested(match[1] as Locale);
+    }
   }, []);
 
   const handleLanguageSelect = async (locale: Locale) => {
@@ -116,7 +123,7 @@ export default function LanguagePickerScreen({ suggestedLocale }: LanguagePicker
             <LanguageButton
               key={lang.locale}
               {...lang}
-              isSuggested={suggestedLocale === lang.locale}
+              isSuggested={actualSuggested === lang.locale}
               isLoading={selectedLocale === lang.locale}
               isDisabled={selectedLocale !== null && selectedLocale !== lang.locale}
               onClick={handleLanguageSelect}
