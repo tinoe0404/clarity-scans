@@ -20,6 +20,7 @@ import VideoContentMatrix from "./VideoContentMatrix";
 
 const ConfirmDialog = dynamic(() => import("@/components/ui").then((mod) => mod.ConfirmDialog), { ssr: false });
 const VideoUploadPanel = dynamic(() => import("./VideoUploadPanel"), { ssr: false });
+const VideoDetailPanel = dynamic(() => import("./VideoDetailPanel"), { ssr: false });
 import BulkActionBar from "./BulkActionBar";
 import type { VideoRecord, StorageStats, VideoSlug, Locale } from "@/types";
 
@@ -87,6 +88,9 @@ export default function VideoManagerScreen({
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const isOnline = useOnlineStatus();
+
+  // Detail panel
+  const [detailVideo, setDetailVideo] = useState<VideoRecord | null>(null);
 
   // Upload panel
   const [uploadPanel, setUploadPanel] = useState<{ slug: VideoSlug; locale: Locale } | null>(null);
@@ -441,6 +445,7 @@ export default function VideoManagerScreen({
         onToggleActive={handleToggleActive}
         onBulkSelect={handleBulkSelect}
         onThumbnailUpload={handleThumbnailUploadClick}
+        onViewDetails={setDetailVideo}
         thumbnails={thumbnails}
       />
 
@@ -452,6 +457,18 @@ export default function VideoManagerScreen({
           locale={uploadPanel.locale}
           onClose={() => setUploadPanel(null)}
           onUpload={handleUpload}
+        />
+      )}
+
+      {/* Detail panel */}
+      {detailVideo && (
+        <VideoDetailPanel
+          video={detailVideo}
+          isOpen={true}
+          onClose={() => setDetailVideo(null)}
+          onEdit={() => setEditingCellKey(getCellKey(detailVideo.slug, detailVideo.language))}
+          onDelete={() => setDeleteTarget(detailVideo)}
+          onToggleActive={(newActive) => handleToggleActive(detailVideo, newActive)}
         />
       )}
 

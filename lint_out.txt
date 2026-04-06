@@ -1,0 +1,9 @@
+﻿
+C:\Users\tinoc\clarity-scans\src\components\admin\VideoDetailPanel.tsx
+  351:47  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+
+C:\Users\tinoc\clarity-scans\src\components\admin\VideoMatrixCell.tsx
+  5:80  error  'Film' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+Γ£û 2 problems (2 errors, 0 warnings)
+

@@ -41,6 +41,7 @@ interface VideoContentMatrixProps {
   onToggleActive: (video: VideoRecord, newActive: boolean) => void;
   onBulkSelect: (cellKey: string, selected: boolean) => void;
   onThumbnailUpload: (slug: VideoSlug) => void;
+  onViewDetails: (video: VideoRecord) => void;
   thumbnails: Record<string, string | null>;
 }
 
@@ -63,6 +64,7 @@ export default function VideoContentMatrix({
   onToggleActive,
   onBulkSelect,
   onThumbnailUpload,
+  onViewDetails,
   thumbnails,
 }: VideoContentMatrixProps) {
   return (
@@ -150,6 +152,7 @@ export default function VideoContentMatrix({
                             onDelete={() => video && onDelete(video)}
                             onToggleActive={(active) => video && onToggleActive(video, active)}
                             onBulkSelect={(sel) => onBulkSelect(cellKey, sel)}
+                            onViewDetails={() => video && onViewDetails(video)}
                           />
                         </div>
                       )}
@@ -256,6 +259,7 @@ export default function VideoContentMatrix({
                             onDelete={() => video && onDelete(video)}
                             onToggleActive={(active) => video && onToggleActive(video, active)}
                             onBulkSelect={(sel) => onBulkSelect(cellKey, sel)}
+                            onViewDetails={() => video && onViewDetails(video)}
                           />
                         )}
                       </td>
