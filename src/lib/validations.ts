@@ -32,6 +32,7 @@ export const upsertVideoSchema = z.object({
   thumbnailUrl: z.string().url().nullable().optional(),
   durationSeconds: z.number().int().min(0).nullable().optional(),
   isActive: z.boolean().optional().default(true),
+  uploadedBy: z.string().nullable().optional(),
 });
 export type UpsertVideoInput = z.infer<typeof upsertVideoSchema>;
 

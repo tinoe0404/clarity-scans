@@ -286,6 +286,15 @@ export default function VideoDetailPanel({
             sublabel={video.language}
           />
 
+          {/* Uploaded By */}
+          {video.uploaded_by && (
+            <PropertyRow
+              icon={<Info className="h-3.5 w-3.5" />}
+              label="Uploaded By"
+              value={video.uploaded_by}
+            />
+          )}
+
           {/* Sort Order */}
           <PropertyRow
             icon={<Hash className="h-3.5 w-3.5" />}

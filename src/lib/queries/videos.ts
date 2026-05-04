@@ -52,8 +52,8 @@ export async function updateVideoThumbnail(slug: VideoSlug, thumbnailUrl: string
 
 export async function upsertVideo(data: UpsertVideoInput): Promise<VideoRecord> {
   const sql = `
-    INSERT INTO videos (slug, language, title, description, blob_url, thumbnail_url, duration_seconds, is_active)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    INSERT INTO videos (slug, language, title, description, blob_url, thumbnail_url, duration_seconds, is_active, uploaded_by)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     ON CONFLICT (slug, language) DO UPDATE SET
       title = EXCLUDED.title,
       description = EXCLUDED.description,
@@ -61,6 +61,7 @@ export async function upsertVideo(data: UpsertVideoInput): Promise<VideoRecord> 
       thumbnail_url = EXCLUDED.thumbnail_url,
       duration_seconds = EXCLUDED.duration_seconds,
       is_active = EXCLUDED.is_active,
+      uploaded_by = EXCLUDED.uploaded_by,
       updated_at = now()
     RETURNING *;
   `;
@@ -73,6 +74,7 @@ export async function upsertVideo(data: UpsertVideoInput): Promise<VideoRecord> 
     data.thumbnailUrl || null,
     data.durationSeconds || null,
     data.isActive ?? true,
+    data.uploadedBy || null,
   ]);
   if (!result) throw new Error("Upsert failed entirely");
   return result;

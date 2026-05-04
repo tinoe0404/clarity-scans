@@ -46,7 +46,10 @@ export async function POST(request: Request): Promise<NextResponse> {
         // Vercel Blob's handleUpload requires the token payload to authorize
         return {
           allowedContentTypes: ['video/mp4', 'video/webm'],
-          tokenPayload: clientPayload || "{}",
+          tokenPayload: JSON.stringify({
+            ...parsedPayload,
+            userId: session.user.name,
+          }),
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
@@ -65,6 +68,7 @@ export async function POST(request: Request): Promise<NextResponse> {
             description: payload.description,
             blobUrl: blob.url,
             isActive: true,
+            uploadedBy: payload.userId,
           });
 
           // Log success

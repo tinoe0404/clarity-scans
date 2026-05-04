@@ -18,6 +18,7 @@ export interface VideoRecord {
   duration_seconds: number | null;
   sort_order: number;
   is_active: boolean;
+  uploaded_by: string | null;
   created_at: Date;
   updated_at: Date;
 }

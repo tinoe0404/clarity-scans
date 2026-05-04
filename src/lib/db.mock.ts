@@ -25,6 +25,7 @@ let mockVideos: VideoRecord[] = [
     duration_seconds: 120,
     sort_order: 1,
     is_active: false,
+    uploaded_by: "admin",
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -39,6 +40,7 @@ let mockVideos: VideoRecord[] = [
     duration_seconds: 180,
     sort_order: 2,
     is_active: false,
+    uploaded_by: "admin",
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -53,6 +55,7 @@ let mockVideos: VideoRecord[] = [
     duration_seconds: 90,
     sort_order: 3,
     is_active: false,
+    uploaded_by: "admin",
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -67,6 +70,7 @@ let mockVideos: VideoRecord[] = [
     duration_seconds: 150,
     sort_order: 4,
     is_active: false,
+    uploaded_by: "admin",
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -81,6 +85,7 @@ let mockVideos: VideoRecord[] = [
     duration_seconds: 120,
     sort_order: 5,
     is_active: false,
+    uploaded_by: "admin",
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -201,6 +206,7 @@ export async function upsertVideo(data: UpsertVideoInput): Promise<VideoRecord> 
       thumbnail_url: data.thumbnailUrl || null,
       duration_seconds: data.durationSeconds || null,
       is_active: data.isActive ?? true,
+      uploaded_by: data.uploadedBy || null,
     });
     return { ...existing };
   }
@@ -215,6 +221,7 @@ export async function upsertVideo(data: UpsertVideoInput): Promise<VideoRecord> 
     duration_seconds: data.durationSeconds || null,
     sort_order: mockVideos.length + 1,
     is_active: data.isActive ?? true,
+    uploaded_by: data.uploadedBy || null,
     created_at: new Date(),
     updated_at: new Date(),
   };
