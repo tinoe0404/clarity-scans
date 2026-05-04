@@ -1,7 +1,6 @@
 import { getAdminSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import VideoManagerScreen from "@/components/admin/VideoManagerScreen";
-import { headers } from "next/headers";
 import type { VideoRecord, StorageStats } from "@/types";
 
 export const metadata = {
@@ -10,32 +9,24 @@ export const metadata = {
 
 export const revalidate = 60;
 
-interface VideosApiResponse {
-  success: boolean;
-  data: {
-    grouped: Record<string, VideoRecord[]>;
-    stats: StorageStats | null;
-  };
-}
+
 
 async function getVideoData(): Promise<{
   grouped: Record<string, VideoRecord[]>;
   stats: StorageStats | null;
 }> {
-  const host = headers().get("host");
-  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
-
   try {
     const { getAllVideos } = await import("@/lib/queries/videos");
     const { storage } = await import("@/lib/blob");
 
     const videos = await getAllVideos();
 
-    const grouped = videos.reduce((acc, video) => {
-      if (!acc[video.slug]) acc[video.slug] = [];
-      acc[video.slug].push(video);
-      return acc;
-    }, {} as Record<string, VideoRecord[]>);
+    const grouped: Record<string, VideoRecord[]> = {};
+    for (const video of videos) {
+      const arr = grouped[video.slug] ?? [];
+      arr.push(video);
+      grouped[video.slug] = arr;
+    }
 
     const stats = await storage.getStorageStats();
 
