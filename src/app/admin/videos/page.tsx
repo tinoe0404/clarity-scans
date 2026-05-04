@@ -21,8 +21,11 @@ async function getVideoData(): Promise<{
 
     const videos = await getAllVideos();
 
+    // Resolve signed download URLs for private blob store
+    const resolvedVideos = await storage.resolveVideoUrlsBatch(videos);
+
     const grouped: Record<string, VideoRecord[]> = {};
-    for (const video of videos) {
+    for (const video of resolvedVideos) {
       const arr = grouped[video.slug] ?? [];
       arr.push(video);
       grouped[video.slug] = arr;

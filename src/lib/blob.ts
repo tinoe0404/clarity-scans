@@ -1,4 +1,4 @@
-import { put, del, list } from "@vercel/blob";
+import { put, del, list, getDownloadUrl } from "@vercel/blob";
 import {
   Locale,
   VideoSlug,
@@ -37,7 +37,7 @@ export const storage = {
       const key = BlobPaths.video(locale, slug);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const blob = await put(key, file as any, {
-        access: "public",
+        access: "private",
         contentType,
         multipart: true,
       });
@@ -70,7 +70,7 @@ export const storage = {
       const key = BlobPaths.thumbnail(slug);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const blob = await put(key, file as any, {
-        access: "public",
+        access: "private",
         contentType,
       });
 
@@ -157,5 +157,42 @@ export const storage = {
       percentUsed: totalBytes / FREE_TIER_LIMIT_BYTES,
       freetierLimitGB: FREE_TIER_LIMIT_BYTES / (1024 * 1024 * 1024),
     };
+  },
+
+  /**
+   * Generate a signed download URL for a private blob.
+   * Returns the original URL as fallback if generation fails.
+   */
+  async resolveDownloadUrl(blobUrl: string): Promise<string> {
+    if (!blobUrl || blobUrl === "PLACEHOLDER") return blobUrl;
+    try {
+      return await getDownloadUrl(blobUrl);
+    } catch {
+      // Fallback to raw URL if token generation fails
+      return blobUrl;
+    }
+  },
+
+  /**
+   * Resolve download URLs for a VideoRecord's blob_url and thumbnail_url.
+   * Use this before sending records to the client.
+   */
+  async resolveVideoUrls<T extends { blob_url: string; thumbnail_url: string | null }>(
+    record: T
+  ): Promise<T> {
+    const [downloadUrl, thumbUrl] = await Promise.all([
+      record.blob_url ? storage.resolveDownloadUrl(record.blob_url) : Promise.resolve(record.blob_url),
+      record.thumbnail_url ? storage.resolveDownloadUrl(record.thumbnail_url) : Promise.resolve(null),
+    ]);
+    return { ...record, blob_url: downloadUrl, thumbnail_url: thumbUrl };
+  },
+
+  /**
+   * Resolve download URLs for an array of VideoRecords.
+   */
+  async resolveVideoUrlsBatch<T extends { blob_url: string; thumbnail_url: string | null }>(
+    records: T[]
+  ): Promise<T[]> {
+    return Promise.all(records.map((r) => storage.resolveVideoUrls(r)));
   },
 };

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
 import { validateLocale } from "@/lib/i18n";
 import { getVideosByLanguage } from "@/lib/queries/videos";
+import { storage } from "@/lib/blob";
 import type { VideoRecord } from "@/types";
 import { MODULE_REGISTRY, mergeModuleData } from "@/lib/moduleRegistry";
 import ModulesScreen from "@/components/patient/ModulesScreen";
@@ -31,7 +32,9 @@ export default async function ModulesPage({
 
   let videos: VideoRecord[] = [];
   try {
-    videos = await getVideosByLanguage(locale);
+    const rawVideos = await getVideosByLanguage(locale);
+    // Resolve signed download URLs for private blob store
+    videos = await storage.resolveVideoUrlsBatch(rawVideos);
   } catch (err) {
     console.error("Neon DB fetch failed inside /modules:", err);
   }

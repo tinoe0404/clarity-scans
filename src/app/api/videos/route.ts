@@ -3,6 +3,7 @@ import { getVideosByLanguage } from "@/lib/queries/videos";
 import { localeSchema } from "@/lib/validations";
 import { handleApiError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
+import { storage } from "@/lib/blob";
 
 // Force dynamic rendering since we rely on searchParams which cannot be statically known at build time
 export const dynamic = "force-dynamic";
@@ -58,7 +59,10 @@ export async function GET(request: NextRequest) {
          created_at: v.created_at,
       }));
 
-    return NextResponse.json({ success: true, data: sanitizedData }, { status: 200 });
+    // Resolve signed download URLs for private blob store
+    const resolvedData = await storage.resolveVideoUrlsBatch(sanitizedData);
+
+    return NextResponse.json({ success: true, data: resolvedData }, { status: 200 });
 
   } catch (error) {
     const apiErr = handleApiError(error);

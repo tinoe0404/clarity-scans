@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
 import { validateLocale } from "@/lib/i18n";
 import { getVideoBySlug } from "@/lib/queries/videos";
+import { storage } from "@/lib/blob";
 import { getModuleBySlug } from "@/lib/moduleRegistry";
 import type { VideoSlug, VideoRecord } from "@/types";
 import { LOCALES } from "@/types";
@@ -65,7 +66,9 @@ export default async function WatchPage({ params }: WatchPageProps) {
   // Attempt retrieving live VideoRecord overriding text bounds gracefully
   let videoRecord: VideoRecord | null = null;
   try {
-    videoRecord = await getVideoBySlug(slugTarget, locale);
+    const raw = await getVideoBySlug(slugTarget, locale);
+    // Resolve signed download URLs for private blob store
+    videoRecord = raw ? await storage.resolveVideoUrls(raw) : null;
   } catch (error) {
     console.error("Database connection fault hitting /watch:", error);
   }

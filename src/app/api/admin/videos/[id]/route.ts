@@ -34,7 +34,8 @@ export async function GET(
   try {
     const video = await getVideoById(params.id);
     if (!video) return NextResponse.json({ success: false, error: "Not Found" }, { status: 404 });
-    return NextResponse.json({ success: true, data: video });
+    const resolved = await storage.resolveVideoUrls(video);
+    return NextResponse.json({ success: true, data: resolved });
   } catch (error) {
     const apiErr = handleApiError(error);
     return NextResponse.json({ success: false, error: apiErr.message }, { status: apiErr.statusCode });
@@ -72,7 +73,8 @@ export async function PATCH(
 
     purgePublicCaches();
 
-    return NextResponse.json({ success: true, data: updated });
+    const resolved = await storage.resolveVideoUrls(updated);
+    return NextResponse.json({ success: true, data: resolved });
 
   } catch (error) {
     const apiErr = handleApiError(error);

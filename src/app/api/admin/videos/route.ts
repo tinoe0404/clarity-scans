@@ -25,8 +25,11 @@ export async function GET(request: NextRequest) {
     // Fetch all videos 
     const videos = await getAllVideos();
 
+    // Resolve signed download URLs for private blob store
+    const resolvedVideos = await storage.resolveVideoUrlsBatch(videos);
+
     // Group videos by slug for the grid matrix
-    const grouped = videos.reduce((acc, video) => {
+    const grouped = resolvedVideos.reduce((acc, video) => {
       if (!acc[video.slug]) {
         acc[video.slug] = [];
       }

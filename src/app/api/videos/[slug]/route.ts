@@ -3,6 +3,7 @@ import { getVideoBySlug } from "@/lib/queries/videos";
 import { localeSchema } from "@/lib/validations";
 import { handleApiError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
+import { storage } from "@/lib/blob";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -63,7 +64,10 @@ export async function GET(
        );
     }
 
-    return NextResponse.json({ success: true, data: video }, { status: 200 });
+    // Resolve signed download URLs for private blob store
+    const resolved = await storage.resolveVideoUrls(video);
+
+    return NextResponse.json({ success: true, data: resolved }, { status: 200 });
 
   } catch (error) {
     const apiErr = handleApiError(error);
