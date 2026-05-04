@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 import { buttonStyles } from "@/lib/styles";
 import { SUPPORTED_LOCALES, VIDEO_MODULE_SLUGS } from "@/lib/constants";
 import dynamic from "next/dynamic";
-import { upload } from "@vercel/blob/client";
 
 import { adminFetch } from "@/lib/adminFetch";
 import { handleClientError } from "@/lib/globalErrorHandler";
@@ -152,50 +151,80 @@ export default function VideoManagerScreen({
     }
   }, [buildMatrix]);
 
-  /* ── Upload via Vercel Blob Client ────────────── */
+  /* ── Upload via Server-Side Route ────────────── */
   const handleUpload = useCallback(
     async (file: File, title: string, description: string) => {
       if (!uploadPanel) return;
       const { slug, locale } = uploadPanel;
       const cellKey = getCellKey(slug, locale);
+
+      const xhr = new XMLHttpRequest();
       const abortController = new AbortController();
 
       setUploadProgress((prev) => ({
         ...prev,
-        [cellKey]: { progress: 0, fileName: file.name, abortController },
+        [cellKey]: { progress: 0, fileName: file.name, xhr, abortController },
       }));
 
+      // Build FormData for the server-side upload route
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("slug", slug);
+      formData.append("locale", locale);
+      formData.append("title", title);
+      formData.append("description", description);
+
       try {
-        const clientPayload = JSON.stringify({ slug, locale, title, description });
-        
-        await upload(file.name, file, {
-          access: 'public',
-          handleUploadUrl: '/api/admin/upload/token',
-          clientPayload,
-          multipart: true,
-          abortSignal: abortController.signal,
-          onUploadProgress: (progressEvent) => {
-            const total = file.size;
-            const pct = Math.round((progressEvent.loaded / total) * 100);
-            setUploadProgress((prev) => ({
-              ...prev,
-              [cellKey]: prev[cellKey]
-                ? { ...(prev[cellKey] as UploadProgressEntry), progress: Math.min(pct, 99) }
-                : null,
-            }));
-          },
+        await new Promise<void>((resolve, reject) => {
+          xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+              const pct = Math.round((e.loaded / e.total) * 100);
+              setUploadProgress((prev) => ({
+                ...prev,
+                [cellKey]: prev[cellKey]
+                  ? { ...(prev[cellKey] as UploadProgressEntry), progress: Math.min(pct, 99) }
+                  : null,
+              }));
+            }
+          };
+
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve();
+            } else {
+              let errorMsg = "Upload failed";
+              try {
+                const resp = JSON.parse(xhr.responseText);
+                errorMsg = resp.error || errorMsg;
+              } catch (_e) { /* ignore parse error */ }
+              reject(new Error(errorMsg));
+            }
+          };
+
+          xhr.onerror = () => reject(new Error("Network error during upload"));
+          xhr.onabort = () => {
+            const err = new Error("Upload cancelled");
+            err.name = "AbortError";
+            reject(err);
+          };
+
+          // Listen for abort from the abort controller
+          abortController.signal.addEventListener("abort", () => xhr.abort());
+
+          xhr.open("POST", "/api/admin/upload");
+          xhr.withCredentials = true;
+          xhr.send(formData);
         });
 
-        // The exact moment upload() resolves, the Vercel backend might still be inserting into DB. 
         setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
         addToast("Video uploaded successfully", "success");
         setTimeout(refreshStats, 1000);
       } catch (error: any) {
-        if (error.name === 'AbortError') {
+        if (error.name === "AbortError") {
           addToast("Upload cancelled", "warning");
         } else {
           handleClientError(error, "VideoManagerScreen - handleUpload");
-          addToast("Upload failed — please try again", "error");
+          addToast(error.message || "Upload failed — please try again", "error");
         }
         setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
       }
