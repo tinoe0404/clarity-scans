@@ -26,14 +26,22 @@ async function getVideoData(): Promise<{
   const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
 
   try {
-    const res = await fetch(`${protocol}://${host}/api/admin/videos?includeStats=true`, {
-      next: { revalidate: 60 },
-    });
-    if (!res.ok) return { grouped: {}, stats: null };
-    const json: VideosApiResponse = await res.json();
-    return json.success ? json.data : { grouped: {}, stats: null };
+    const { getAllVideos } = await import("@/lib/queries/videos");
+    const { storage } = await import("@/lib/blob");
+
+    const videos = await getAllVideos();
+
+    const grouped = videos.reduce((acc, video) => {
+      if (!acc[video.slug]) acc[video.slug] = [];
+      acc[video.slug].push(video);
+      return acc;
+    }, {} as Record<string, VideoRecord[]>);
+
+    const stats = await storage.getStorageStats();
+
+    return { grouped, stats };
   } catch (err) {
-    console.error("Video Manager Server Fetch Failed:", err);
+    console.error("Video Manager DB Fetch Failed:", err);
     return { grouped: {}, stats: null };
   }
 }
