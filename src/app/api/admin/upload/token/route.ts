@@ -47,7 +47,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         // We want to force the blob storage path to what we expect
         // Vercel Blob's handleUpload requires the token payload to authorize
         return {
-          allowedContentTypes: ['video/mp4', 'video/webm'],
+          allowedContentTypes: ['video/mp4', 'video/webm', 'video/quicktime'],
           tokenPayload: JSON.stringify({
             ...parsedPayload,
             userId: session.user.name,

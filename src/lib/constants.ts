@@ -1,9 +1,9 @@
 import { VideoSlug, Locale } from "@/types";
 
-export const MAX_VIDEO_SIZE_BYTES = 20 * 1024 * 1024; // 20MB
+export const MAX_VIDEO_SIZE_BYTES = 50 * 1024 * 1024; // 50MB
 export const MAX_THUMBNAIL_SIZE_BYTES = 500 * 1024; // 500KB
 
-export const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/webm"] as const;
+export const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"] as const;
 export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 
 export const FREE_TIER_LIMIT_BYTES = 250 * 1024 * 1024; // 250MB (Vercel Blob free tier)

@@ -63,7 +63,7 @@ export interface UploadVideoParams {
   file: Buffer | ReadableStream;
   locale: Locale;
   slug: VideoSlug;
-  contentType: "video/mp4" | "video/webm";
+  contentType: "video/mp4" | "video/webm" | "video/quicktime";
 }
 
 export interface UploadVideoResult {

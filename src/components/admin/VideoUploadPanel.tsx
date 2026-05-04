@@ -168,7 +168,7 @@ export default function VideoUploadPanel({
           <input
             ref={inputRef}
             type="file"
-            accept="video/mp4,video/webm"
+            accept="video/mp4,video/webm,video/quicktime"
             className="hidden"
             onChange={(e) => {
               const f = e.target.files?.[0];

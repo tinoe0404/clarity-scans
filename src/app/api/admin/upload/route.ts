@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       file,
       slug: slug as VideoSlug,
       locale: locale as Locale, 
-      contentType: mimeType as "video/mp4" | "video/webm",
+      contentType: mimeType as "video/mp4" | "video/webm" | "video/quicktime",
     });
 
     try {
