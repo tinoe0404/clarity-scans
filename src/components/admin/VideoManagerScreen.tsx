@@ -143,6 +143,10 @@ export default function VideoManagerScreen({
         setMatrix(buildMatrix(json.data.grouped));
         setStats(json.data.stats);
       }
+      // Also purge public-facing caches so patient pages stay in sync
+      adminFetch("/api/admin/revalidate", { method: "POST" }).catch(() => {
+        /* non-fatal */
+      });
     } catch (error) {
       handleClientError(error, "VideoManagerScreen - refreshStats");
     }
