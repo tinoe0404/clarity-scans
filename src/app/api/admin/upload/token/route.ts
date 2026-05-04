@@ -8,6 +8,8 @@ import { logUploadAction } from '@/lib/queries/uploadLog';
 import { del } from '@vercel/blob';
 import type { Locale } from '@/types';
 
+export const maxDuration = 60; // Allow enough time for onUploadCompleted webhook + DB writes
+
 export async function POST(request: Request): Promise<NextResponse> {
   const body = (await request.json()) as HandleUploadBody;
 
