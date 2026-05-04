@@ -81,18 +81,19 @@ export async function POST(request: Request): Promise<NextResponse> {
             success: true,
           });
 
-          // Revalidate cache
-          if (process.env.REVALIDATION_SECRET) {
-            try {
-              await fetch(new URL("/api/revalidate", request.url).toString(), {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token: process.env.REVALIDATION_SECRET }),
-              });
-            } catch (_e) {
-              /* Non-fatal */
+          // Revalidate cache directly (no HTTP loopback)
+          const { revalidatePath, revalidateTag } = await import("next/cache");
+          revalidatePath("/api/videos");
+          revalidatePath("/api/videos/[slug]", "page");
+          revalidatePath("/[locale]/modules", "page");
+          const locales = ["en", "sn", "nd"];
+          const slugs = ["what-is-ct", "prepare", "breathhold", "contrast", "staying-still"];
+          for (const loc of locales) {
+            for (const s of slugs) {
+              revalidatePath(`/${loc}/watch/${s}`, "page");
             }
           }
+          locales.forEach(loc => revalidateTag(`videos-${loc}`));
         } catch (error) {
           const errMsg = error instanceof Error ? error.message : "DB insertion failed";
           logger.error("Database tracking failed post-upload. Triggering cleanup.", {

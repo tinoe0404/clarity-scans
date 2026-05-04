@@ -5,18 +5,22 @@ import { handleApiError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 import { storage } from "@/lib/blob";
 import { upsertVideoSchema } from "@/lib/validations";
+import { revalidatePath, revalidateTag } from "next/cache";
 
-// Strict API Cache Webhook execution locally cleanly executing revalidate API without relying on HTTP Roundtrips natively
-async function triggerInternalRevalidation(secret: string) {
-   try {
-     await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/revalidate`, {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({ token: secret })
-     });
-   } catch {
-      logger.warn("Admin Revalidation Webhook internal failure.");
-   }
+const SUPPORTED_LOCALES = ["en", "sn", "nd"];
+const VIDEO_SLUGS = ["what-is-ct", "prepare", "breathhold", "contrast", "staying-still"];
+
+/** Directly purge Next.js caches without HTTP loopback */
+function purgePublicCaches() {
+  revalidatePath("/api/videos");
+  revalidatePath("/api/videos/[slug]", "page");
+  revalidatePath("/[locale]/modules", "page");
+  for (const loc of SUPPORTED_LOCALES) {
+    for (const slug of VIDEO_SLUGS) {
+      revalidatePath(`/${loc}/watch/${slug}`, "page");
+    }
+  }
+  SUPPORTED_LOCALES.forEach(loc => revalidateTag(`videos-${loc}`));
 }
 
 export async function GET(
@@ -66,9 +70,7 @@ export async function PATCH(
        return NextResponse.json({ success: false, error: "Not Found" }, { status: 404 });
     }
 
-    if (process.env.REVALIDATION_SECRET) {
-       await triggerInternalRevalidation(process.env.REVALIDATION_SECRET);
-    }
+    purgePublicCaches();
 
     return NextResponse.json({ success: true, data: updated });
 
@@ -109,12 +111,11 @@ export async function DELETE(
       }
     }
 
-    // Explicitly destroy Postgres keys natively bypassing Blob crashes fully cleanly guaranteeing DB alignments
+    // Delete from Postgres
     await deleteVideo(params.id);
 
-    if (process.env.REVALIDATION_SECRET) {
-      await triggerInternalRevalidation(process.env.REVALIDATION_SECRET);
-    }
+    // Directly purge all public-facing caches
+    purgePublicCaches();
 
     return NextResponse.json({ success: true, deleted: true });
 
