@@ -6,11 +6,8 @@ import { storage } from "@/lib/blob";
 import type { VideoRecord } from "@/types";
 import { MODULE_REGISTRY, mergeModuleData } from "@/lib/moduleRegistry";
 import ModulesScreen from "@/components/patient/ModulesScreen";
-import { LOCALES } from "@/types";
 
-export function generateStaticParams() {
-  return LOCALES.map((locale) => ({ locale }));
-}
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: { locale: string } }) {
   const t = await getTranslations({ locale: params.locale, namespace: "app" });

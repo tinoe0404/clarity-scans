@@ -6,21 +6,9 @@ import { getVideoBySlug } from "@/lib/queries/videos";
 import { storage } from "@/lib/blob";
 import { getModuleBySlug } from "@/lib/moduleRegistry";
 import type { VideoSlug, VideoRecord } from "@/types";
-import { LOCALES } from "@/types";
 import VideoPlayerScreen from "@/components/patient/VideoPlayerScreen";
 
-// 1. Fully static path generation enabling maximum offline delivery potential
-export function generateStaticParams() {
-  const slugs: VideoSlug[] = ["what-is-ct", "prepare", "breathhold", "contrast", "staying-still"];
-  const params: { locale: string; slug: string }[] = [];
-
-  for (const locale of LOCALES) {
-    for (const slug of slugs) {
-      params.push({ locale, slug });
-    }
-  }
-  return params;
-}
+export const dynamic = 'force-dynamic';
 
 // 2. Localized SEO & Shell mapping
 export async function generateMetadata({ params }: { params: { locale: string; slug: string } }) {

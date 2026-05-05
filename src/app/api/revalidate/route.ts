@@ -42,10 +42,12 @@ export async function POST(request: NextRequest) {
     revalidatePath("/api/videos/[slug]", "page");
 
     // 2. Purge Static Next.js Patient Layouts specifically
-    revalidatePath("/[locale]/modules", "page");
+    const SUPPORTED_LOCALES = ["en", "sn", "nd"];
+    for (const loc of SUPPORTED_LOCALES) {
+      revalidatePath(`/${loc}/modules`, "page");
+    }
 
     // 3. Purge Watch pages for every locale+slug combination
-    const SUPPORTED_LOCALES = ["en", "sn", "nd"];
     const VIDEO_SLUGS = ["what-is-ct", "prepare", "breathhold", "contrast", "staying-still"];
     for (const loc of SUPPORTED_LOCALES) {
       for (const slug of VIDEO_SLUGS) {

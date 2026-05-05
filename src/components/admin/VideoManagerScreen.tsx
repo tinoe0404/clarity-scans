@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useMemo } from "react";
+import { upload } from "@vercel/blob/client";
 
 import { CheckSquare, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -37,7 +38,6 @@ function parseCellKey(key: string): { slug: VideoSlug; locale: Locale } {
 interface UploadProgressEntry {
   progress: number;
   fileName: string;
-  xhr?: XMLHttpRequest;
   abortController?: AbortController;
 }
 
@@ -151,80 +151,63 @@ export default function VideoManagerScreen({
     }
   }, [buildMatrix]);
 
-  /* ── Upload via Server-Side Route ────────────── */
+  /* ── Upload via Direct Client-Side Blob Upload ── */
+  /* Uses @vercel/blob/client to upload directly from the browser to Vercel  */
+  /* Blob storage. This bypasses the 4.5MB Vercel serverless body size limit */
+  /* that was causing "upload failed" errors when the file finished sending. */
   const handleUpload = useCallback(
     async (file: File, title: string, description: string) => {
       if (!uploadPanel) return;
       const { slug, locale } = uploadPanel;
       const cellKey = getCellKey(slug, locale);
 
-      const xhr = new XMLHttpRequest();
       const abortController = new AbortController();
 
       setUploadProgress((prev) => ({
         ...prev,
-        [cellKey]: { progress: 0, fileName: file.name, xhr, abortController },
+        [cellKey]: { progress: 0, fileName: file.name, abortController },
       }));
 
-      // Build FormData for the server-side upload route
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("slug", slug);
-      formData.append("locale", locale);
-      formData.append("title", title);
-      formData.append("description", description);
-
       try {
-        await new Promise<void>((resolve, reject) => {
-          xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) {
-              const pct = Math.round((e.loaded / e.total) * 100);
-              setUploadProgress((prev) => ({
-                ...prev,
-                [cellKey]: prev[cellKey]
-                  ? { ...(prev[cellKey] as UploadProgressEntry), progress: Math.min(pct, 99) }
-                  : null,
-              }));
-            }
-          };
+        // The blob path where the video will be stored
+        const blobPath = `videos/${locale}/${slug}.mp4`;
 
-          xhr.onload = () => {
-            if (xhr.status >= 200 && xhr.status < 300) {
-              resolve();
-            } else {
-              let errorMsg = "Upload failed";
-              try {
-                const resp = JSON.parse(xhr.responseText);
-                errorMsg = resp.error || errorMsg;
-              } catch (_e) { /* ignore parse error */ }
-              reject(new Error(errorMsg));
-            }
-          };
-
-          xhr.onerror = () => reject(new Error("Network error during upload"));
-          xhr.onabort = () => {
-            const err = new Error("Upload cancelled");
-            err.name = "AbortError";
-            reject(err);
-          };
-
-          // Listen for abort from the abort controller
-          abortController.signal.addEventListener("abort", () => xhr.abort());
-
-          xhr.open("POST", "/api/admin/upload");
-          xhr.withCredentials = true;
-          xhr.send(formData);
+        // Direct client-side upload to Vercel Blob.
+        // - The browser sends the file directly to Vercel Blob (no serverless proxy)
+        // - Auth is handled by /api/admin/upload/token (onBeforeGenerateToken)
+        // - DB write is handled by /api/admin/upload/token (onUploadCompleted)
+        const blob = await upload(blobPath, file, {
+          access: "private",
+          handleUploadUrl: "/api/admin/upload/token",
+          clientPayload: JSON.stringify({ slug, locale, title, description }),
+          multipart: true,
+          abortSignal: abortController.signal,
+          onUploadProgress: (progressEvent) => {
+            const pct = Math.round(progressEvent.percentage);
+            setUploadProgress((prev) => ({
+              ...prev,
+              [cellKey]: prev[cellKey]
+                ? { ...(prev[cellKey] as UploadProgressEntry), progress: Math.min(pct, 99) }
+                : null,
+            }));
+          },
         });
+
+        if (!blob?.url) {
+          throw new Error("Upload completed but no URL was returned");
+        }
 
         setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
         addToast("Video uploaded successfully", "success");
-        setTimeout(refreshStats, 1000);
+        // Give the onUploadCompleted webhook time to write to the DB
+        setTimeout(refreshStats, 2500);
       } catch (error: any) {
         if (error.name === "AbortError") {
           addToast("Upload cancelled", "warning");
         } else {
           handleClientError(error, "VideoManagerScreen - handleUpload");
-          addToast(error.message || "Upload failed — please try again", "error");
+          const msg = error.message || "Upload failed — please try again";
+          addToast(msg, "error");
         }
         setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
       }
@@ -237,7 +220,6 @@ export default function VideoManagerScreen({
     (slug: VideoSlug, locale: Locale) => {
       const cellKey = getCellKey(slug, locale);
       const entry = uploadProgress[cellKey];
-      if (entry?.xhr) entry.xhr.abort();
       if (entry?.abortController) entry.abortController.abort();
       setUploadProgress((prev) => ({ ...prev, [cellKey]: null }));
     },

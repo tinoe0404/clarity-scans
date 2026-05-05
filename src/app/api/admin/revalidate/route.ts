@@ -20,8 +20,8 @@ export async function POST() {
   try {
     revalidatePath("/api/videos");
     revalidatePath("/api/videos/[slug]", "page");
-    revalidatePath("/[locale]/modules", "page");
     for (const loc of SUPPORTED_LOCALES) {
+      revalidatePath(`/${loc}/modules`, "page");
       for (const slug of VIDEO_SLUGS) {
         revalidatePath(`/${loc}/watch/${slug}`, "page");
       }
