@@ -47,8 +47,9 @@ export async function GET(request: NextRequest) {
     ];
 
     safeHeaders.forEach((header) => {
-      if (upstreamRes.headers.has(header)) {
-        outHeaders.set(header, upstreamRes.headers.get(header)!);
+      const val = upstreamRes.headers.get(header);
+      if (val !== null && val !== undefined) {
+        outHeaders.set(header, val);
       }
     });
     
