@@ -84,12 +84,16 @@ export function mergeModuleData(
     // 1. Find matching video for this exact slug + locale in DB records
     const matchedVideo = dbVideos.find((v) => v.slug === reg.slug && v.language === locale);
 
-    // 2. Determine visibility/existence
-    // Video exists AND is marked active via radiographer admin portal
-    const hasVideo = !!matchedVideo && matchedVideo.is_active;
+    // 2. Static fallback: always try the local public/videos/{locale}/{slug}.mp4 path
+    const staticUrl = `/videos/${locale}/${reg.slug}.mp4`;
 
-    // 3. Fallbacks
-    // If we have a video, take its explicit duration, else take the placeholder average.
+    // 3. Determine the blob URL: prefer DB record, then fall back to static file
+    const blobUrl = matchedVideo?.blob_url || staticUrl;
+
+    // 4. For sn/nd we always have static videos; for en we only have video if DB says so
+    const hasVideo = !!matchedVideo?.is_active || locale === "sn" || locale === "nd";
+
+    // 5. Duration from DB or default
     const durationSeconds = matchedVideo?.duration_seconds ?? reg.defaultDurationSeconds;
 
     const base = {
@@ -100,8 +104,8 @@ export function mergeModuleData(
       sortOrder: reg.sortOrder,
       durationSeconds,
       hasVideo,
-      blobUrl: hasVideo ? matchedVideo.blob_url : null,
-      thumbnailUrl: hasVideo ? matchedVideo.thumbnail_url : null,
+      blobUrl: hasVideo ? blobUrl : null,
+      thumbnailUrl: matchedVideo?.thumbnail_url ?? null,
       isWatched: false,
     };
 
