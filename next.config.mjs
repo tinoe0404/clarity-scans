@@ -21,6 +21,10 @@ const withPWA = withPWAInit({
             handler: 'NetworkOnly',
         },
         {
+            urlPattern: /\/api\/stream.*/i,
+            handler: 'NetworkOnly',
+        },
+        {
             urlPattern: /\.(?:mp4|webm)$/i,
             handler: 'NetworkOnly',
         },

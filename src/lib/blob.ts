@@ -1,4 +1,4 @@
-import { put, del, list, getDownloadUrl } from "@vercel/blob";
+import { put, del, list } from "@vercel/blob";
 import {
   Locale,
   VideoSlug,
@@ -160,17 +160,13 @@ export const storage = {
   },
 
   /**
-   * Generate a signed download URL for a private blob.
-   * Returns the original URL as fallback if generation fails.
+   * Generates a streamable Edge Proxy URL for a private blob.
+   * This allows inline streaming in <video> elements instead of forced downloads.
    */
   async resolveDownloadUrl(blobUrl: string): Promise<string> {
     if (!blobUrl || blobUrl === "PLACEHOLDER") return blobUrl;
-    try {
-      return await getDownloadUrl(blobUrl);
-    } catch {
-      // Fallback to raw URL if token generation fails
-      return blobUrl;
-    }
+    // Proxy through our high-performance Edge route which handles byte-ranges natively
+    return `/api/stream?url=${encodeURIComponent(blobUrl)}`;
   },
 
   /**
