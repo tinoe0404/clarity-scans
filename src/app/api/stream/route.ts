@@ -1,4 +1,4 @@
-import { get } from '@vercel/blob';
+import { getDownloadUrl } from '@vercel/blob';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'edge';
@@ -11,37 +11,44 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Forward the Range header to support seeking and partial content
-    const headers = new Headers();
+    // 1. Generate the short-lived signed download URL for the private blob
+    const downloadUrl = await getDownloadUrl(url);
+
+    // 2. Prepare headers for the upstream fetch, strictly forwarding the Range header
+    // This is absolutely critical for iOS/Safari video playback
+    const upstreamHeaders = new Headers();
     const range = request.headers.get('range');
     if (range) {
-      headers.set('range', range);
+      upstreamHeaders.set('range', range);
     }
 
-    const result = await get(url, {
-      access: 'private',
-      headers,
+    // 3. Fetch the actual video stream from the storage bucket
+    const upstreamRes = await fetch(downloadUrl, {
+      headers: upstreamHeaders,
     });
 
-    if (!result) {
-      return new NextResponse('Blob not found', { status: 404 });
+    if (!upstreamRes.ok && upstreamRes.status !== 206) {
+      console.error('Upstream fetch failed:', upstreamRes.status, upstreamRes.statusText);
+      return new NextResponse('Error fetching from storage', { status: upstreamRes.status });
     }
 
-    const outHeaders = new Headers();
-    result.headers.forEach((value, key) => {
-      outHeaders.set(key, value);
-    });
-
-    if (result.statusCode === 304) {
-      return new NextResponse(null, { status: 304, headers: outHeaders });
+    // 4. Sanitize the response headers
+    const outHeaders = new Headers(upstreamRes.headers);
+    
+    // CRITICAL: Remove the attachment disposition so the browser plays it inline!
+    outHeaders.delete('content-disposition');
+    
+    // Explicitly tell Safari that we support byte-range seeking
+    outHeaders.set('accept-ranges', 'bytes');
+    
+    // Optional: add cache control if missing
+    if (!outHeaders.has('cache-control')) {
+      outHeaders.set('cache-control', 'public, max-age=3600');
     }
 
-    // Determine correct status code based on Content-Range presence
-    const isPartialContent = result.headers.has('content-range');
-    const responseStatus = isPartialContent ? 206 : 200;
-
-    return new NextResponse(result.stream, {
-      status: responseStatus,
+    // 5. Pipe the readable stream back to the client
+    return new NextResponse(upstreamRes.body, {
+      status: upstreamRes.status, // Will correctly pass 206 Partial Content
       headers: outHeaders,
     });
   } catch (error) {
