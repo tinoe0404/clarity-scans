@@ -32,11 +32,37 @@ export default function VideoPlayer({
   const [showControls, setShowControls] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Buffering States
+  // Loading & Buffering States
   const [isWaiting, setIsWaiting] = useState(false);
+  const [isVideoReady, setIsVideoReady] = useState(false);
+  const [hasPlayedOnce, setHasPlayedOnce] = useState(false);
+  const [playRequested, setPlayRequested] = useState(false);
 
   // Throttling vars for timeupdate
   const lastTimeUpdateRef = useRef<number>(0);
+  const prevBlobUrlRef = useRef<string>(blobUrl);
+
+  // Reset loading state when video source changes (e.g. language switch)
+  useEffect(() => {
+    if (prevBlobUrlRef.current !== blobUrl) {
+      setIsVideoReady(false);
+      setHasPlayedOnce(false);
+      setPlayRequested(false);
+      setIsWaiting(false);
+      setCurrentTime(0);
+      setDuration(0);
+      prevBlobUrlRef.current = blobUrl;
+    }
+  }, [blobUrl]);
+
+  // Derive the loading overlay message
+  const showLoadingOverlay = isWaiting || (playRequested && !hasPlayedOnce);
+  const loadingMessage = (() => {
+    if (playRequested && !hasPlayedOnce) return "Loading video…";
+    if (isWaiting && isPlaying) return "Buffering…";
+    if (isWaiting) return "Loading…";
+    return "Loading…";
+  })();
 
   // Auto-hide controls mechanism
   const resetHideTimer = useCallback(() => {
@@ -67,8 +93,10 @@ export default function VideoPlayer({
     if (!videoRef.current) return;
 
     if (videoRef.current.paused) {
+      setPlayRequested(true);
       videoRef.current.play().catch((err) => {
         console.error("Autoplay/Play prevented", err);
+        setPlayRequested(false);
         onError("Playback could not be started.");
       });
     } else {
@@ -165,6 +193,7 @@ export default function VideoPlayer({
     }
     onError(msg);
     setIsWaiting(false);
+    setPlayRequested(false);
   };
 
   // Formatting utilities
@@ -238,6 +267,9 @@ export default function VideoPlayer({
         preload="auto"
         className="h-full w-full object-cover"
         onClick={togglePlay}
+        onCanPlay={() => {
+          setIsVideoReady(true);
+        }}
         onLoadedMetadata={() => {
           setDuration(videoRef.current?.duration || 0);
           setIsWaiting(false);
@@ -249,6 +281,8 @@ export default function VideoPlayer({
         onPlaying={() => {
           setIsPlaying(true);
           setIsWaiting(false);
+          setHasPlayedOnce(true);
+          setPlayRequested(false);
           // Kickstart the hide timer when play actually confirms executing
           if (hideControlsTimeoutRef.current) clearTimeout(hideControlsTimeoutRef.current);
           hideControlsTimeoutRef.current = setTimeout(() => setShowControls(false), 3000);
@@ -268,19 +302,34 @@ export default function VideoPlayer({
         aria-label="Educational video"
       />
 
-      {/* Buffering Spinner Overlay */}
-      {isWaiting && (
+      {/* Loading / Buffering Overlay */}
+      {showLoadingOverlay && (
         <div
-          className="absolute inset-0 z-20 flex items-center justify-center bg-black/20"
+          className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px]"
           role="status"
-          aria-label="Video loading"
+          aria-label={loadingMessage}
         >
-          <Spinner size="lg" className="text-white" />
+          {/* Pulsing ring + spinner */}
+          <div className="relative mb-4">
+            <div
+              className="absolute -inset-3 animate-ping rounded-full opacity-20"
+              style={{ backgroundColor: accentColor }}
+            />
+            <div
+              className="absolute -inset-3 animate-pulse rounded-full opacity-10"
+              style={{ backgroundColor: accentColor }}
+            />
+            <Spinner size="lg" className="relative text-white" />
+          </div>
+          <p className="text-sm font-medium text-white/90">{loadingMessage}</p>
+          {playRequested && !hasPlayedOnce && (
+            <p className="mt-1 text-xs text-white/50">Please wait while the video loads</p>
+          )}
         </div>
       )}
 
       {/* Optimized Next.js Thumbnail Poster Layer */}
-      {!isPlaying && currentTime === 0 && thumbnailUrl && (
+      {(!isVideoReady || (!isPlaying && currentTime === 0)) && thumbnailUrl && (
         <div className="absolute inset-0 z-10 bg-black pointer-events-none">
           <Image
             src={thumbnailUrl}
