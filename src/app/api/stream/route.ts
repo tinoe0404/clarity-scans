@@ -32,23 +32,48 @@ export async function GET(request: NextRequest) {
       return new NextResponse('Error fetching from storage', { status: upstreamRes.status });
     }
 
-    // 4. Sanitize the response headers
-    const outHeaders = new Headers(upstreamRes.headers);
+    // 4. Sanitize the response headers by strictly whitelisting safe video streaming headers.
+    // Blindly copying all upstream headers can include 'content-encoding: gzip' or 'transfer-encoding: chunked'
+    // which completely corrupts the binary video stream in the browser and causes "No supported sources" errors.
+    const outHeaders = new Headers();
     
-    // CRITICAL: Remove the attachment disposition so the browser plays it inline!
-    outHeaders.delete('content-disposition');
+    const safeHeaders = [
+      'content-type',
+      'content-length',
+      'content-range',
+      'accept-ranges',
+      'etag',
+      'last-modified'
+    ];
+
+    safeHeaders.forEach((header) => {
+      if (upstreamRes.headers.has(header)) {
+        outHeaders.set(header, upstreamRes.headers.get(header)!);
+      }
+    });
     
-    // Explicitly tell Safari that we support byte-range seeking
+    // Explicitly guarantee stream capabilities
     outHeaders.set('accept-ranges', 'bytes');
-    
-    // Optional: add cache control if missing
-    if (!outHeaders.has('cache-control')) {
-      outHeaders.set('cache-control', 'public, max-age=3600');
+    outHeaders.set('cache-control', 'public, max-age=3600');
+
+    // Guarantee Content-Type exists
+    if (!outHeaders.has('content-type')) {
+      const ext = url.split('.').pop()?.toLowerCase();
+      const cType = ext === 'webm' ? 'video/webm' : ext === 'mov' ? 'video/quicktime' : 'video/mp4';
+      outHeaders.set('content-type', cType);
+    }
+
+    // Ensure status code matches headers
+    let status = upstreamRes.status;
+    if (status === 206 && !outHeaders.has('content-range')) {
+      status = 200; // Correct it if the upstream lied
+    } else if (status === 200 && outHeaders.has('content-range')) {
+      status = 206; 
     }
 
     // 5. Pipe the readable stream back to the client
     return new NextResponse(upstreamRes.body, {
-      status: upstreamRes.status, // Will correctly pass 206 Partial Content
+      status: status,
       headers: outHeaders,
     });
   } catch (error) {
