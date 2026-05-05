@@ -61,6 +61,24 @@ export default async function WatchPage({ params }: WatchPageProps) {
     console.error("Database connection fault hitting /watch:", error);
   }
 
+  // Inject static videos for sn and nd if no DB record exists
+  if (!videoRecord && (locale === "sn" || locale === "nd")) {
+    videoRecord = {
+      id: "static",
+      slug: slugTarget,
+      language: locale,
+      blob_url: `/videos/${locale}/${slugTarget}.mp4`,
+      thumbnail_url: null,
+      title: "",
+      description: "",
+      duration_seconds: registryEntry.defaultDurationSeconds,
+      is_active: true,
+      created_at: new Date(),
+      updated_at: new Date(),
+      uploaded_by: "system"
+    } as VideoRecord;
+  }
+
   const t = await getTranslations({ locale });
   
   let title = videoRecord?.title;
