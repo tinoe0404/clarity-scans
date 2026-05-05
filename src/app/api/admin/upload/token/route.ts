@@ -24,8 +24,8 @@ export async function POST(request: Request): Promise<NextResponse> {
           throw new Error('Unauthorized');
         }
 
-        // Rate limit check
-        const limitStatus = enforceRateLimit(session.user.name, 10, 60 * 60 * 1000);
+        // Rate limit check - increased to 100 to allow batch uploads
+        const limitStatus = enforceRateLimit(session.user.name, 100, 60 * 60 * 1000);
         if (!limitStatus.success) {
           throw new Error('Upload rate limit exceeded');
         }
