@@ -35,6 +35,7 @@ export const storage = {
 
     try {
       const key = BlobPaths.video(locale, slug);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const blob = await put(key, file as any, {
         access: "public",
         contentType,
@@ -67,6 +68,7 @@ export const storage = {
 
     try {
       const key = BlobPaths.thumbnail(slug);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const blob = await put(key, file as any, {
         access: "public",
         contentType,
