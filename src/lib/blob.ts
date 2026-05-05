@@ -35,9 +35,8 @@ export const storage = {
 
     try {
       const key = BlobPaths.video(locale, slug);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const blob = await put(key, file as any, {
-        access: "private",
+        access: "public",
         contentType,
         multipart: true,
       });
@@ -68,9 +67,8 @@ export const storage = {
 
     try {
       const key = BlobPaths.thumbnail(slug);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const blob = await put(key, file as any, {
-        access: "private",
+        access: "public",
         contentType,
       });
 
@@ -160,13 +158,10 @@ export const storage = {
   },
 
   /**
-   * Generates a streamable Edge Proxy URL for a private blob.
-   * This allows inline streaming in <video> elements instead of forced downloads.
+   * Returns the direct public URL for the blob.
    */
   async resolveDownloadUrl(blobUrl: string): Promise<string> {
-    if (!blobUrl || blobUrl === "PLACEHOLDER") return blobUrl;
-    // Proxy through our high-performance Edge route which handles byte-ranges natively
-    return `/api/stream?url=${encodeURIComponent(blobUrl)}`;
+    return blobUrl;
   },
 
   /**

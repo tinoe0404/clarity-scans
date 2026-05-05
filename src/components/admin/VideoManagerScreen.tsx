@@ -177,7 +177,7 @@ export default function VideoManagerScreen({
         // - Auth is handled by /api/admin/upload/token (onBeforeGenerateToken)
         // - DB write is handled by /api/admin/upload/token (onUploadCompleted)
         const blob = await upload(blobPath, file, {
-          access: "private",
+          access: "public",
           handleUploadUrl: "/api/admin/upload/token",
           clientPayload: JSON.stringify({ slug, locale, title, description }),
           multipart: true,
