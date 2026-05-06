@@ -21,10 +21,10 @@ export const SUPPORTED_LOCALES: readonly Locale[] = ["en", "sn", "nd"] as const;
 
 export const BREATH_HOLD_REPS = 3;
 export const BREATH_HOLD_TIMING = {
-  inhale: 3000,
-  hold: 7000,
-  exhale: 3000,
-  rest: 3000,
+  inhale: 3,
+  hold: 7,
+  exhale: 3,
+  rest: 3,
 } as const;
 export const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 

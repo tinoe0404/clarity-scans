@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 interface BreathCircleProps {
-  phase: "idle" | "inhale" | "hold" | "exhale" | "complete";
+  phase: "idle" | "inhale" | "hold" | "exhale" | "rest" | "complete";
   countdown: number;
   label: string;
 }
@@ -30,6 +30,12 @@ const PHASE_CONFIG = {
     border: "border-indigo-500",
     scale: "scale-90",
     animate: "animate-breatheOut",
+  },
+  rest: {
+    emoji: "😌",
+    border: "border-slate-500/40",
+    scale: "scale-100",
+    animate: "",
   },
   complete: {
     emoji: "✅",

@@ -9,7 +9,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { BREATH_HOLD_REPS } from "@/lib/constants";
 import { addWatchedModule, getWatchedModules, getSessionId } from "@/lib/session";
 import { useBreathHoldTrainer } from "@/hooks/useBreathHoldTrainer";
-import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
+import { useBreathAudio } from "@/hooks/useBreathAudio";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
@@ -40,7 +40,7 @@ export default function BreathHoldScreen({ locale }: BreathHoldScreenProps) {
     setEnabled,
     speak,
     cancel: cancelSpeech,
-  } = useSpeechSynthesis(locale);
+  } = useBreathAudio(locale);
 
   // 2. FSM Logic Mapping
   const trainer = useBreathHoldTrainer({
@@ -68,16 +68,16 @@ export default function BreathHoldScreen({ locale }: BreathHoldScreenProps) {
 
       switch (phase) {
         case "inhale":
-          speak((t as any).raw("breathhold.inhale"));
+          speak((t as any).raw("breathhold.inhale"), "inhale");
           break;
         case "hold":
-          speak((t as any).raw("breathhold.hold"));
+          speak((t as any).raw("breathhold.hold"), "hold");
           break;
         case "exhale":
-          speak((t as any).raw("breathhold.exhale"));
+          speak((t as any).raw("breathhold.exhale"), "exhale");
           break;
         case "complete":
-          speak((t as any).raw("breathhold.complete"));
+          speak((t as any).raw("breathhold.complete"), "complete");
           break;
       }
     },
@@ -149,7 +149,7 @@ export default function BreathHoldScreen({ locale }: BreathHoldScreenProps) {
         {(trainer.state === "running" || trainer.state === "resting") && (
           <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center py-8">
             <BreathCircle
-              phase={trainer.breathPhase as any}
+              phase={trainer.breathPhase}
               countdown={trainer.countdown}
               label={currentPhaseLabel}
             />
