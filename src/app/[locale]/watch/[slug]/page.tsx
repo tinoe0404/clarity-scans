@@ -61,8 +61,8 @@ export default async function WatchPage({ params }: WatchPageProps) {
     console.error("Database connection fault hitting /watch:", error);
   }
 
-  // Inject static videos for sn and nd if no DB record exists
-  if (!videoRecord && (locale === "sn" || locale === "nd")) {
+  // Inject static videos for all locales if no DB record exists
+  if (!videoRecord) {
     videoRecord = {
       id: "static",
       slug: slugTarget,

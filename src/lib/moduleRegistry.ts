@@ -90,8 +90,8 @@ export function mergeModuleData(
     // 3. Determine the blob URL: prefer DB record, then fall back to static file
     const blobUrl = matchedVideo?.blob_url || staticUrl;
 
-    // 4. For sn/nd we always have static videos; for en we only have video if DB says so
-    const hasVideo = !!matchedVideo?.is_active || locale === "sn" || locale === "nd";
+    // 4. We now have static videos for all locales (en, sn, nd)
+    const hasVideo = true;
 
     // 5. Duration from DB or default
     const durationSeconds = matchedVideo?.duration_seconds ?? reg.defaultDurationSeconds;
